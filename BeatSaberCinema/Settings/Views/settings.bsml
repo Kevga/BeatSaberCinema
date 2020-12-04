@@ -1,0 +1,9 @@
+<!--suppress CheckTagEmptyBody -->
+<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+                    xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+    <bool-setting apply-on-change="true" text='Play videos' value='show-video'
+                      hover-hint='Enable or disable video playback'></bool-setting>
+	<bool-setting apply-on-change="true" text='Force "Big Mirror" environment' value='override-environment'
+				  hover-hint='Force the use of the Big Mirror environment for songs with videos.&#xD;&#xA;&#xD;&#xA;Looks far better than most other environments in combination with Cinema.'></bool-setting>
+    <dropdown-list-setting apply-on-change="true" text='Download Quality' value='quality' options='modes'></dropdown-list-setting>
+</settings-container>
