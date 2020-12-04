@@ -190,8 +190,8 @@ namespace BeatSaberCinema
 			}
 			catch (Exception exception)
 			{
-				if (exception.Message != "The operation completed successfully" &&
-				    exception.Message != "No process is associated with this object")
+				if (exception.Message.Contains("The operation completed successfully") &&
+				    exception.Message.Contains("No process is associated with this object."))
 				{
 					Plugin.Logger.Warn(exception);
 				}
