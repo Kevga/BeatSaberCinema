@@ -266,7 +266,12 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		public void SearchAction()
 		{
-			ShowKeyboard();
+			if (_currentLevel == null)
+			{
+				Plugin.Logger.Warn("Selected level was null on search action");
+				return;
+			}
+			OnQueryAction(_currentLevel.songName + " - " + _currentLevel.songAuthorName);
 		}
 
 		private IEnumerator UpdateSearchResults(DownloadController.YTResult result)
@@ -435,7 +440,7 @@ namespace BeatSaberCinema
 		private IEnumerator SearchLoadingCoroutine()
 		{
 			var count = 0;
-			const string loadingText = "Searching for videos";
+			const string loadingText = "Searching for videos, please wait";
 			_searchResultsLoadingText.gameObject.SetActive(true);
 
 			//Loading animation

@@ -47,7 +47,7 @@
             <list pad-top='3' id='video-list' list-width='100' visible-cells='4' select-cell='on-select-cell'/>
             <page-button click-event='video-list#PageDown' direction='Down' preferred-width='25' preferred-height='4'/>
         </vertical>
-        <text id='search-results-loading' active='false' font-size='2' text='Loading Results...' align='Center' anchor-pos-y='5'/>
+        <text id='search-results-loading' active='false' font-size='3' text='Loading Results...' align='Center' anchor-pos-y='5'/>
         <modal-keyboard id='search-keyboard' on-enter='on-query' clear-on-open='false' show-event='show-keyboard'
                         hide-event='hide-keyboard' move-to-center='true' click-off-closes='true'/>
         <horizontal pad-top='50'>
