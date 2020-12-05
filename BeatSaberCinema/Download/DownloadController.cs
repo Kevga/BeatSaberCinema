@@ -38,7 +38,23 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private bool DownloadInProgress => _downloadProcess != null && !_downloadProcess.HasExited;
+		private bool DownloadInProgress
+		{
+			get
+			{
+				try
+				{
+					return _downloadProcess != null && !_downloadProcess.HasExited;
+				}
+				catch (Exception e)
+				{
+					Plugin.Logger.Debug(e);
+				}
+
+				return false;
+			}
+		}
+
 		public event Action<VideoConfig>? DownloadProgress;
 		public event Action<VideoConfig>? DownloadFinished;
 		public event Action<YTResult>? SearchProgress;
