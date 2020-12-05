@@ -258,7 +258,7 @@ namespace BeatSaberCinema
 
 		public void Unmute()
 		{
-			Volume = 0.8f;
+			Volume = 0.65f;
 		}
 	}
 }

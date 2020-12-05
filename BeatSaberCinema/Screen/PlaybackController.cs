@@ -409,6 +409,7 @@ namespace BeatSaberCinema
 
 					_activeAudioSource = _songPreviewAudioSources[activeChannel];
 					_activeAudioSource.panStereo = pan;
+					_activeAudioSource.volume = 0.65f;
 				}
 			}
 			catch (Exception e)
