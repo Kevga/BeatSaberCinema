@@ -120,6 +120,7 @@ namespace BeatSaberCinema
 			{
 				Plugin.Logger.Debug("Preview AudioSource detected to have stopped playing");
 				StopPreview(false);
+				VideoMenu.instance.SetupVideoDetails();
 				PrepareVideo(_currentVideo);
 			}
 
@@ -209,7 +210,6 @@ namespace BeatSaberCinema
 			}
 
 			IsPreviewPlaying = false;
-			VideoMenu.instance.SetupVideoDetails();
 
 			SetAudioSourcePanning(0f); //0f is neutral
 			_videoPlayer.Mute();
