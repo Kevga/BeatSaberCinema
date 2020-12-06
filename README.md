@@ -12,6 +12,7 @@ The plugin includes more than 30 video configurations for you to try. You can do
 - [JVNA - Catch Me \[nitronik.exe\]](https://beatsaver.com/beatmap/bc4e)
 - [Yorushika - Say It \[squeaksies\]](https://beatsaver.com/beatmap/4a21)
 - [Dreamcatcher - Scream \[noxn; simplymarvellous; aggrogahu\]](https://beatsaver.com/beatmap/8d49)
+- [K/DA - MORE \[DACK\]](https://beatsaver.com/beatmap/1059c)
 
 After that, select a song in-game and to your left, select "Mods" from the menu. Look for the tab "Cinema", which should look like this:
 
@@ -41,9 +42,11 @@ Additionally, this plugin **conflicts** with:
 
 ### JSON Format
 
-**This section is intended for mappers**
+*This section is intended for mappers*
 
 The video configuration will be stored in the same folder as the map itself, in a file called **cinema-video.json**. If you are a mapper, you can include the json file in the zip you upload to BeatSaver. Editing the json file by hand allows you to modify some settings that are not available in-game, for example to create a custom screen placement. Cinema includes the ability to change any object in the game scene, to better fit the video screen.
+
+Please note that currently you have to close the game before editing the json file, as otherwise the plugin will overwrite your changes. This may change in the future.
 
 The following table lists the currently available configuration options:
 
@@ -53,7 +56,7 @@ The following table lists the currently available configuration options:
 | `title`                    | `string`  | Untitled Video   | no       | Madeon - The Prince (Visual Video) | The title of the video |
 | `author`                   | `string`  | Unknown Author   | no       | Chris P | The name of the video's uploader |
 | `duration`                 | `int`     | 0                | **yes**  | 225 | Video duration in **seconds** |
-| `offset`                   | `int`     | 0                | **yes**  | -1100 | The offset to align the video with the map. Use the video menu in-game to determine the offset. |
+| `offset`                   | `int`     | 0                | **yes**  | -1100 | The offset in **milliseconds** to align the video with the map. Use the video menu in-game to determine the offset. |
 | `formatVersion`            | `int`     | 1                | no       | 1 | The file format version. Always leave at the default. May be used in the future to convert older configs in case the format changes drastically. |
 | `loop`                     | `bool`    | false            | no       | false | Whether the video should loop if it ends before the map does. |
 | `configByMapper`           | `bool`    | false            | no       | false | Used to indicate whether the config was created by the mapper. May in the future be used to mark it as the "official" config. |
