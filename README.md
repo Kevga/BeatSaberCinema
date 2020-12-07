@@ -31,7 +31,6 @@ The following plugins are **required** for Cinema to work:
 - BSIPA
 - BeatSaberMarkupLanguage
 - BS Utils
-- SongCore
 - CustomJSONData
 
 You can find all of these in ModAssistant.

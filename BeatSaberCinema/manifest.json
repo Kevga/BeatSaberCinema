@@ -10,7 +10,6 @@
 		"BSIPA": "^4.1.3",
 		"BeatSaberMarkupLanguage": "^1.4.0",
 		"BS Utils": "^1.6.0",
-		"SongCore": "^3.0.0",
 		"CustomJSONData": "^1.1.0"
 	},
 	"conflictsWith": {

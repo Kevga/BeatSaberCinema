@@ -64,9 +64,6 @@
 		<Reference Include="BGNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
 			<HintPath>$(GameDirPath)\Beat Saber_Data\Managed\BGNet.dll</HintPath>
 		</Reference>
-        <Reference Include="SongCore, Version=3.0.2.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>$(GameDirPath)\Plugins\SongCore.dll</HintPath>
-        </Reference>
 		<Reference Include="CustomJSONData">
 			<HintPath>$(GameDirPath)\Plugins\CustomJSONData.dll</HintPath>
 		</Reference>
@@ -194,7 +191,6 @@
 		<EmbeddedResource Include="Settings\Views\settings.bsml" />
 		<EmbeddedResource Include="Resources\trash.png" />
 		<EmbeddedResource Include="Resources\configs.json" />
-		<EmbeddedResource Include="Resources\mvp.bundle" />
 		<EmbeddedResource Include="Resources\bscinema.bundle" />
 		<EmbeddedResource Include="VideoMenu\Views\video-menu.bsml" />
 	</ItemGroup>
