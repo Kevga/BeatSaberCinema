@@ -4,7 +4,7 @@ A Beat Saber plugin that allows you to sync up videos to play alongside your map
 
 ### How to use
 
-The plugin includes more than 30 video configurations for you to try. You can download some of the pre-configured levels, a selection of which you can find below:
+The plugin includes more than 50 video configurations for you to try. You can download some of the pre-configured levels, a selection of which you can find below:
 
 - [Madeon - The Prince \[Bearly & dgrj4life\]](https://beatsaver.com/beatmap/110ac)
 - [2WEI feat. Edda Hayes - Warriors \[halcyon12\]](https://beatsaver.com/beatmap/8e98)
@@ -14,9 +14,11 @@ The plugin includes more than 30 video configurations for you to try. You can do
 - [Dreamcatcher - Scream \[noxn; simplymarvellous; aggrogahu\]](https://beatsaver.com/beatmap/8d49)
 - [K/DA - MORE \[DACK\]](https://beatsaver.com/beatmap/1059c)
 
+Because of popular demand, you can find a full list (without download links) [here](Resources/bundled-configs.txt). Please note however, that you can add a video to any map you like.
+
 After that, select a song in-game and to your left, select "Mods" from the menu. Look for the tab "Cinema", which should look like this:
 
-![Video Menu Screenshot](Images/video-menu.png)
+![Video Menu Screenshot](Resources/video-menu.png)
 
 Click download in the center of the menu and wait for the download to complete, then simply play the map. If the download takes too long for you, you can lower the video quality from the main menu settings.
 
@@ -54,6 +56,7 @@ The following table lists the currently available configuration options:
 | `videoID`                  | `string`  | *none*           | **yes**  | _qwnHeMKbVA | The YouTube video ID from the URL, e.g.: `https://youtube.com/watch?v=_qwnHeMKbVA` |
 | `title`                    | `string`  | Untitled Video   | no       | Madeon - The Prince (Visual Video) | The title of the video |
 | `author`                   | `string`  | Unknown Author   | no       | Chris P | The name of the video's uploader |
+| `videoFile`                | `string`  | *none*           | no       | Madeon - The Prince (Visual Video).mp4 | Name of the video file on the local file system. Path is not included, the file is assumed to be in the map's folder. Will be set automatically after downloading and set to the title of the video, with illegal characters replaced by `_`. |
 | `duration`                 | `int`     | 0                | **yes**  | 225 | Video duration in **seconds** |
 | `offset`                   | `int`     | 0                | **yes**  | -1100 | The offset in **milliseconds** to align the video with the map. Use the video menu in-game to determine the offset. |
 | `formatVersion`            | `int`     | 1                | no       | 1 | The file format version. Always leave at the default. May be used in the future to convert older configs in case the format changes drastically. |
@@ -66,7 +69,9 @@ The following table lists the currently available configuration options:
 
 There is an additional property called `environment` which can be used to alter other objects in the game scene. More details on that coming soon.
 
-Here is an example config that uses some of the more advanced settings, including `environemnt` modifications:
+When editing the json file by hand, make sure to use a json validator to check for errors afterwards. You can find web apps for this on your search engine of choice.
+
+Here is an example config that uses some of the more advanced settings, including `environment` modifications:
 
 ```
 {
@@ -104,6 +109,42 @@ Here is an example config that uses some of the more advanced settings, includin
     }
   ]
 }
+```
+
+### Playing local files not found on YouTube
+
+If you want to play videos that are not found on YouTube in a map, you'll have to create a config by hand. You can use the template below and edit the entries, see the section about the JSON format above for reference. Make sure to use a JSON validator afterwards to find errors if there are any.
+
+The *Video ID* is currently required, but obviously doesn't exist if the video is not found on YouTube. It will be used to display the thumbnail of the video inside the game. You can either leave it empty, in which case the thumbnail will be missing, or you can find a related video on YouTube with a thumbnail that fits your video and enter that video's ID.
+
+The video file will need to be in the folder of the map. For the supported video codecs and file formats, please refer to the Windows Media Foundation documentation:
+https://docs.microsoft.com/en-us/windows/win32/medfound/supported-media-formats-in-media-foundation
+https://docs.microsoft.com/en-us/windows/win32/medfound/h-265---hevc-video-decoder#format-constraints
+
+Template for local videos:
+```
+{
+  "videoID": "Please read above",
+  "title": "Video title goes here",
+  "author": "Author goes here",
+  "videoFile": "filename.mp4",
+  "duration": 0,
+  "offset": 0
+}
+```
+
+### Contributing
+
+I'd happily accept pull requests if you want to help out. To set up the development environment, create a file called `BeatSaberCinema.csproj.user` with the following content, and change the path where your Beat Saber installation is located, if necessary:
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- Change this path if necessary -->
+    <GameDirPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber</GameDirPath>
+  </PropertyGroup>
+</Project>
 ```
 
 ### Special thanks
