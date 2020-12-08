@@ -1,52 +1,63 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace BeatSaberCinema
 {
 	public class Screen: MonoBehaviour
 	{
-		private readonly GameObject _screenSurface;
+		private readonly GameObject _screenGameObject;
+		private readonly GameObject _screenBodyGameObject;
+		private readonly CurvedSurface _screenSurface;
 		private readonly Renderer _screenRenderer;
-		private readonly GameObject _screenBody;
+		private CurvedSurface _screenBodySurface = null!;
+		private readonly CustomBloomPrePass _screenBloomPrePass;
 
 		public Screen()
 		{
-			_screenSurface = GameObject.CreatePrimitive(PrimitiveType.Quad);
-			_screenSurface.name = "CinemaScreen";
-			_screenSurface.layer = LayerMask.NameToLayer("Environment"); //Causes screen to be reflected on the ground
-			_screenRenderer = _screenSurface.GetComponent<Renderer>();
-			_screenBody = CreateBody();
-			_screenSurface.AddComponent<CustomBloomPrePass>();
+			_screenGameObject = new GameObject("CinemaScreen");
+			_screenSurface = _screenGameObject.AddComponent<CurvedSurface>();
+			_screenGameObject.layer = LayerMask.NameToLayer("Environment");
+			_screenRenderer = _screenGameObject.GetComponent<Renderer>();
+			_screenBodyGameObject = CreateBody();
+			_screenBloomPrePass = _screenGameObject.AddComponent<CustomBloomPrePass>();
+
+			Hide();
 		}
 
 		private GameObject CreateBody()
 		{
-			GameObject body = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            if (body.GetComponent<Collider>() != null)
-            {
-	            Destroy(body.GetComponent<Collider>());
-            }
-
-            body.name = "CinemaScreenBody";
-            body.transform.parent = _screenSurface.transform;
-            body.transform.localPosition = new Vector3(0, 0, 1f);
-            body.transform.localScale = new Vector3(1.05f, 1.05f, 1f);
-            Renderer bodyRenderer = body.GetComponent<Renderer>();
-            bodyRenderer.material = new Material(Resources.FindObjectsOfTypeAll<Material>()
-                .Last(x => x.name == "DarkEnvironmentSimple"));
-            body.layer = LayerMask.NameToLayer("Environment");
-
-            return body;
+			GameObject body = new GameObject("CinemaScreenBody");
+			_screenBodySurface = body.AddComponent<CurvedSurface>();
+			body.transform.parent = _screenGameObject.transform;
+			body.transform.localPosition = new Vector3(0, 0, 0.01f);
+			Renderer bodyRenderer = body.GetComponent<Renderer>();
+			bodyRenderer.material = new Material(Resources.FindObjectsOfTypeAll<Material>()
+				.Last(x => x.name == "DarkEnvironmentSimple"));
+			body.layer = LayerMask.NameToLayer("Environment");
+			return body;
 		}
 
 		public void Show()
 		{
-			_screenSurface.SetActive(true);
+			_screenGameObject.SetActive(true);
 		}
 
 		public void Hide()
 		{
-			_screenSurface.SetActive(false);
+			_screenGameObject.SetActive(false);
+		}
+
+		public void ShowBody()
+		{
+			Plugin.Logger.Debug("Showing body");
+			_screenBodyGameObject.SetActive(true);
+		}
+
+		public void HideBody()
+		{
+			Plugin.Logger.Debug("Hiding body");
+			_screenBodyGameObject.SetActive(false);
 		}
 
 		public Renderer GetRenderer()
@@ -56,25 +67,42 @@ namespace BeatSaberCinema
 
 		public void SetTransform(Transform parentTransform)
 		{
-			_screenSurface.transform.parent = parentTransform;
+			_screenGameObject.transform.parent = parentTransform;
 		}
 
-		public void SetPlacement(Vector3 pos, Vector3 rot, Vector3 scale)
+		public void SetPlacement(Vector3 pos, Vector3 rot, float width, float height, float? curvatureDegrees)
 		{
-			_screenSurface.transform.position = pos;
-			_screenSurface.transform.eulerAngles = rot;
-			_screenSurface.transform.localScale = scale;
+			_screenGameObject.transform.position = pos;
+			_screenGameObject.transform.eulerAngles = rot;
+			InitializeSurfaces(width, height, pos.z, curvatureDegrees);
+		}
+
+		public void InitializeSurfaces(float width, float height, float distance, float? curvatureDegrees)
+		{
+			_screenSurface.Initialize(width, height, distance, curvatureDegrees);
+			_screenBodySurface.Initialize(width+0.15f, height+0.05f, distance+0.05f, curvatureDegrees);
+		}
+
+		public void RegenerateScreenSurfaces()
+		{
+			_screenSurface.Generate();
+			_screenBodySurface.Generate();
+			_screenBloomPrePass.UpdateMesh();
+		}
+
+		public void SetDistance(float distance)
+		{
+			var currentPos = _screenGameObject.transform.position;
+			_screenGameObject.transform.position = new Vector3(currentPos.x, currentPos.y, distance);
+			_screenSurface.Distance = distance;
+			_screenBodySurface.Distance = distance;
 		}
 
 		public void SetAspectRatio(float ratio)
 		{
-			var localScale = _screenSurface.transform.localScale;
-			localScale =
-				new Vector3(
-					localScale.y * ratio,
-					localScale.y,
-					localScale.z);
-			_screenSurface.transform.localScale = localScale;
+			_screenSurface.Width = _screenSurface.Height * ratio;
+			_screenBodySurface.Width = _screenSurface.Height * ratio;
+			RegenerateScreenSurfaces();
 		}
 	}
 }

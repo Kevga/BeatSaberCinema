@@ -22,10 +22,12 @@ namespace BeatSaberCinema
 		public int formatVersion = CURREN_FORMAT_VERSION;
 		public bool loop;
 		public bool? configByMapper;
+		public bool? transparency;
 
 		public SerializableVector3? screenPosition;
 		public SerializableVector3? screenRotation;
 		public float? screenHeight;
+		public float? screenCurvature;
 		public bool? disableBigMirrorOverride;
 
 		public EnvironmentModification[]? environment;

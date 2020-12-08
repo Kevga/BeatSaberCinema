@@ -36,6 +36,36 @@ namespace BeatSaberCinema
 	        set => SettingsStore.Instance.OverrideEnvironment = value;
         }
 
+        [UIValue("curved-screen")]
+        public bool CurvedScreen
+        {
+	        get => SettingsStore.Instance.CurvedScreen;
+	        set
+	        {
+		        SettingsStore.Instance.CurvedScreen = value;
+		        PlaybackController.Instance.SetMenuPlacement();
+	        }
+        }
+
+        [UIValue("transparency-enabled")]
+        public bool TransparencyEnabled
+        {
+	        get => SettingsStore.Instance.TransparencyEnabled;
+	        set
+	        {
+		        SettingsStore.Instance.TransparencyEnabled = value;
+		        if (value)
+		        {
+			        PlaybackController.Instance.HideScreenBody();
+		        }
+		        else
+		        {
+			        PlaybackController.Instance.ShowScreenBody();
+		        }
+
+	        }
+        }
+
         [UIValue("quality")]
         public string QualityMode
         {

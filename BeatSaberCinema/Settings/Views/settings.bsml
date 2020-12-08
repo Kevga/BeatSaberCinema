@@ -3,7 +3,11 @@
                     xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
     <bool-setting apply-on-change="true" text='Play videos' value='show-video'
                       hover-hint='Enable or disable video playback'></bool-setting>
+	<dropdown-list-setting apply-on-change="true" text='Download Quality' value='quality' options='modes'></dropdown-list-setting>
 	<bool-setting apply-on-change="true" text='Force "Big Mirror" environment' value='override-environment'
 				  hover-hint='Force the use of the Big Mirror environment for songs with videos.&#xD;&#xA;&#xD;&#xA;Looks far better than most other environments in combination with Cinema.'></bool-setting>
-    <dropdown-list-setting apply-on-change="true" text='Download Quality' value='quality' options='modes'></dropdown-list-setting>
+	<bool-setting apply-on-change="true" text='Curved screen' value='curved-screen'
+				  hover-hint='Curves the screen slightly towards you based on the distance.&#xD;&#xA;&#xD;&#xA;Even if disabled some maps may curve the screen, depending on map config.'></bool-setting>
+	<bool-setting apply-on-change="true" text='Transparent screen' value='transparency-enabled'
+				  hover-hint='Enables you to see through the screen. The darker the screen, the more transparent it becomes.&#xD;&#xA;&#xD;&#xA;Does not look good with all maps and environments.'></bool-setting>
 </settings-container>

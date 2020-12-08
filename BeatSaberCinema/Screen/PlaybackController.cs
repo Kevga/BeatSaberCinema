@@ -71,6 +71,21 @@ namespace BeatSaberCinema
 			_videoPlayer.Hide();
 		}
 
+		public void ShowScreenBody()
+		{
+			_videoPlayer.ShowScreenBody();
+		}
+
+		public void HideScreenBody()
+		{
+			_videoPlayer.HideScreenBody();
+		}
+
+		public void SetMenuPlacement()
+		{
+			_videoPlayer.SetMenuPlacement();
+		}
+
 		public void PauseVideo()
 		{
 			StopAllCoroutines();
@@ -425,6 +440,16 @@ namespace BeatSaberCinema
 			}
 
 			_videoPlayer.Show();
+			if ((_currentVideo.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
+			    (_currentVideo.transparency != null && !_currentVideo.transparency.Value))
+			{
+				_videoPlayer.ShowScreenBody();
+			}
+			else
+			{
+				_videoPlayer.HideScreenBody();
+			}
+
 			_videoPlayer.OutOfSyncFrames = 0;
 
 			var totalOffset = _currentVideo.GetOffsetInSec();
@@ -570,6 +595,11 @@ namespace BeatSaberCinema
 		public void StopPlayback()
 		{
 			_videoPlayer.Stop();
+		}
+
+		public void UpdateScreenDistance(float value)
+		{
+			_videoPlayer.UpdateScreenDistance(value);
 		}
 	}
 }

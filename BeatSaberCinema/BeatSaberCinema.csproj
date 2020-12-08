@@ -166,6 +166,7 @@
         <Compile Include="HarmonyPatches\EnvironmentOverridePatch.cs" />
         <Compile Include="HarmonyPatches\MultiplayerPatch.cs" />
         <Compile Include="Plugin.cs" />
+        <Compile Include="Screen\CurvedSurface.cs" />
         <Compile Include="Screen\CustomBloomPrePass.cs" />
         <Compile Include="Screen\CustomVideoPlayer.cs" />
         <Compile Include="Screen\Screen.cs" />

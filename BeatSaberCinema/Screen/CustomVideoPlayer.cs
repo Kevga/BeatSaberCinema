@@ -10,14 +10,19 @@ namespace BeatSaberCinema
 	{
 		public VideoPlayer Player { get; }
 		private readonly AudioSource _videoPlayerAudioSource;
-		private readonly Screen _screen;
+		private Screen _screen = null!;
 		private readonly Renderer _screenRenderer;
 		private Shader _glowShader = null!;
 
-		private readonly Vector3 _gameplayPosition = new Vector3(0, 12.40f, 68);
-		private readonly Vector3 _menuPosition = new Vector3(0, 12.40f, 56);
-		private readonly Vector3 _gameplayRotation = new Vector3(352, 0, 0);
-		private readonly Vector3 _gameplayScale = new Vector3(1, 25, 0.1f);
+		private readonly Vector3 _defaultGameplayPosition = new Vector3(0, 12.4f, 67.8f);
+		private readonly Vector3 _defaultGameplayRotation = new Vector3(-8, 0, 0);
+		private readonly float _defaultGameplayHeight = 25;
+
+		private readonly Vector3 _menuPosition = new Vector3(0, 3.90f, 16);
+		private readonly Vector3 _menuRotation = new Vector3(0, 0, 0);
+		private readonly float _menuHeight = 8;
+
+
 
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
 
@@ -67,7 +72,7 @@ namespace BeatSaberCinema
 
 		public CustomVideoPlayer()
 		{
-			_screen = CreateScreen();
+			CreateScreen();
 			_screenRenderer = _screen.GetRenderer();
 			_screenRenderer.material = new Material(GetShader()) {color = _screenColorOff};
 			if (_glowShader == null)
@@ -101,24 +106,22 @@ namespace BeatSaberCinema
 			BSEvents.gameSceneLoaded += OnGameSceneLoaded;
 		}
 
-		private Screen CreateScreen()
+		private void CreateScreen()
 		{
-			var screen =  gameObject.AddComponent<Screen>();
-			screen.SetTransform(transform);
-			screen.SetPlacement(_menuPosition, _gameplayRotation, _gameplayScale);
-			screen.Show();
-
-			return screen;
+			_screen =  gameObject.AddComponent<Screen>();
+			_screen.SetTransform(transform);
+			_screen.Show();
+			OnMenuSceneLoaded();
 		}
 
 		private void OnMenuSceneLoaded()
 		{
-			SetPlacement(_menuPosition, _gameplayRotation, _gameplayScale.y);
+			SetMenuPlacement();
 		}
 
 		private void OnGameSceneLoaded()
 		{
-			SetPlacement(_gameplayPosition, _gameplayRotation, _gameplayScale.y);
+			SetPlacement(_defaultGameplayPosition, _defaultGameplayRotation, _defaultGameplayHeight);
 		}
 
 		private Shader GetShader()
@@ -155,12 +158,22 @@ namespace BeatSaberCinema
 			IsSyncing = false;
 		}
 
-		public void SetPlacement(SerializableVector3? position, SerializableVector3? rotation, float? height)
+		public void SetMenuPlacement()
+		{
+			SetPlacement(_menuPosition, _menuRotation, _menuHeight);
+			RegenerateScreen();
+		}
+
+		public void SetPlacement(SerializableVector3? position, SerializableVector3? rotation, float? height, float? curvatureDegrees = null)
 		{
 			//Scale doesnt need to be a vector. Width is calculated based on height and aspect ratio. Depth is a constant value.
-			var scale = _gameplayScale;
-			scale.y = height ?? _gameplayScale.y;
-			_screen.SetPlacement(position ?? _gameplayPosition, rotation ?? _gameplayRotation, scale);
+			height ??= _defaultGameplayHeight;
+			var nonNullHeight = height ?? _defaultGameplayHeight;
+			_screen.SetPlacement(position ?? _defaultGameplayPosition,
+				rotation ?? _defaultGameplayRotation,
+				GetAspectRatio() * nonNullHeight,
+				nonNullHeight,
+				curvatureDegrees);
 		}
 
 		private void FrameReady(VideoPlayer player, long frame)
@@ -171,9 +184,9 @@ namespace BeatSaberCinema
 			//So, we wait before the player renders its first frame and then set the color, making the switch invisible.
 			if (_waitForFirstFrame)
 			{
-				_screenRenderer.material.color = _screenColorOn;
-				_screen.SetAspectRatio(GetAspectRatio());
 				_waitForFirstFrame = false;
+				SetScreenColor(_screenColorOn);
+				_screen.SetAspectRatio(GetAspectRatio());
 				Player.frameReady -= FrameReady;
 
 			}
@@ -187,6 +200,16 @@ namespace BeatSaberCinema
 		public void Hide()
 		{
 			_screen.Hide();
+		}
+
+		public void ShowScreenBody()
+		{
+			_screen.ShowBody();
+		}
+
+		public void HideScreenBody()
+		{
+			_screen.HideBody();
 		}
 
 		public void Play()
@@ -204,13 +227,17 @@ namespace BeatSaberCinema
 		public void Stop()
 		{
 			Player.Stop();
-			_screen.SetAspectRatio(GetAspectRatio());
-			_screenRenderer.material.color = _screenColorOff;
+			SetScreenColor(_screenColorOff);
 		}
 
 		public void Prepare()
 		{
 			Player.Prepare();
+		}
+
+		public void SetScreenColor(Color color)
+		{
+			_screenRenderer.material.color = color;
 		}
 
 		public void Update()
@@ -243,6 +270,10 @@ namespace BeatSaberCinema
 
 		private float GetAspectRatio()
 		{
+			if (Player == null)
+			{
+				return 16f / 9f;
+			}
 			var texture = Player.texture;
 			if (texture == null || texture.width == 0 || texture.height == 0)
 			{
@@ -259,6 +290,16 @@ namespace BeatSaberCinema
 		public void Unmute()
 		{
 			Volume = 0.40f;
+		}
+
+		public void UpdateScreenDistance(float value)
+		{
+			_screen.SetDistance(value);
+		}
+
+		public void RegenerateScreen()
+		{
+			_screen.RegenerateScreenSurfaces();
 		}
 	}
 }

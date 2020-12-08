@@ -32,9 +32,15 @@ namespace BeatSaberCinema
 			_additiveMaterial = new Material(Shader.Find("Hidden/BlitAdd"));
 			_additiveMaterial.SetFloat(Alpha, 1f);
 
-			BSEvents.menuSceneLoaded += RefreshComponent;
-			BSEvents.gameSceneLoaded += RefreshComponent;
+			BSEvents.menuSceneLoaded += UpdateMesh;
+			BSEvents.gameSceneLoaded += UpdateMesh;
 			BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoaded;
+		}
+
+		public void UpdateMesh()
+		{
+			_mesh = GetComponent<MeshFilter>().mesh;
+			_renderer = GetComponent<Renderer>();
 		}
 
 		private void GetPrivateFields(Camera camera)
@@ -136,16 +142,7 @@ namespace BeatSaberCinema
 
 		public void OnMenuSceneLoaded(ScenesTransitionSetupDataSO scenesTransitionSetupDataSo)
 		{
-			RefreshComponent();
-		}
-
-		public void RefreshComponent()
-		{
-			gameObject.AddComponent<CustomBloomPrePass>();
-			CameraRenderCallbacksManager.UnregisterFromCameraCallbacks(this);
-			BSEvents.menuSceneLoaded -= RefreshComponent;
-			BSEvents.gameSceneLoaded -= RefreshComponent;
-			Destroy(this);
+			UpdateMesh();
 		}
 
 		private void OnWillRenderObject() {
