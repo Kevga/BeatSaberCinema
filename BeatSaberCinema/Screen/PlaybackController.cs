@@ -189,7 +189,7 @@ namespace BeatSaberCinema
 					Plugin.Logger.Debug("Set preview start time to "+startTime);
 					startTime = -_currentVideo.GetOffsetInSec();
 				}
-				_songPreviewPlayer.CrossfadeTo(_currentLevel.GetPreviewAudioClipAsync(new CancellationToken()).Result, startTime, _currentLevel.songDuration);
+				_songPreviewPlayer.CrossfadeTo(_currentLevel.GetPreviewAudioClipAsync(new CancellationToken()).Result, startTime, _currentLevel.songDuration, 0.55f);
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
 				SetAudioSourcePanning(0.85f);
@@ -409,7 +409,6 @@ namespace BeatSaberCinema
 
 					_activeAudioSource = _songPreviewAudioSources[activeChannel];
 					_activeAudioSource.panStereo = pan;
-					_activeAudioSource.volume = 0.65f;
 				}
 			}
 			catch (Exception e)
