@@ -30,7 +30,7 @@ namespace BeatSaberCinema
 			GameObject body = new GameObject("CinemaScreenBody");
 			_screenBodySurface = body.AddComponent<CurvedSurface>();
 			body.transform.parent = _screenGameObject.transform;
-			body.transform.localPosition = new Vector3(0, 0, 0.01f);
+			body.transform.localPosition = new Vector3(0, 0, 0.025f);
 			Renderer bodyRenderer = body.GetComponent<Renderer>();
 			bodyRenderer.material = new Material(Resources.FindObjectsOfTypeAll<Material>()
 				.Last(x => x.name == "DarkEnvironmentSimple"));
