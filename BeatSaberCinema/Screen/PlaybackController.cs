@@ -336,31 +336,35 @@ namespace BeatSaberCinema
 				foreach (var environmentModification in _currentVideo.environment)
 				{
 					Plugin.Logger.Debug($"Modifying {environmentModification.name}");
-					var environmentObject = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == environmentModification.name && x.activeInHierarchy);
-					if (environmentObject == null)
-					{
-						Plugin.Logger.Warn($"Environment object {environmentModification.name} was not found in the scene. Skipping modifications.");
-						continue;
-					}
+					var environmentObjectList = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == environmentModification.name && x.activeInHierarchy);
 
-					if (environmentModification.active.HasValue)
+					foreach (var environmentObject in environmentObjectList)
 					{
-						environmentObject.SetActive(environmentModification.active.Value);
-					}
+						if (environmentObject == null)
+						{
+							Plugin.Logger.Warn($"Environment object {environmentModification.name} was not found in the scene. Skipping modifications.");
+							continue;
+						}
 
-					if (environmentModification.position.HasValue)
-					{
-						environmentObject.gameObject.transform.position = environmentModification.position.Value;
-					}
+						if (environmentModification.active.HasValue)
+						{
+							environmentObject.SetActive(environmentModification.active.Value);
+						}
 
-					if (environmentModification.rotation.HasValue)
-					{
-						environmentObject.gameObject.transform.eulerAngles = environmentModification.rotation.Value;
-					}
+						if (environmentModification.position.HasValue)
+						{
+							environmentObject.gameObject.transform.position = environmentModification.position.Value;
+						}
 
-					if (environmentModification.scale.HasValue)
-					{
-						environmentObject.gameObject.transform.localScale = environmentModification.scale.Value;
+						if (environmentModification.rotation.HasValue)
+						{
+							environmentObject.gameObject.transform.eulerAngles = environmentModification.rotation.Value;
+						}
+
+						if (environmentModification.scale.HasValue)
+						{
+							environmentObject.gameObject.transform.localScale = environmentModification.scale.Value;
+						}
 					}
 				}
 			}
