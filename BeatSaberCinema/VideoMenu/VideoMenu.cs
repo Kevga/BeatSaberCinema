@@ -137,15 +137,24 @@ namespace BeatSaberCinema
 				case DownloadState.Downloading:
 					_deleteVideoButtonText.SetText("Cancel");
 					_previewButton.interactable = false;
+					_deleteVideoButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.grey;
 					break;
 				case DownloadState.NotDownloaded:
 				case DownloadState.Cancelled:
 					_deleteVideoButtonText.SetText("Download");
-					_deleteVideoButton.interactable = state && _downloadController.LibrariesAvailable();
+					_deleteVideoButton.interactable = false;
+					var underlineColor = Color.clear;
+					if (state && _downloadController.LibrariesAvailable())
+					{
+						underlineColor = Color.green;
+						_deleteVideoButton.interactable = true;
+					}
+					_deleteVideoButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = underlineColor;
 					_previewButton.interactable = false;
 					break;
 				default:
 					_deleteVideoButtonText.SetText("Delete Video");
+					_deleteVideoButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.grey;
 					_previewButton.interactable = state;
 					break;
 			}
@@ -296,6 +305,7 @@ namespace BeatSaberCinema
 
 			_refineButton.interactable = true;
 			_downloadButton.interactable = true;
+			_downloadButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.green;
 			if (_selectedCell == -1)
 			{
 				_selectedCell = 0;
@@ -434,6 +444,7 @@ namespace BeatSaberCinema
 			}
 
 			_downloadButton.interactable = false;
+			_downloadButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.grey;
 			_selectedCell = -1;
 		}
 
