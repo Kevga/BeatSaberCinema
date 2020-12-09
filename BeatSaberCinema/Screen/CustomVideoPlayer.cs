@@ -292,7 +292,7 @@ namespace BeatSaberCinema
 			Volume = 0.40f;
 		}
 
-		public void UpdateScreenDistance(float value)
+		public void SetScreenDistance(float value)
 		{
 			_screen.SetDistance(value);
 		}

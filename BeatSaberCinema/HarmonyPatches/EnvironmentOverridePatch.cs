@@ -22,6 +22,20 @@ namespace BeatSaberCinema
 			{
 				var overrideEnvironmentEnabled = SettingsStore.Instance.OverrideEnvironment;
 
+				var environmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();
+
+				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+				if (overrideEnvironmentSettings != null && overrideEnvironmentSettings.overrideEnvironments)
+				{
+					environmentInfoSo = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(environmentInfoSo.environmentType);
+				}
+
+				var environmentWhitelist = new[] {"BigMirrorEnvironment", "OriginsEnvironment", "BTSEnvironment", "KDAEnvironment", "RocketEnvironment"};
+				if (environmentWhitelist.Contains(environmentInfoSo.serializedName))
+				{
+					overrideEnvironmentEnabled = false;
+				}
+
 				var video = VideoLoader.GetConfigForLevel(difficultyBeatmap.level);
 				if (video == null || !video.IsPlayable)
 				{

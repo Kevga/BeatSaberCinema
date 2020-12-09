@@ -332,6 +332,24 @@ namespace BeatSaberCinema
 
 		private void ModifyGameScene()
 		{
+			Plugin.Logger.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName);
+			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, _currentVideo?.screenHeight, _currentVideo?.screenCurvature);
+
+			try
+			{
+				DefaultSceneModifications();
+				VideoConfigSceneModifications();
+			}
+			catch (Exception e)
+			{
+				Plugin.Logger.Error(e);
+			}
+
+			Plugin.Logger.Debug("Modified environment");
+		}
+
+		private void VideoConfigSceneModifications()
+		{
 			if (_currentVideo?.environment != null && _currentVideo.environment.Length > 0)
 			{
 				foreach (var environmentModification in _currentVideo.environment)
@@ -369,67 +387,216 @@ namespace BeatSaberCinema
 					}
 				}
 			}
+		}
 
-			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, _currentVideo?.screenHeight, _currentVideo?.screenCurvature);
-			Plugin.Logger.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.environmentName);
-			if (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.environmentName == "Big Mirror")
+		private void DefaultSceneModifications()
+		{
+			//FrontLights appear in many environments and need to be removed in all of them
+			var frontLights = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "FrontLights" && x.activeInHierarchy);
+			if (frontLights != null)
 			{
-				//Disable the arrow-like lights that would otherwise be right in front of the screen
-				var frontLights = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "FrontLights" && x.activeInHierarchy);
-				if (frontLights != null)
-				{
-					frontLights.SetActive(false);
-				}
-
-				var doubleColorLasers = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("DoubleColorLaser") && x.activeInHierarchy);
-				foreach (var doubleColorLaser in doubleColorLasers)
-				{
-					var laserName = doubleColorLaser.name;
-					if (laserName == "DoubleColorLaser")
-					{
-						laserName = "DoubleColorLaser (0)";
-					}
-
-					var match = Regex.Match(laserName, "^DoubleColorLaser \\(([0-9])\\)$");
-					if (!match.Success)
-					{
-						Plugin.Logger.Debug($"Could not find index of: {laserName}");
-						continue;
-					}
-					var i = int.Parse(match.Groups[1].Value);
-
-					var sign = 1;
-					if (i % 2 == 0)
-					{
-						sign = -sign;
-					}
-
-					var shiftBy = 18f * sign;
-					var pos = doubleColorLaser.transform.position;
-					doubleColorLaser.transform.position = new Vector3(pos.x + shiftBy, pos.y, pos.z);
-					Plugin.Logger.Debug($"Name: {doubleColorLaser.name}, i: {i}, newX: {pos.x+shiftBy}");
-				}
-
-				//Move environment toward the player for larger mirror surface
-				//TODO add setting for this (default off). Increases mirror surface, but hides the energy bar.
-				/*var moveBy = -3f;
-				string[] environmentObjects = {"Floor", "Construction", "GlowLineL", "GlowLineR"};
-				foreach (var environmentObjectName in environmentObjects)
-				{
-					var envObj = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == environmentObjectName && x.transform.parent.name == "Environment" && x.activeInHierarchy);
-					if (envObj != null)
-					{
-						var position = envObj.transform.localPosition;
-						envObj.transform.localPosition = new Vector3(position.x, position.y, position.z + moveBy);
-					}
-					else
-					{
-						Plugin.Logger.Debug(environmentObjectName + " is null. Cannot move it.");
-					}
-				}*/
+				frontLights.SetActive(false);
 			}
 
-			Plugin.Logger.Debug("Modified environment");
+			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
+			{
+				case "BigMirrorEnvironment":
+				{
+					var doubleColorLasers = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("DoubleColorLaser") && x.activeInHierarchy);
+					foreach (var doubleColorLaser in doubleColorLasers)
+					{
+						var laserName = doubleColorLaser.name;
+						if (laserName == "DoubleColorLaser")
+						{
+							laserName = "DoubleColorLaser (0)";
+						}
+
+						var match = Regex.Match(laserName, "^DoubleColorLaser \\(([0-9])\\)$");
+						if (!match.Success)
+						{
+							Plugin.Logger.Debug($"Could not find index of: {laserName}");
+							continue;
+						}
+						var i = int.Parse(match.Groups[1].Value);
+
+						var sign = 1;
+						if (i % 2 == 0)
+						{
+							sign = -sign;
+						}
+
+						var shiftBy = 18f * sign;
+						var pos = doubleColorLaser.transform.position;
+						doubleColorLaser.transform.position = new Vector3(pos.x + shiftBy, pos.y, pos.z);
+					}
+					break;
+				}
+				case "BTSEnvironment":
+				{
+					var centerLight = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "MagicDoorSprite" && x.activeInHierarchy);
+					if (centerLight != null)
+					{
+						centerLight.SetActive(false);
+					}
+
+					//Not optimal, but if we don't deactivate this, it will override the x position set further down
+					var movementEffect = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "PillarsMovementEffect" && x.activeInHierarchy);
+					if (movementEffect != null)
+					{
+						movementEffect.SetActive(false);
+					}
+
+					var pillarPairs = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("PillarPair") && x.activeInHierarchy);
+					foreach (var pillarPair in pillarPairs)
+					{
+						var pillarPairName = pillarPair.name;
+						if (pillarPairName == "PillarPair" || pillarPairName == "SmallPillarPair")
+						{
+							pillarPairName += " (0)";
+						}
+
+						var match = Regex.Match(pillarPairName, "PillarPair \\(([0-9])\\)$");
+						if (!match.Success)
+						{
+							Plugin.Logger.Debug($"Could not find index of: {pillarPairName}");
+							continue;
+						}
+						var i = int.Parse(match.Groups[1].Value);
+
+						var children = Resources.FindObjectsOfTypeAll<GameObject>().Where(x =>
+						{
+							Transform parent;
+							return x.name.Contains("Pillar") &&
+							       (parent = x.transform.parent) != null &&
+							       parent.name == pillarPair.name &&
+							       x.activeInHierarchy;
+						});
+
+						foreach (var child in children)
+						{
+							var childPos = child.transform.position;
+							var sign = 1;
+							var newX = 16f;
+							if (child.name == "PillarL")
+							{
+								sign *= -1;
+							}
+
+							newX = (newX + (i * 2.3f)) * sign;
+							child.transform.position = new Vector3(newX, childPos.y, childPos.z);
+						}
+
+						var pairPos = pillarPair.transform.position;
+						pillarPair.transform.position = new Vector3(pairPos.x, pairPos.y - 2f, pairPos.z);
+					}
+
+					if (_currentVideo!.screenPosition == null)
+					{
+						SetScreenDistance(80f);
+					}
+
+					break;
+				}
+				case "OriginsEnvironment":
+				{
+					var spectrograms = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == "Spectrogram" && x.activeInHierarchy);
+					foreach (var spectrogram in spectrograms)
+					{
+						var pos = spectrogram.transform.position;
+						var newX = 12;
+						if (pos.x < 0)
+						{
+							newX *= -1;
+						}
+						spectrogram.transform.position = new Vector3(newX, pos.y, pos.z);
+					}
+					break;
+				}
+				case "KDAEnvironment":
+				{
+					var construction = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "Construction" && x.transform.parent.name != "PlayersPlace" && x.activeInHierarchy);
+					if (construction != null)
+					{
+						//Stretch it in the y-axis to get rid of the beam above
+						construction.transform.localScale = new Vector3(1, 2, 1);
+					}
+
+					var tentacles = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("Tentacle") && x.activeInHierarchy);
+					foreach (var spectrogram in tentacles)
+					{
+						var pos = spectrogram.transform.position;
+						var rot = spectrogram.transform.eulerAngles;
+						const int newPosX = 15;
+						const int newRotY = -135;
+						var sign = 1;
+						if (pos.x < 0)
+						{
+							sign = -1;
+						}
+
+						spectrogram.transform.position = new Vector3(newPosX * sign, pos.y, pos.z);
+						spectrogram.transform.eulerAngles = new Vector3(rot.x, newRotY * sign, rot.z);
+					}
+
+					var verticalLasers = Resources.FindObjectsOfTypeAll<GameObject>().Where(
+						x => x.name.Contains("Laser") && !x.name.Contains("RotatingLasersPair") && x.activeInHierarchy);
+					foreach (var laser in verticalLasers)
+					{
+						var pos = laser.transform.position;
+						var newX = 10;
+						if (pos.x < 0)
+						{
+							newX *= -1;
+						}
+
+						laser.transform.position = new Vector3(newX, pos.y, pos.z);
+					}
+
+					var glowLines = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("GlowTopLine") && x.activeInHierarchy);
+					foreach (var glowLine in glowLines)
+					{
+						var pos = glowLine.transform.position;
+						glowLine.transform.position = new Vector3(pos.x, 20f, pos.z);
+					}
+
+					break;
+				}
+				case "RocketEnvironment":
+				{
+					var cars = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("RocketCar") && x.activeInHierarchy);
+					foreach (var car in cars)
+					{
+						var pos = car.transform.position;
+						var newX = 18;
+						if (pos.x < 0)
+						{
+							newX *= -1;
+						}
+						car.transform.position = new Vector3(newX, pos.y, pos.z);
+					}
+
+					var arena = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "RocketArena" && x.activeInHierarchy);
+					if (arena != null)
+					{
+						arena.transform.localScale = new Vector3(1, 2, 1);
+					}
+
+					var arenaLight = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "RocketArenaLight" && x.activeInHierarchy);
+					if (arenaLight != null)
+					{
+						arenaLight.transform.position = new Vector3(0, 23, 42);
+						arenaLight.transform.localScale = new Vector3(2.5f, 1, 1);
+					}
+
+					var gateLight = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "RocketGateLight" && x.activeInHierarchy);
+					if (gateLight != null)
+					{
+						gateLight.transform.position = new Vector3(0, -3, 64);
+						gateLight.transform.localScale = new Vector3(2.6f, 1, 4.5f);
+					}
+					break;
+				}
+			}
 		}
 
 		public void SetAudioSourcePanning(float pan)
@@ -631,9 +798,9 @@ namespace BeatSaberCinema
 			_videoPlayer.Stop();
 		}
 
-		public void UpdateScreenDistance(float value)
+		public void SetScreenDistance(float value)
 		{
-			_videoPlayer.UpdateScreenDistance(value);
+			_videoPlayer.SetScreenDistance(value);
 		}
 	}
 }
