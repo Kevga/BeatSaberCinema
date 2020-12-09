@@ -365,8 +365,8 @@ namespace BeatSaberCinema
 				}
 			}
 
-			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, _currentVideo?.screenHeight);
-
+			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, _currentVideo?.screenHeight, _currentVideo?.screenCurvature);
+			Plugin.Logger.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.environmentName);
 			if (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.environmentName == "Big Mirror")
 			{
 				//Disable the arrow-like lights that would otherwise be right in front of the screen
