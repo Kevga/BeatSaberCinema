@@ -51,9 +51,9 @@
         <modal-keyboard id='search-keyboard' on-enter='on-query' clear-on-open='false' show-event='show-keyboard'
                         hide-event='hide-keyboard' move-to-center='true' click-off-closes='true'/>
         <horizontal pad-top='50'>
-            <button text='Back' on-click='on-back-action'/>
+            <button text='Go Back' on-click='on-back-action' pad-right="7"/>
             <button id='download-button' text='Download' on-click='on-download-action'/>
-            <button id='refine-button' text='Refine' on-click='on-refine-action'/>
+            <button id='refine-button' text='Refine Search' on-click='on-refine-action'/>
         </horizontal>
     </bg>
 </bg>
