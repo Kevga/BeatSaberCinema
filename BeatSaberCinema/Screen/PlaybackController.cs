@@ -3,6 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
@@ -378,6 +379,35 @@ namespace BeatSaberCinema
 				if (frontLights != null)
 				{
 					frontLights.SetActive(false);
+				}
+
+				var doubleColorLasers = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("DoubleColorLaser") && x.activeInHierarchy);
+				foreach (var doubleColorLaser in doubleColorLasers)
+				{
+					var laserName = doubleColorLaser.name;
+					if (laserName == "DoubleColorLaser")
+					{
+						laserName = "DoubleColorLaser (0)";
+					}
+
+					var match = Regex.Match(laserName, "^DoubleColorLaser \\(([0-9])\\)$");
+					if (!match.Success)
+					{
+						Plugin.Logger.Debug($"Could not find index of: {laserName}");
+						continue;
+					}
+					var i = int.Parse(match.Groups[1].Value);
+
+					var sign = 1;
+					if (i % 2 == 0)
+					{
+						sign = -sign;
+					}
+
+					var shiftBy = 18f * sign;
+					var pos = doubleColorLaser.transform.position;
+					doubleColorLaser.transform.position = new Vector3(pos.x + shiftBy, pos.y, pos.z);
+					Plugin.Logger.Debug($"Name: {doubleColorLaser.name}, i: {i}, newX: {pos.x+shiftBy}");
 				}
 
 				//Move environment toward the player for larger mirror surface
