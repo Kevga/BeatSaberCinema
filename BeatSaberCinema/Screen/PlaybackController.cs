@@ -205,7 +205,7 @@ namespace BeatSaberCinema
 					Plugin.Logger.Debug("Set preview start time to "+startTime);
 					startTime = -_currentVideo.GetOffsetInSec();
 				}
-				_songPreviewPlayer.CrossfadeTo(_currentLevel.GetPreviewAudioClipAsync(new CancellationToken()).Result, startTime, _currentLevel.songDuration, 0.55f);
+				_songPreviewPlayer.CrossfadeTo(_currentLevel.GetPreviewAudioClipAsync(new CancellationToken()).Result, startTime, _currentLevel.songDuration, 0.65f);
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
 				SetAudioSourcePanning(0.85f);
@@ -398,6 +398,12 @@ namespace BeatSaberCinema
 				frontLights.SetActive(false);
 			}
 
+			var rings = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "PanelLightTrackLaneRing(Clone)" && x.activeInHierarchy);
+			if (rings != null)
+			{
+				rings.SetActive(false);
+			}
+
 			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
 			{
 				case "BigMirrorEnvironment":
@@ -567,7 +573,7 @@ namespace BeatSaberCinema
 					foreach (var car in cars)
 					{
 						var pos = car.transform.position;
-						var newX = 18;
+						var newX = 16;
 						if (pos.x < 0)
 						{
 							newX *= -1;
@@ -684,14 +690,14 @@ namespace BeatSaberCinema
 			}
 
 
-			//Video seemingly always lags behind in the game scene. +60 ms fixed offset works well enough (on my system, at least)
+			//Video seemingly always lags behind in the game scene. A fixed offset seems to work well enough
 			if (!IsPreviewPlaying)
 			{
-				totalOffset += 0.06f;
+				totalOffset += 0.08f;
 			}
 			else
 			{
-				totalOffset -= 0.04f;
+				totalOffset -= 0.08f;
 			}
 
 

@@ -289,7 +289,7 @@ namespace BeatSaberCinema
 
 		public void Unmute()
 		{
-			Volume = 0.40f;
+			Volume = 0.50f;
 		}
 
 		public void SetScreenDistance(float value)

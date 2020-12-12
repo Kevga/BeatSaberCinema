@@ -179,7 +179,6 @@ namespace BeatSaberCinema
 			_videoAuthorText.text = "Author: "+Util.FilterEmoji(_currentVideo.author ?? "Unknown Author");
 			_videoDurationText.text = "Duration: "+Util.SecondsToString(_currentVideo.duration);
 
-
 			_videoOffsetText.text = $"{_currentVideo.offset:n0}" + " ms";
 			_videoThumnnail.SetImage($"https://i.ytimg.com/vi/{_currentVideo.videoID}/hqdefault.jpg");
 
@@ -401,7 +400,6 @@ namespace BeatSaberCinema
 		{
 			_videoDetailsViewRect.gameObject.SetActive(true);
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
-			SetupVideoDetails();
 		}
 
 		[UIAction("on-query")]
