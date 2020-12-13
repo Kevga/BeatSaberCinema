@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Timers;
@@ -327,8 +328,11 @@ namespace BeatSaberCinema
 			Match match = rx.Match(dataReceivedEventArgs.Data);
 			if (match.Success)
 			{
+				CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+				ci.NumberFormat.NumberDecimalSeparator = ".";
+
 				video.DownloadProgress =
-					float.Parse(match.Value.Substring(0, match.Value.Length - 1)) / 100;
+					float.Parse(match.Value.Substring(0, match.Value.Length - 1), ci) / 100;
 			}
 		}
 
