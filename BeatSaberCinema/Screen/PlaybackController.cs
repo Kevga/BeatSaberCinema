@@ -398,12 +398,6 @@ namespace BeatSaberCinema
 				frontLights.SetActive(false);
 			}
 
-			var rings = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "PanelLightTrackLaneRing(Clone)" && x.activeInHierarchy);
-			if (rings != null)
-			{
-				rings.SetActive(false);
-			}
-
 			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
 			{
 				case "BigMirrorEnvironment":
