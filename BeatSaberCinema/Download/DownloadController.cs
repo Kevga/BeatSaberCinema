@@ -381,8 +381,6 @@ namespace BeatSaberCinema
 					WorkingDirectory = levelPath
 				},
 				EnableRaisingEvents = true,
-				//I think these are added only after Process Started
-				//PriorityClass = ProcessPriorityClass.RealTime,
 				PriorityBoostEnabled = true
 			};
 			_downloadProcess = downloadProcess;
@@ -391,6 +389,7 @@ namespace BeatSaberCinema
 
 		public void CancelDownload(VideoConfig video)
 		{
+			Plugin.Logger.Debug("Cancelling download");
 			DisposeProcess(_downloadProcess);
 			video.DownloadState = DownloadState.Cancelled;
 			DownloadProgress?.Invoke(video);
