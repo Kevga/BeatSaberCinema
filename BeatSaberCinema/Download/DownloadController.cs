@@ -240,27 +240,31 @@ namespace BeatSaberCinema
 			video.DownloadState = DownloadState.Downloading;
 			DownloadProgress?.Invoke(video);
 
-			Process localDownloader = StartDownloadProcess(video);
+			Process downloadProcess = StartDownloadProcess(video);
 
 			Plugin.Logger.Info(
-				$"youtube-dl command: \"{localDownloader.StartInfo.FileName}\" {localDownloader.StartInfo.Arguments}");
+				$"youtube-dl command: \"{downloadProcess.StartInfo.FileName}\" {downloadProcess.StartInfo.Arguments}");
 
-			var timeout = new Timeout(3 * 60);
+			var timeout = new Timeout(5 * 60);
 			var timer = new Timer(250);
 			timer.Elapsed += (sender, args) => DownloadProgress?.Invoke(video);
-			localDownloader.OutputDataReceived += (sender, e) => DownloadOutputDataReceived(sender, e, video);
-			localDownloader.ErrorDataReceived += (sender, e) => DownloadErrorDataReceived(sender, e, video);
-			localDownloader.Exited += (sender, e) => DownloadProcessExited(sender, video, timer);
+			downloadProcess.OutputDataReceived += (sender, e) => DownloadOutputDataReceived(sender, e, video);
+			downloadProcess.ErrorDataReceived += (sender, e) => DownloadErrorDataReceived(sender, e, video);
+			downloadProcess.Exited += (sender, e) => DownloadProcessExited(sender, video, timer);
 			timer.Start();
-			yield return localDownloader.Start();
+			yield return downloadProcess.Start();
 
-			localDownloader.BeginOutputReadLine();
-			localDownloader.BeginErrorReadLine();
+			downloadProcess.BeginOutputReadLine();
+			downloadProcess.BeginErrorReadLine();
 
 			yield return new WaitUntil(() => !DownloadInProgress || timeout.HasTimedOut);
+			if (timeout.HasTimedOut)
+			{
+				Plugin.Logger.Warn("Timeout reached, disposing download process");
+			}
 			timeout.Stop();
 
-			DisposeProcess(_searchProcess);
+			DisposeProcess(downloadProcess);
 		}
 
 		private void DownloadOutputDataReceived(object sender, DataReceivedEventArgs eventArgs, VideoConfig video)
