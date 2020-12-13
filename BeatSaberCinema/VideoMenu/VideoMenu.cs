@@ -76,6 +76,11 @@ namespace BeatSaberCinema
 			_downloadController.SearchProgress += SearchProgress;
 			_downloadController.DownloadProgress += UpdateStatusText;
 			_downloadController.DownloadFinished += OnDownloadFinished;
+
+			if (!_downloadController.LibrariesAvailable())
+			{
+				Plugin.Logger.Warn("One or more of the libraries are missing. Downloading will most likely not work.");
+			}
 		}
 
 		public void AddTab()
