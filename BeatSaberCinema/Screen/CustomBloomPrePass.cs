@@ -75,9 +75,33 @@ namespace BeatSaberCinema
 
 		public void OnCameraPreRender(Camera camera)
 		{
-			var sRGBWrite = GL.sRGBWrite;
-			GL.sRGBWrite = false;
+			if (camera == null)
+			{
+				return;
+			}
 
+			try
+			{
+				ApplyBloomEffect(camera);
+			}
+			catch (Exception e)
+			{
+				Plugin.Logger.Error(e);
+				var result = _bloomPrePassDict.TryGetValue(camera, out var bloomPrePass);
+				if (result == false)
+				{
+					_bloomPrePassDict.Add(camera, null);
+				}
+
+				if (bloomPrePass != null)
+				{
+					_bloomPrePassDict[camera] = null;
+				}
+			}
+		}
+
+		private void ApplyBloomEffect(Camera camera)
+		{
 			//TODO Fix this instead of skipping. Current workaround is to use CameraPlus instead. Investigate what BloomPrePassRendererSO does differently
 			if (camera.name == "SmoothCamera")
 			{
@@ -100,6 +124,9 @@ namespace BeatSaberCinema
 			{
 				return;
 			}
+
+			var sRGBWrite = GL.sRGBWrite;
+			GL.sRGBWrite = false;
 
 			bloomPrePassRenderer.GetCameraParams(camera, out var projectionMatrix, out _, out var stereoCameraEyeOffset);
 
