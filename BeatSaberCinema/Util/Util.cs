@@ -40,6 +40,11 @@ namespace BeatSaberCinema
 			return timeSpan.Minutes + ":" + $"{timeSpan.Seconds:00}";
 		}
 
+		public static string FormatFloat(float f)
+		{
+			return $"{f:0.00}";
+		}
+
 		public static string ReplaceIllegalFilesystemChars(string s)
 		{
 			string regexSearch = new string(Path.GetInvalidFileNameChars());

@@ -116,7 +116,8 @@ namespace BeatSaberCinema
 			_activeAudioSource.Pause();
 
 			//We add a frame extra to account for delay before playback starts again after seeking
-			_videoPlayer.Player.time = _activeAudioSource!.time + (_currentVideo!.offset / 1000f) + (_videoPlayer.FrameDuration*1);
+			_videoPlayer.Player.time = _activeAudioSource!.time + (_currentVideo!.offset / 1000f);
+			Plugin.Logger.Debug("Applying offset: "+offset);
 		}
 
 		public void FrameReady(VideoPlayer videoPlayer, long frame)
@@ -130,7 +131,6 @@ namespace BeatSaberCinema
 			var playerTime = _videoPlayer.Player.time;
 			var referenceTime = audioSourceTime + (_currentVideo!.offset / 1000f);
 			var error = referenceTime - playerTime;
-			var errorAbs = Math.Abs(error);
 
 			if (audioSourceTime == 0 && !_activeAudioSource.isPlaying && IsPreviewPlaying && !_videoPlayer.IsSyncing)
 			{
@@ -140,30 +140,10 @@ namespace BeatSaberCinema
 				PrepareVideo(_currentVideo);
 			}
 
-			//TODO This seems to be broken, jumping far from the reference time. Might be worth it to try to fix it though.
-			/*if (errorAbs > 0.1f)
+			if (frame % 120 == 0)
 			{
-				_videoPlayer.OutOfSyncFrames += 1;
-				Plugin.Logger.Debug(("[Out of sync] ")+"Frame: "+frame+" - Player: "+Util.FormatFloat((float) playerTime) + " - AudioSource: " + Util.FormatFloat(audioSourceTime) + " - Error (ms): "+Math.Round(error*1000));
+				Plugin.Logger.Debug("Frame: "+frame+" - Player: "+Util.FormatFloat((float) playerTime) + " - AudioSource: " + Util.FormatFloat(audioSourceTime) + " - Error (ms): "+Math.Round(error*1000));
 			}
-			else
-			{
-				//Don't go negative
-				_videoPlayer.OutOfSyncFrames = Math.Max(0, _videoPlayer.OutOfSyncFrames - 1);
-			}
-
-			//Start syncing when enough frames were out of sync. Stop trying after one second.
-			if (_videoPlayer.OutOfSyncFrames > 5 && _videoPlayer.OutOfSyncFrames < _videoPlayer.Player.frameRate)
-			{
-				Plugin.Logger.Debug("Syncing, current error: "+Util.FormatFloat((float) errorAbs)+ " - reference time: "+referenceTime);
-				_videoPlayer.Player.timeReference = VideoTimeReference.ExternalTime;
-				_videoPlayer.Player.externalReferenceTime = referenceTime;
-			}
-			else
-			{
-				_videoPlayer.Player.timeReference = VideoTimeReference.Freerun;
-			}*/
-
 
 			if (!_videoPlayer.IsSyncing)
 			{
@@ -192,7 +172,6 @@ namespace BeatSaberCinema
 			else
 			{
 				IsPreviewPlaying = true;
-				_videoPlayer.IsSyncing = true;
 				if (!_videoPlayer.IsPrepared)
 				{
 					Plugin.Logger.Info("Not Prepped yet");
@@ -315,6 +294,7 @@ namespace BeatSaberCinema
 				yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
 				var syncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
 				audioSource = syncController.audioSource;
+				_activeAudioSource = audioSource;
 			}
 
 			if (audioSource != null)
@@ -641,6 +621,7 @@ namespace BeatSaberCinema
 			}
 
 			_videoPlayer.Show();
+			_videoPlayer.IsSyncing = false;
 			if ((_currentVideo.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
 			    (_currentVideo.transparency != null && !_currentVideo.transparency.Value))
 			{
@@ -650,8 +631,6 @@ namespace BeatSaberCinema
 			{
 				_videoPlayer.HideScreenBody();
 			}
-
-			_videoPlayer.OutOfSyncFrames = 0;
 
 			var totalOffset = _currentVideo.GetOffsetInSec();
 			var songSpeed = 1f;
@@ -672,8 +651,6 @@ namespace BeatSaberCinema
 			_videoPlayer.Player.playbackSpeed = songSpeed;
 			totalOffset += startTime; //This must happen after song speed adjustment
 
-			Plugin.Logger.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {_videoPlayer.Player.time}");
-
 			if (songSpeed < 1f && totalOffset > 0f)
 			{
 				//Unity crashes if the playback speed is less than 1 and the video time at the start of playback is greater than 0
@@ -684,16 +661,11 @@ namespace BeatSaberCinema
 			}
 
 
-			//Video seemingly always lags behind in the game scene. A fixed offset seems to work well enough
-			if (!IsPreviewPlaying)
-			{
-				totalOffset += 0.08f;
-			}
-			else
-			{
-				totalOffset -= 0.08f;
-			}
+			//Video seemingly always lags behind. A fixed offset seems to work well enough
+			totalOffset += 0.06f;
 
+
+			Plugin.Logger.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {_videoPlayer.Player.time}");
 
 			StopAllCoroutines();
 			if (totalOffset < 0)
@@ -712,11 +684,6 @@ namespace BeatSaberCinema
 			else
 			{
 				_videoPlayer.Play();
-				if (_activeAudioSource != null)
-				{
-					_activeAudioSource.Pause();
-				}
-
 				_videoPlayer.Player.time = totalOffset;
 			}
 		}
@@ -731,10 +698,6 @@ namespace BeatSaberCinema
 			yield return new WaitUntil(() => stopwatch.ElapsedTicks >= ticksUntilStart);
 			Plugin.Logger.Debug("Elapsed ms: "+stopwatch.ElapsedMilliseconds);
 			_videoPlayer.Play();
-			if (_activeAudioSource != null)
-			{
-				_activeAudioSource.Pause();
-			}
 		}
 
 		private IEnumerator? _prepareVideoCoroutine;
@@ -745,7 +708,6 @@ namespace BeatSaberCinema
 				StopCoroutine(_prepareVideoCoroutine);
 			}
 
-			_videoPlayer.OutOfSyncFrames = 0;
 			StopPlayback();
 			_prepareVideoCoroutine = PrepareVideoCoroutine(video);
 			StartCoroutine(_prepareVideoCoroutine);

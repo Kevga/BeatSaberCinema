@@ -68,7 +68,6 @@ namespace BeatSaberCinema
 		public bool IsPlaying => Player.isPlaying;
 		public bool IsPrepared => Player.isPrepared;
 		[NonSerialized] public bool IsSyncing;
-		[NonSerialized] public int OutOfSyncFrames;
 
 		public CustomVideoPlayer()
 		{
