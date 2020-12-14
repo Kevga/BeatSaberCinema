@@ -17,24 +17,7 @@ namespace BeatSaberCinema
 
 		public static string ToName(Mode mode)
 		{
-			var s = (int) mode + "p";
-			switch (mode)
-			{
-				/*case Mode.Q2160P: s += " (4K)";
-					break;
-				case Mode.Q1440P: s += " (2.5K)";
-					break;*/
-				case Mode.Q1080P: s += " (Full HD)";
-					break;
-				case Mode.Q720P: s += " (HD)";
-					break;
-				case Mode.Q480P: s += " (Potato)";
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
-			}
-
-			return s;
+			return (int) mode + "p";
 		}
 
 		public static string ToYoutubeDLFormat(Mode quality)
