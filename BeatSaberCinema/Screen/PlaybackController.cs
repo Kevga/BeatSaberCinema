@@ -725,7 +725,7 @@ namespace BeatSaberCinema
 				yield break;
 			}
 
-			_videoPlayer.Player.isLooping = video.loop;
+			_videoPlayer.Player.isLooping = (video.loop == true);
 
 			string videoPath;
 			if (video.VideoPath == null)
