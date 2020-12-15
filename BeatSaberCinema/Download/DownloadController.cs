@@ -60,9 +60,16 @@ namespace BeatSaberCinema
 		public event Action<VideoConfig>? DownloadFinished;
 		public event Action<YTResult>? SearchProgress;
 
+		private bool? _librariesAvailable;
 		public bool LibrariesAvailable()
 		{
-			return File.Exists(_youtubeDLFilepath) && File.Exists(_ffmpegFilepath);
+			if (_librariesAvailable != null)
+			{
+				return _librariesAvailable.Value;
+			}
+
+			_librariesAvailable = File.Exists(_youtubeDLFilepath) && File.Exists(_ffmpegFilepath);
+			return _librariesAvailable.Value;
 		}
 
 		public void Search(string query)
