@@ -876,32 +876,34 @@ namespace BeatSaberCinema
 
 			_videoPlayer.Player.isLooping = (video.loop == true);
 
-			string videoPath;
 			if (video.VideoPath == null)
 			{
 				Plugin.Logger.Debug("Video path was null, stopping prepare");
 				yield break;
 			}
-			yield return videoPath = video.VideoPath;
+			var videoPath = video.VideoPath;
 			Plugin.Logger.Info($"Loading video: {videoPath}");
-			_videoPlayer.Pause();
-			var videoFileInfo = new FileInfo(videoPath);
-			var timeout = new Timeout(3f);
-			if (_videoPlayer.Url != videoPath)
+
+			if (_currentVideo.IsLocal)
 			{
-				yield return new WaitUntil(() =>
-					!Util.IsFileLocked(videoFileInfo) || timeout.HasTimedOut);
-				yield return (_videoPlayer.Url = videoPath);
+				var videoFileInfo = new FileInfo(videoPath);
+				var timeout = new Timeout(3f);
+				if (_videoPlayer.Url != videoPath)
+				{
+					yield return new WaitUntil(() =>
+						!Util.IsFileLocked(videoFileInfo) || timeout.HasTimedOut);
+				}
+
+				timeout.Stop();
+				if (timeout.HasTimedOut && Util.IsFileLocked(videoFileInfo))
+				{
+					var exception = new Exception("File locked");
+					Plugin.Logger.Error(exception);
+					throw exception;
+				}
 			}
 
-			timeout.Stop();
-			if (timeout.HasTimedOut && Util.IsFileLocked(videoFileInfo))
-			{
-				var exception = new Exception("File Locked");
-				Plugin.Logger.Error(exception);
-				throw exception;
-			}
-
+			_videoPlayer.Url = videoPath;
 			_videoPlayer.Prepare();
 		}
 
