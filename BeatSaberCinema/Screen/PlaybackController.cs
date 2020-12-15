@@ -660,10 +660,11 @@ namespace BeatSaberCinema
 				return;
 			}
 
-
 			//Video seemingly always lags behind. A fixed offset seems to work well enough
-			totalOffset += 0.06f;
-
+			if (!IsPreviewPlaying)
+			{
+				totalOffset += 0.0667f;
+			}
 
 			Plugin.Logger.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {_videoPlayer.Player.time}");
 
