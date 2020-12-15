@@ -405,6 +405,7 @@ namespace BeatSaberCinema
 		{
 			_videoDetailsViewRect.gameObject.SetActive(true);
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
+			SetupVideoDetails();
 		}
 
 		[UIAction("on-query")]
