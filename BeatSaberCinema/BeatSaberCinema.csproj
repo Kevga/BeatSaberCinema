@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="16.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
 
     <PropertyGroup>
@@ -15,7 +15,7 @@
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<ModVersion>1.0.0</ModVersion>
+		<ModVersion>1.1.2</ModVersion>
 		<ModName>BeatSaberCinema</ModName>
 		<OutDir>$(ProjectDir)bin\$(Configuration)</OutDir>
 		<AssemblyVersion>$(ModVersion)</AssemblyVersion>
