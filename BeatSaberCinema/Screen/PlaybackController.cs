@@ -133,6 +133,7 @@ namespace BeatSaberCinema
 			if (newTime < 0)
 			{
 				_videoPlayer.Hide();
+				StopAllCoroutines();
 				StartCoroutine(PlayVideoDelayedCoroutine(-newTime));
 			}
 			else
@@ -170,6 +171,12 @@ namespace BeatSaberCinema
 			if (Math.Abs(audioSourceTime - _lastKnownAudioSourceTime) > 0.3f)
 			{
 				Plugin.Logger.Debug("Detected AudioSource seek, resyncing...");
+				ResyncVideo();
+			}
+
+			if (Math.Abs(error) > 0.3f)
+			{
+				Plugin.Logger.Debug("Detected desync, resyncing...");
 				ResyncVideo();
 			}
 
