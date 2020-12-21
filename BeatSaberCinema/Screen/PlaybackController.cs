@@ -613,6 +613,73 @@ namespace BeatSaberCinema
 					}
 					break;
 				}
+				case "LinkinParkEnvironment":
+				{
+					var logo = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x =>
+					{
+						Transform parent;
+						return x.name == "Logo" &&
+						       (parent = x.transform.parent) != null &&
+						       parent.name == "Environment" &&
+						       x.activeInHierarchy;
+					});
+					if (logo != null)
+					{
+						logo.SetActive(false);
+					}
+
+					var environmentScale = new Vector3(4f, 3f, 3f);
+					var invertedScale = new Vector3(1/environmentScale.x, 1/environmentScale.y, 1/environmentScale.z);
+
+					var environment = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "Environment" && x.activeInHierarchy);
+					if (environment != null)
+					{
+						environment.transform.localScale = environmentScale;
+					}
+
+					var trackConstruction = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "TrackConstruction" && x.activeInHierarchy);
+					if (trackConstruction != null)
+					{
+						trackConstruction.transform.position = new Vector3(0.9f, 0f, 106.5f);
+						trackConstruction.transform.localScale = invertedScale;
+					}
+
+					var trackMirror = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "TrackMirror" && x.activeInHierarchy);
+					if (trackMirror != null)
+					{
+						trackMirror.transform.position = new Vector3(0.3f, 0f, 6.55f);
+						trackMirror.transform.localScale = invertedScale;
+					}
+
+					var trackShadow = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "TrackShadow" && x.activeInHierarchy);
+					if (trackShadow != null)
+					{
+						trackShadow.transform.position = new Vector3(0f, -0.3f, 126.1f);
+						trackShadow.transform.localScale = invertedScale;
+					}
+
+					var playersPlace = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "PlayersPlace" && x.activeInHierarchy);
+					if (playersPlace != null)
+					{
+						playersPlace.transform.localScale = invertedScale;
+					}
+
+					var playersPlaceShadow = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "PlayersPlaceShadow" && x.activeInHierarchy);
+					if (playersPlaceShadow != null)
+					{
+						playersPlaceShadow.transform.localScale = invertedScale;
+					}
+
+					var hud = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "NarrowGameHUD" && x.activeInHierarchy);
+					if (hud != null)
+					{
+						hud.transform.localScale = invertedScale;
+					}
+
+					//Use different defaults for this environment
+					_videoPlayer.SetPlacement(_currentVideo?.screenPosition ?? new Vector3(0f, 7.9f, 45f), _currentVideo?.screenRotation ?? Vector3.zero, _currentVideo?.screenHeight ?? 16f, _currentVideo?.screenCurvature ?? 0f);
+					break;
+				}
 			}
 		}
 
