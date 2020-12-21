@@ -576,6 +576,43 @@ namespace BeatSaberCinema
 					}
 					break;
 				}
+				case "DragonsEnvironment":
+				{
+					var spectrograms = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == "Spectrogram" && x.activeInHierarchy);
+					foreach (var spectrogram in spectrograms)
+					{
+						var pos = spectrogram.transform.position;
+						var newX = 16;
+						if (pos.x < 0)
+						{
+							newX *= -1;
+						}
+						spectrogram.transform.position = new Vector3(newX, pos.y, pos.z);
+					}
+
+					var topConstructionParts = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("TopConstruction") && x.activeInHierarchy);
+					foreach (var topConstruction in topConstructionParts)
+					{
+						var pos = topConstruction.transform.position;
+						topConstruction.transform.position = new Vector3(pos.x, 27.0f, pos.z);
+					}
+
+					var hallConstruction = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "HallConstruction" && x.activeInHierarchy);
+					if (hallConstruction != null)
+					{
+						var pos = hallConstruction.transform.position;
+						hallConstruction.transform.position = new Vector3(pos.x, 22.0f, pos.z);
+					}
+
+					var trackLaneRings = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("PanelsTrackLaneRing") && x.activeInHierarchy);
+					foreach (var ring in trackLaneRings)
+					{
+						var pos = ring.transform.position;
+						ring.transform.position = new Vector3(pos.x, pos.y, pos.z - 10f);
+						ring.transform.localScale = new Vector3(3.5f, 3.5f, 1f);
+					}
+					break;
+				}
 			}
 		}
 

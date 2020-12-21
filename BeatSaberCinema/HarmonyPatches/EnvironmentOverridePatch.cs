@@ -30,7 +30,7 @@ namespace BeatSaberCinema
 					environmentInfoSo = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(environmentInfoSo.environmentType);
 				}
 
-				var environmentWhitelist = new[] {"BigMirrorEnvironment", "OriginsEnvironment", "BTSEnvironment", "KDAEnvironment", "RocketEnvironment"};
+				var environmentWhitelist = new[] {"BigMirrorEnvironment", "OriginsEnvironment", "BTSEnvironment", "KDAEnvironment", "RocketEnvironment", "DragonsEnvironment"};
 				if (environmentWhitelist.Contains(environmentInfoSo.serializedName))
 				{
 					overrideEnvironmentEnabled = false;
