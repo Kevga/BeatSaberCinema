@@ -167,11 +167,10 @@ namespace BeatSaberCinema
 		{
 			//Scale doesnt need to be a vector. Width is calculated based on height and aspect ratio. Depth is a constant value.
 			height ??= _defaultGameplayHeight;
-			var nonNullHeight = height ?? _defaultGameplayHeight;
 			_screen.SetPlacement(position ?? _defaultGameplayPosition,
 				rotation ?? _defaultGameplayRotation,
-				GetAspectRatio() * nonNullHeight,
-				nonNullHeight,
+				GetAspectRatio() * height.Value,
+				height.Value,
 				curvatureDegrees);
 		}
 
