@@ -22,7 +22,7 @@ After that, select a song in-game and to your left, select "Mods" from the menu.
 
 Click download in the center of the menu and wait for the download to complete, then simply play the map. If the download takes too long for you, you can lower the video quality from the main menu settings.
 
-You can of course add videos to any song you like, even if they are not pre-configured. The menu will in that case show you a button labeled "Search", which will lead you to the search results from YouTube. After you choose a video, you will have to adjust the video offset. To do so, simply click the "Preview" button to play the video, and use the "+" or "-" buttons to adjust the offset until the sound from both ears lines up. Sound from the video will play in your left ear. If the sound from the left ear is behind, click the "+" buttons, otherwise the "-" buttons until the sound from both ears lines up. The sync doesn't have to be exactly perfect though.
+You can of course add videos to any song you like, even if they are not pre-configured. The menu will in that case show you a button labeled "Search", which will lead you to the search results from YouTube. After you choose a video, you will have to adjust the video offset. To do so, simply click the "Preview" button to play the video, and use the "+" or "-" buttons to adjust the offset until the sound from both ears lines up. Sound from the video will play in your left ear, the map in your right ear. If the sound from the left ear is behind, use the "+" buttons, otherwise the "-" buttons. The sync doesn't have to be exactly perfect though, in most cases you will not notice a slight error in either direction when playing the map.
 
 Cinema is also compatible with video configs created with MusicVideoPlayer. You can't however use both plugins at the same time. If MVP is installed as well, Cinema will not be enabled to avoid conflicts.
 
@@ -51,21 +51,23 @@ Please note that currently you have to close the game before editing the json fi
 
 The following table lists the currently available configuration options:
 
-| Property                   | Data Type | Default          | Required | Example | Description |
-| -------------------------- |:---------:|:----------------:|:--------:| ------- | ----------- |
-| `videoID`                  | `string`  | *none*           | **yes**  | _qwnHeMKbVA | The YouTube video ID from the URL, e.g.: `https://youtube.com/watch?v=_qwnHeMKbVA` |
-| `title`                    | `string`  | Untitled Video   | no       | Madeon - The Prince (Visual Video) | The title of the video |
-| `author`                   | `string`  | Unknown Author   | no       | Chris P | The name of the video's uploader |
-| `videoFile`                | `string`  | *none*           | no       | Madeon - The Prince (Visual Video).mp4 | Name of the video file on the local file system. Path is not included, the file is assumed to be in the map's folder. Will be set automatically after downloading and set to the title of the video, with illegal characters replaced by `_`. |
-| `duration`                 | `int`     | 0                | **yes**  | 225 | Video duration in **seconds** |
-| `offset`                   | `int`     | 0                | **yes**  | -1100 | The offset in **milliseconds** to align the video with the map. Use the video menu in-game to determine the offset. |
-| `formatVersion`            | `int`     | 1                | no       | 1 | The file format version. Always leave at the default. May be used in the future to convert older configs in case the format changes drastically. |
-| `loop`                     | `bool`    | false            | no       | false | Whether the video should loop if it ends before the map does. |
-| `configByMapper`           | `bool`    | false            | no       | false | Used to indicate whether the config was created by the mapper. May in the future be used to mark it as the "official" config. |
-| `screenPosition`           | `Vector3` | `(0, 12.40, 68)` | no       | `{"x": 0.0,"y": 12.4,"z": 100.0}` | This setting can be used to create a custom positioning of the video player. **x** is the deviation from the center, **y** is up/down and **z** controls the distance. |
-| `screenRotation`           | `Vector3` | `(352, 0, 0)`    | no       | `{"x": 352.0,"y": 0.0,"z": 0.0}` | Rotates the video screen. By default, it tilts down by 8 degrees for better visibility. |
-| `screenHeight`             | `float`   | 25.0             | no       |  25.0 | Determines the size of the screen. There is no setting for the width, since that is calculated automatically by the height and the aspect ratio of the video. If you change the height, you might want to also change the **y** positioning of the screen so it doesn't float above the ground. |
-| `disableBigMirrorOverride` | `bool`    | false            | no       | true | If set to `true`, will prevent the plugin from loading the Big Mirror environment, which works best for video configs without custom screen positioning. |
+| Property                   | Data Type | Default       	     | Required | Example | Description |
+| -------------------------- |:---------:|:---------------------:|:--------:| ------- | ----------- |
+| `videoID`                  | string    | *none*           	 | **yes**  | _qwnHeMKbVA | The YouTube video ID from the URL, e.g.: `https://youtube.com/watch?v=_qwnHeMKbVA` |
+| `title`                    | string    | Untitled Video   	 | no       | Madeon - The Prince (Visual Video) | The title of the video |
+| `author`                   | string    | Unknown Author   	 | no       | Chris P | The name of the video's uploader |
+| `videoFile`                | string    | *none*           	 | no       | Madeon - The Prince (Visual Video).mp4 | Name of the video file on the local file system. Path is not included, the file is assumed to be in the map's folder. Will be set automatically after downloading and set to the title of the video, with illegal characters replaced by `_`. |
+| `duration`                 | int       | 0                	 | **yes**  | 225 | Video duration in **seconds** |
+| `offset`                   | int       | 0                	 | **yes**  | -1100 | The offset in **milliseconds** to align the video with the map. Use the video menu in-game to determine the offset. |
+| `formatVersion`            | int       | 1                	 | no       | 1 | The file format version. Always leave at the default. May be used in the future to convert older configs in case the format changes drastically. |
+| `loop`                     | bool      | false            	 | no       | false | Whether the video should loop if it ends before the map does. |
+| `configByMapper`           | bool      | false            	 | no       | false | Used to indicate whether the config was created by the mapper. May in the future be used to mark it as the "official" config. |
+| `screenPosition`           | Vector3   | `(0, 12.40, 68)` 	 | no       | `{"x": 0.0,"y": 12.4,"z": 100.0}` | This setting can be used to create a custom positioning of the video player. **x** is the deviation from the center, **y** is up/down and **z** controls the distance. |
+| `screenRotation`           | Vector3   | `(-8, 0, 0)`     	 | no       | `{"x": -8.0,"y": 0.0,"z": 0.0}` | Rotates the video screen. By default, it tilts down by 8 degrees for better visibility. |
+| `screenHeight`             | float     | 25.0             	 | no       |  25.0 | Determines the size of the screen. There is no setting for the width, since that is calculated automatically by the height and the aspect ratio of the video. If you change the height, you might want to also change the **y** positioning of the screen so it doesn't float above the ground. |
+| `disableBigMirrorOverride` | bool      | false                 | no       | true | If set to `true`, will prevent the plugin from loading the Big Mirror environment, which works best for video configs without custom screen positioning. |
+| `transparency`			 | bool		 | true (user's choice)  | no	    | false | Include this in your config if you want to override the user's choice and force transparency to be enabled or disabled. |
+| `screenCurvature`			 | int		 | automatic		     | no	    | 45    | Use this setting to force a specific curvature of the screen. The allowed range of values is 0-180 (degrees). Setting this to 0 forces curvature to be disabled. If this parameter is not included and the user has curvature enabled, the curvature is calculated automatically based on the distance of the screen and the aspect ratio of the video.|
 
 There is an additional property called `environment` which can be used to alter other objects in the game scene. More details on that coming soon.
 
