@@ -22,6 +22,7 @@ namespace BeatSaberCinema
 		private SongPreviewPlayer _songPreviewPlayer = null!;
 		private AudioSource[] _songPreviewAudioSources = null!;
 		private AudioSource? _activeAudioSource;
+		private float _lastKnownAudioSourceTime;
 
 		public bool IsPreviewPlaying { get; private set; }
 		public float PanStereo
@@ -115,9 +116,30 @@ namespace BeatSaberCinema
 			_videoPlayer.IsSyncing = true;
 			_activeAudioSource.Pause();
 
-			//We add a frame extra to account for delay before playback starts again after seeking
-			_videoPlayer.Player.time = _activeAudioSource!.time + (_currentVideo!.offset / 1000f);
+			ResyncVideo();
 			Plugin.Logger.Debug("Applying offset: "+offset);
+		}
+
+		public void ResyncVideo()
+		{
+			if (_activeAudioSource == null)
+			{
+				return;
+			}
+
+
+			var newTime = _activeAudioSource.time + (_currentVideo!.offset / 1000f);
+
+			if (newTime < 0)
+			{
+				_videoPlayer.Hide();
+				StartCoroutine(PlayVideoDelayedCoroutine(-newTime));
+			}
+			else
+			{
+				_videoPlayer.Player.time = newTime;
+			}
+
 		}
 
 		public void FrameReady(VideoPlayer videoPlayer, long frame)
@@ -144,6 +166,14 @@ namespace BeatSaberCinema
 			{
 				Plugin.Logger.Debug("Frame: "+frame+" - Player: "+Util.FormatFloat((float) playerTime) + " - AudioSource: " + Util.FormatFloat(audioSourceTime) + " - Error (ms): "+Math.Round(error*1000));
 			}
+
+			if (Math.Abs(audioSourceTime - _lastKnownAudioSourceTime) > 0.3f)
+			{
+				Plugin.Logger.Debug("Detected AudioSource seek, resyncing...");
+				ResyncVideo();
+			}
+
+			_lastKnownAudioSourceTime = audioSourceTime;
 
 			if (!_videoPlayer.IsSyncing)
 			{
@@ -215,6 +245,7 @@ namespace BeatSaberCinema
 			Plugin.Logger.Debug("MenuSceneLoaded");
 			_videoPlayer.Stop();
 			_videoPlayer.Hide();
+			StopAllCoroutines();
 
 			if (_currentVideo != null)
 			{
@@ -773,6 +804,12 @@ namespace BeatSaberCinema
 			Plugin.Logger.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {_videoPlayer.Player.time}");
 
 			StopAllCoroutines();
+
+			if (_activeAudioSource != null)
+			{
+				_lastKnownAudioSourceTime = _activeAudioSource.time;
+			}
+
 			if (totalOffset < 0)
 			{
 				if (!IsPreviewPlaying)
@@ -798,10 +835,18 @@ namespace BeatSaberCinema
 			Plugin.Logger.Debug("Waiting for "+delayStartTime+" seconds before playing video");
 			Stopwatch stopwatch = new Stopwatch();
 			stopwatch.Start();
+			_videoPlayer.Pause();
 			_videoPlayer.Player.time = 0;
 			var ticksUntilStart = (delayStartTime) * TimeSpan.TicksPerSecond;
 			yield return new WaitUntil(() => stopwatch.ElapsedTicks >= ticksUntilStart);
 			Plugin.Logger.Debug("Elapsed ms: "+stopwatch.ElapsedMilliseconds);
+
+			if (_activeAudioSource != null)
+			{
+				_lastKnownAudioSourceTime = _activeAudioSource.time;
+			}
+
+			_videoPlayer.Show();
 			_videoPlayer.Play();
 		}
 
