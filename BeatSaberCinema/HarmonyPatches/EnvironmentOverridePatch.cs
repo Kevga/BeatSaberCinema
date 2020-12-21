@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using CustomJSONData;
-using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -43,15 +41,6 @@ namespace BeatSaberCinema
 				} else if (video.disableBigMirrorOverride != null && video.disableBigMirrorOverride == true)
 				{
 					overrideEnvironmentEnabled = false;
-				}
-
-				//Disable override if Chroma needs a specific environment for the map
-				if (difficultyBeatmap.beatmapData is CustomBeatmapData customBeatmapData)
-				{
-					if (Trees.at(customBeatmapData.beatmapCustomData, "_environmentRemoval") != null)
-					{
-						overrideEnvironmentEnabled = false;
-					}
 				}
 
 				if (!overrideEnvironmentEnabled)
