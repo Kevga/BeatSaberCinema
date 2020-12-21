@@ -1,22 +1,30 @@
-## BeatSaberCinema
+# BeatSaberCinema
 
 A Beat Saber plugin that allows you to sync up videos to play alongside your maps, heavily inspired by MusicVideoPlayer. Made by Dakari#0638
 
-### How to use
+## How to use
 
-The plugin includes more than 50 video configurations for you to try. You can download some of the pre-configured levels, a selection of which you can find below:
+### 1. Installation
+To install Cinema, download the latest release and simply unzip all of it's contents into the Beat Saber folder. Make sure you don't skip the files in the Libs folder, those are required, too. Make sure you have all the [requirements](https://github.com/Kevga/BeatSaberCinema#requirements) installed from ModAssistant.
+
+### 2. Download Pre-Configured Maps (*optional*)
+The plugin includes more than 50 video configurations for you to try. For your convenience, here are a few examples:
 
 - [Madeon - The Prince \[Bearly & dgrj4life\]](https://beatsaver.com/beatmap/110ac)
 - [2WEI feat. Edda Hayes - Warriors \[halcyon12\]](https://beatsaver.com/beatmap/8e98)
-- [Reol - Utena \[ETAN\]](https://beatsaver.com/beatmap/abc4)
+- [Reol - Utena \[Pixelguy & Rayman\]](https://beatsaver.com/beatmap/b24b)
 - [JVNA - Catch Me \[nitronik.exe\]](https://beatsaver.com/beatmap/bc4e)
 - [Yorushika - Say It \[squeaksies\]](https://beatsaver.com/beatmap/4a21)
 - [Dreamcatcher - Scream \[noxn; simplymarvellous; aggrogahu\]](https://beatsaver.com/beatmap/8d49)
 - [K/DA - MORE \[DACK\]](https://beatsaver.com/beatmap/1059c)
+- [BLACKPINK - Kill This Love \[aggrogahu\]](https://beatsaver.com/beatmap/46be)
 
-Because of popular demand, you can find a full list (without download links) [here](Resources/bundled-configs.txt). Please note however, that you can add a video to any map you like.
+You can find the full list of maps with videos (without download links) [here](Resources/bundled-configs.txt).
+**Please note that you can add a video to any map you like, the maps listed here are not the only ones Cinema works with**.
 
-After that, select a song in-game and to your left, select "Mods" from the menu. Look for the tab "Cinema", which should look like this:
+
+### 3. Downloading Videos
+Select a song in-game, look to your left to the panel labeled "Gameplay Setup" and press on the tab "Mods". Look for the tab "Cinema", which should look like this:
 
 ![Video Menu Screenshot](Resources/video-menu.png)
 
@@ -26,7 +34,7 @@ You can of course add videos to any song you like, even if they are not pre-conf
 
 Cinema is also compatible with video configs created with MusicVideoPlayer. You can't however use both plugins at the same time. If MVP is installed as well, Cinema will not be enabled to avoid conflicts.
 
-### Requirements
+## Requirements
 
 The following plugins are **required** for Cinema to work:
 
@@ -36,12 +44,11 @@ The following plugins are **required** for Cinema to work:
 - CustomJSONData
 
 You can find all of these in ModAssistant.
-
 Additionally, this plugin **conflicts** with:
 
 - MusicVideoPlayer
 
-### JSON Format
+## JSON Format
 
 *This section is intended for mappers*
 
@@ -69,7 +76,7 @@ The following table lists the currently available configuration options:
 | `transparency`			 | bool		 | true (user's choice)  | no	    | false | Include this in your config if you want to override the user's choice and force transparency to be enabled or disabled. |
 | `screenCurvature`			 | int		 | automatic		     | no	    | 45    | Use this setting to force a specific curvature of the screen. The allowed range of values is 0-180 (degrees). Setting this to 0 forces curvature to be disabled. If this parameter is not included and the user has curvature enabled, the curvature is calculated automatically based on the distance of the screen and the aspect ratio of the video.|
 
-There is an additional property called `environment` which can be used to alter other objects in the game scene. More details on that coming soon.
+There is an additional property called `environment` which can be used to alter other objects in the game scene. More details on that coming soon. Talk to me on Discord if you need details.
 
 When editing the json file by hand, make sure to use a json validator to check for errors afterwards. You can find web apps for this on your search engine of choice.
 
@@ -113,9 +120,9 @@ Here is an example config that uses some of the more advanced settings, includin
 }
 ```
 
-### Playing local files not found on YouTube
+## Playing local files not found on YouTube
 
-If you want to play videos that are not found on YouTube in a map, you'll have to create a config by hand. You can use the template below and edit the entries, see the section about the JSON format above for reference. Make sure to use a JSON validator afterwards to find errors if there are any.
+If you want to play videos that are not found on YouTube in a map (*a certain green ogre comes to mind*), you'll have to create a config by hand. You can use the template below and edit the entries, see the section about the JSON format above for reference. Make sure to use a JSON validator afterwards to find errors if there are any.
 
 The *Video ID* is currently required, but obviously doesn't exist if the video is not found on YouTube. It will be used to display the thumbnail of the video inside the game. You can either leave it empty, in which case the thumbnail will be missing, or you can find a related video on YouTube with a thumbnail that fits your video and enter that video's ID.
 
@@ -135,7 +142,7 @@ Template for local videos:
 }
 ```
 
-### Contributing
+## Contributing
 
 I'd happily accept pull requests if you want to help out. To set up the development environment, create a file called `BeatSaberCinema.csproj.user` with the following content, and change the path where your Beat Saber installation is located, if necessary:
 
@@ -149,7 +156,7 @@ I'd happily accept pull requests if you want to help out. To set up the developm
 </Project>
 ```
 
-### Special thanks
+## Special thanks
 
 Special thanks go to:
 
@@ -161,5 +168,3 @@ For keeping MVP alive across many game updates
 
 - The **youtube-dl** and **ffmpeg** projects:
 Used to download and convert the videos
-
-
