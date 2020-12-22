@@ -646,7 +646,6 @@ namespace BeatSaberCinema
 					foreach (var ring in trackLaneRings)
 					{
 						var pos = ring.transform.position;
-						ring.transform.position = new Vector3(pos.x, pos.y, pos.z - 10f);
 						ring.transform.localScale = new Vector3(3.5f, 3.5f, 1f);
 					}
 					break;
