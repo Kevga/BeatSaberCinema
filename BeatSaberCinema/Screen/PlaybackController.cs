@@ -163,7 +163,7 @@ namespace BeatSaberCinema
 				PrepareVideo(_currentVideo);
 			}
 
-			if (!_activeAudioSource.isPlaying)
+			if (!_activeAudioSource.isPlaying && !_videoPlayer.IsSyncing)
 			{
 				return;
 			}
