@@ -715,7 +715,7 @@ namespace BeatSaberCinema
 					}
 
 					//Use different defaults for this environment
-					_videoPlayer.SetPlacement(_currentVideo?.screenPosition ?? new Vector3(0f, 6.2f, 45f), _currentVideo?.screenRotation ?? Vector3.zero, _currentVideo?.screenHeight ?? 16f, _currentVideo?.screenCurvature ?? 0f);
+					_videoPlayer.SetPlacement(_currentVideo?.screenPosition ?? new Vector3(0f, 6.2f, 52.7f), _currentVideo?.screenRotation ?? Vector3.zero, _currentVideo?.screenHeight ?? 16f, _currentVideo?.screenCurvature ?? 0f);
 					break;
 				}
 			}
