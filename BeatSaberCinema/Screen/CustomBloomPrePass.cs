@@ -20,7 +20,10 @@ namespace BeatSaberCinema
 		private Renderer _renderer = null!;
 		private Mesh _mesh = null!;
 		private static readonly int Alpha = Shader.PropertyToID("_Alpha");
-		private const int DOWNSAMPLE = 1;
+		private const int DOWNSAMPLE = 2;
+		private const float BLOOM_BOOST_FACTOR = 0.08f;
+		private float _boost1;
+		private float _boost2;
 
 		private void Start()
 		{
@@ -41,6 +44,13 @@ namespace BeatSaberCinema
 		{
 			_mesh = GetComponent<MeshFilter>().mesh;
 			_renderer = GetComponent<Renderer>();
+		}
+
+		public void UpdateBloomBoost(float screenHeight, float screenDistance)
+		{
+			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(screenHeight/screenDistance)) * (float) Math.Sqrt(SettingsStore.Instance.BloomIntensity/100f);
+			_boost1 = _boost2 = boost;
+			Plugin.Logger.Debug("Set bloom boost to "+boost);
 		}
 
 		private void GetPrivateFields(Camera camera)
@@ -155,8 +165,8 @@ namespace BeatSaberCinema
 			RenderTexture blur2 = RenderTexture.GetTemporary(bloomPrePassParams.textureWidth >> DOWNSAMPLE, bloomPrePassParams.textureHeight >> DOWNSAMPLE,
 				0, RenderTextureFormat.RGB111110Float, RenderTextureReadWrite.Linear);
 			DoubleBlur(temporary, blur2,
-				KawaseBlurRendererSO.KernelSize.Kernel135, 0.06f,
-				KawaseBlurRendererSO.KernelSize.Kernel15, 0.03f, 0.8f, DOWNSAMPLE);
+				KawaseBlurRendererSO.KernelSize.Kernel127, _boost1,
+				KawaseBlurRendererSO.KernelSize.Kernel35, _boost2, 0.5f, DOWNSAMPLE);
 
 			Graphics.Blit(blur2, bloomPrePassRenderData.bloomPrePassRenderTexture, _additiveMaterial);
 

@@ -36,6 +36,13 @@ namespace BeatSaberCinema
 	        set => SettingsStore.Instance.OverrideEnvironment = value;
         }
 
+        [UIValue("bloom-intensity")]
+        public int BloomIntensity
+        {
+	        get => SettingsStore.Instance.BloomIntensity;
+	        set => SettingsStore.Instance.BloomIntensity = value;
+        }
+
         [UIValue("curved-screen")]
         public bool CurvedScreen
         {
@@ -89,6 +96,7 @@ namespace BeatSaberCinema
             {
 	            //Throws NRE if the settings menu is open while the plugin gets disabled (e.g. by closing the game)
 	            PlaybackController.Instance.HideScreen();
+	            PlaybackController.Instance.SetMenuPlacement();
             }
             catch (Exception e)
             {

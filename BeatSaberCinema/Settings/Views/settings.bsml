@@ -1,13 +1,21 @@
 <!--suppress CheckTagEmptyBody -->
 <settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                     xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-    <bool-setting apply-on-change="true" text='Play videos' value='show-video'
+    <bool-setting apply-on-change="true" text='Play Videos' value='show-video'
                       hover-hint='Enable or disable video playback'></bool-setting>
 	<dropdown-list-setting apply-on-change="true" text='Download Quality' value='quality' options='modes'></dropdown-list-setting>
-	<bool-setting apply-on-change="true" text='Force "Big Mirror" environment' value='override-environment'
+	<bool-setting apply-on-change="true" text='Force "Big Mirror" Environment' value='override-environment'
 				  hover-hint='Force the use of the Big Mirror environment for songs with videos.&#xD;&#xA;&#xD;&#xA;It is recommended to leave this checked for the best experience.'></bool-setting>
-	<bool-setting apply-on-change="true" text='Curved screen' value='curved-screen'
+	<bool-setting apply-on-change="true" text='Curved Screen' value='curved-screen'
 				  hover-hint='Curves the screen slightly towards you, based on the distance.'></bool-setting>
-	<bool-setting apply-on-change="true" text='Transparent screen' value='transparency-enabled'
+	<bool-setting apply-on-change="true" text='Transparent Screen' value='transparency-enabled'
 				  hover-hint='Enables you to see through the screen. The darker the video, the more transparent the screen becomes.&#xD;&#xA;&#xD;&#xA;Turn off if you prefer the video to be more clearly visible.'></bool-setting>
+	<horizontal horizontal-fit="PreferredSize">
+		<horizontal horizontal-fit="PreferredSize">
+			<text text="Bloom Intensity" italics="true"></text>
+		</horizontal>
+		<horizontal horizontal-fit="PreferredSize">
+			<slider-setting apply-on-change="true" integer-only="true" value="bloom-intensity" text="" hover-hint="Change the amount of glow around the screen when the image is bright. Default is 100." min="0" max="150" increment="5"></slider-setting>
+		</horizontal>
+	</horizontal>
 </settings-container>
