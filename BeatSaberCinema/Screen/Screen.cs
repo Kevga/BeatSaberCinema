@@ -30,7 +30,8 @@ namespace BeatSaberCinema
 			GameObject body = new GameObject("CinemaScreenBody");
 			_screenBodySurface = body.AddComponent<CurvedSurface>();
 			body.transform.parent = _screenGameObject.transform;
-			body.transform.localPosition = new Vector3(0, 0, 0.025f);
+			body.transform.localPosition = new Vector3(0, 0, 0.1f); //A fixed offset is necessary for the center segments of the curved screen
+			body.transform.localScale = new Vector3(1.0015f, 1.0015f, 1.0015f);
 			Renderer bodyRenderer = body.GetComponent<Renderer>();
 			bodyRenderer.material = new Material(Resources.FindObjectsOfTypeAll<Material>()
 				.Last(x => x.name == "DarkEnvironmentSimple"));
@@ -80,7 +81,7 @@ namespace BeatSaberCinema
 		public void InitializeSurfaces(float width, float height, float distance, float? curvatureDegrees)
 		{
 			_screenSurface.Initialize(width, height, distance, curvatureDegrees);
-			_screenBodySurface.Initialize(width+0.15f, height+0.05f, distance+0.05f, curvatureDegrees);
+			_screenBodySurface.Initialize(width, height, distance, curvatureDegrees);
 		}
 
 		public void RegenerateScreenSurfaces()
