@@ -5,7 +5,7 @@ A Beat Saber plugin that allows you to sync up videos to play alongside your map
 ## How to use
 
 ### 1. Installation
-To install Cinema, download the latest release and simply unzip all of it's contents into the Beat Saber folder. Make sure you don't skip the files in the Libs folder, those are required, too. Make sure you have all the [requirements](https://github.com/Kevga/BeatSaberCinema#requirements) installed from ModAssistant.
+To install Cinema, download the latest release and simply unzip all of it's contents into the Beat Saber folder. Make sure you don't skip the files in the Libs folder, as those are required, too. Please also check if you have all the [requirements](https://github.com/Kevga/BeatSaberCinema#requirements) installed from ModAssistant.
 
 ### 2. Download Pre-Configured Maps (*optional*)
 The plugin includes more than 50 video configurations for you to try. For your convenience, here are a few examples:
@@ -24,13 +24,13 @@ You can find the full list of maps with videos (without download links) [here](R
 
 
 ### 3. Downloading Videos
-Select a song in-game, look to your left to the panel labeled "Gameplay Setup" and press on the tab "Mods". Look for the tab "Cinema", which should look like this:
+Select a song in-game, look to your left to the panel labeled "Gameplay Setup" and press on the tab "Mods" and then on "Cinema", which should look like this:
 
 ![Video Menu Screenshot](Resources/video-menu.png)
 
 Click download in the center of the menu and wait for the download to complete, then simply play the map. If the download takes too long for you, you can lower the video quality from the main menu settings.
 
-You can of course add videos to any song you like, even if they are not pre-configured. The menu will in that case show you a button labeled "Search", which will lead you to the search results from YouTube. After you choose a video, you will have to adjust the video offset. To do so, simply click the "Preview" button to play the video, and use the "+" or "-" buttons to adjust the offset until the sound from both ears lines up. Sound from the video will play in your left ear, the map in your right ear. If the sound from the left ear is behind, use the "+" buttons, otherwise the "-" buttons. The sync doesn't have to be exactly perfect though, in most cases you will not notice a slight error in either direction when playing the map.
+You can of course add videos to any song you like, even if they are not pre-configured. The menu will in that case show you a button labeled "Search", which will lead you to the search results from YouTube. After you choose a video, you will have to adjust the video offset. To do so, simply click the "Preview" button to play the video, and use the "+" or "-" buttons to adjust the offset until the sound from both ears lines up. Sound from the video will play in your left ear, the map in your right ear. If the sound from the left ear is behind, use the "+" buttons, otherwise the "-" buttons. If you have trouble hearing which one is ahead, try stopping and restarting the preview and listen to which one starts earlier. The sync doesn't have to be exactly perfect though, in most cases you will not notice a slight error in either direction when playing the map.
 
 Cinema is also compatible with video configs created with MusicVideoPlayer. You can't however use both plugins at the same time. If MVP is installed as well, Cinema will not be enabled to avoid conflicts.
 
@@ -48,11 +48,21 @@ Additionally, this plugin **conflicts** with:
 
 - MusicVideoPlayer
 
+## Info for Mappers
+
+*This section is intended for mappers*
+
+If you want to add a video to your map, you can simply set it up in the game from the WIP maps section. Refer to the section [Downloading Videos](https://github.com/Kevga/BeatSaberCinema#3-downloading-videos) for details on how to do that. The video configuration will be stored in the same folder as the map itself, in a file called **cinema-video.json**. You can include the json file in the zip file you upload to BeatSaver. **Please do not include the actual video file, the users will download that themselves from YouTube.**
+
+You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments to make the video screen fit in seamlessly. If your chosen environment is not yet supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
+
+If you have any questions, please contact me on Discord (Dakari#0638).
+
 ## JSON Format
 
 *This section is intended for mappers*
 
-The video configuration will be stored in the same folder as the map itself, in a file called **cinema-video.json**. If you are a mapper, you can include the json file in the zip you upload to BeatSaver. Editing the json file by hand allows you to modify some settings that are not available in-game, for example to create a custom screen placement. Cinema includes the ability to change any object in the game scene, to better fit the video screen.
+Editing the json file by hand allows you to modify some settings that are not available in-game, for example to create a custom screen placement. Cinema includes the ability to change any object in the game scene, to better fit the video screen in environments that are currently not supported by Cinema.
 
 Please note that currently you have to close the game before editing the json file, as otherwise the plugin will overwrite your changes. This may change in the future.
 
@@ -74,9 +84,9 @@ The following table lists the currently available configuration options:
 | `screenHeight`             | float     | 25.0             	 | no       |  25.0 | Determines the size of the screen. There is no setting for the width, since that is calculated automatically by the height and the aspect ratio of the video. If you change the height, you might want to also change the **y** positioning of the screen so it doesn't float above the ground. |
 | `disableBigMirrorOverride` | bool      | false                 | no       | true | If set to `true`, will prevent the plugin from loading the Big Mirror environment, which works best for video configs without custom screen positioning. |
 | `transparency`			 | bool		 | true (user's choice)  | no	    | false | Include this in your config if you want to override the user's choice and force transparency to be enabled or disabled. |
-| `screenCurvature`			 | int		 | automatic		     | no	    | 45    | Use this setting to force a specific curvature of the screen. The allowed range of values is 0-180 (degrees). Setting this to 0 forces curvature to be disabled. If this parameter is not included and the user has curvature enabled, the curvature is calculated automatically based on the distance of the screen and the aspect ratio of the video.|
+| `screenCurvature`			 | float     | automatic		     | no	    | 45.0    | Use this setting to force a specific curvature of the screen. The allowed range of values is 0-180 (degrees). Setting this to 0 forces curvature to be disabled. If this parameter is not included and the user has curvature enabled, the curvature is calculated automatically based on the distance and the width of the screen.|
 
-There is an additional property called `environment` which can be used to alter other objects in the game scene. More details on that coming soon. Talk to me on Discord if you need details.
+There is an additional property called `environment` which can be used to alter other objects in the game scene. More details on that coming soon. Talk to me on Discord if you need details in the meantime.
 
 When editing the json file by hand, make sure to use a json validator to check for errors afterwards. You can find web apps for this on your search engine of choice.
 
