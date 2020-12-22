@@ -163,6 +163,11 @@ namespace BeatSaberCinema
 				PrepareVideo(_currentVideo);
 			}
 
+			if (!_activeAudioSource.isPlaying)
+			{
+				return;
+			}
+
 			if (frame % 120 == 0)
 			{
 				Plugin.Logger.Debug("Frame: "+frame+" - Player: "+Util.FormatFloat((float) playerTime) + " - AudioSource: " + Util.FormatFloat(audioSourceTime) + " - Error (ms): "+Math.Round(error*1000));
@@ -235,6 +240,7 @@ namespace BeatSaberCinema
 		{
 			StopPlayback();
 			HideScreen();
+			StopAllCoroutines();
 
 			if (stopPreviewMusic && IsPreviewPlaying)
 			{
