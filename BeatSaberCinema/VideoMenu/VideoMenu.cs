@@ -264,6 +264,10 @@ namespace BeatSaberCinema
 			{
 				PlaybackController.Instance.StopPreview(true);
 				PlaybackController.Instance.HideScreen();
+				if (_currentVideo != null)
+				{
+					PlaybackController.Instance.PrepareVideo(_currentVideo);
+				}
 			}
 			catch (Exception exception)
 			{

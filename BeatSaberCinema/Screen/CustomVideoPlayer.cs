@@ -49,6 +49,7 @@ namespace BeatSaberCinema
 		}
 
 		public float FrameDuration => Player.frameRate / 1000f;
+		public float VideoDuration => (float) Player.length;
 		public float Volume
 		{
 			set => _videoPlayerAudioSource.volume = value;

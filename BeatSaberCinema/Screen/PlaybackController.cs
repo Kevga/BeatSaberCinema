@@ -122,13 +122,12 @@ namespace BeatSaberCinema
 
 		public void ResyncVideo()
 		{
-			if (_activeAudioSource == null)
+			if (_activeAudioSource == null || _currentVideo == null)
 			{
 				return;
 			}
 
-
-			var newTime = _activeAudioSource.time + (_currentVideo!.offset / 1000f);
+			var newTime = _activeAudioSource.time + (_currentVideo.offset / 1000f);
 
 			if (newTime < 0)
 			{
@@ -136,11 +135,13 @@ namespace BeatSaberCinema
 				StopAllCoroutines();
 				StartCoroutine(PlayVideoDelayedCoroutine(-newTime));
 			}
-			else
+			else if (newTime > _videoPlayer.VideoDuration && _videoPlayer.VideoDuration > 0)
 			{
-				_videoPlayer.Player.time = newTime;
+				newTime %= _videoPlayer.VideoDuration;
 			}
 
+			_videoPlayer.Player.time = newTime;
+			Plugin.Logger.Debug("Set time to: " + _videoPlayer.Player.time);
 		}
 
 		public void FrameReady(VideoPlayer videoPlayer, long frame)
@@ -153,6 +154,10 @@ namespace BeatSaberCinema
 			var audioSourceTime = _activeAudioSource.time;
 			var playerTime = _videoPlayer.Player.time;
 			var referenceTime = audioSourceTime + (_currentVideo!.offset / 1000f);
+			if (_videoPlayer.VideoDuration > 0)
+			{
+				referenceTime %= _videoPlayer.VideoDuration;
+			}
 			var error = referenceTime - playerTime;
 
 			if (audioSourceTime == 0 && !_activeAudioSource.isPlaying && IsPreviewPlaying && !_videoPlayer.IsSyncing)
@@ -179,9 +184,10 @@ namespace BeatSaberCinema
 				ResyncVideo();
 			}
 
-			if (Math.Abs(error) > 0.3f)
+			//Sync if the error exceeds a threshold, but not if the video is close to the looping point
+			if (Math.Abs(error) > 0.3f && Math.Abs(_videoPlayer.VideoDuration - playerTime) > 0.5f)
 			{
-				Plugin.Logger.Debug("Detected desync, resyncing...");
+				Plugin.Logger.Debug($"Detected desync (reference {referenceTime}, actual {playerTime}), resyncing...");
 				ResyncVideo();
 			}
 
@@ -811,6 +817,12 @@ namespace BeatSaberCinema
 			if (!IsPreviewPlaying)
 			{
 				totalOffset += 0.0667f;
+			}
+
+			//This will fail if the video is not prepared yet
+			if (_videoPlayer.VideoDuration > 0)
+			{
+				totalOffset %= _videoPlayer.VideoDuration;
 			}
 
 			Plugin.Logger.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {_videoPlayer.Player.time}");
