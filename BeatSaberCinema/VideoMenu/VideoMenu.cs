@@ -524,7 +524,6 @@ namespace BeatSaberCinema
 			_downloadButton.interactable = false;
 			VideoConfig config = new VideoConfig(_downloadController.SearchResults[_selectedCell], _currentLevel);
 			VideoLoader.SaveVideoConfig(config);
-			VideoLoader.AddConfigToCache(config);
 			_downloadController.StartDownload(config);
 			_currentVideo = config;
 			SetupVideoDetails();

@@ -17,7 +17,6 @@ namespace BeatSaberCinema
 		private const string CONFIG_FILENAME = "cinema-video.json";
 		private const string CONFIG_FILENAME_MVP = "video.json";
 
-		private static readonly ConcurrentDictionary<string, VideoConfig> CachedConfigs = new ConcurrentDictionary<string, VideoConfig>();
 		private static readonly ConcurrentDictionary<string, VideoConfig> BundledConfigs = new ConcurrentDictionary<string, VideoConfig>();
 
 		// ReSharper disable once InconsistentNaming
@@ -42,24 +41,7 @@ namespace BeatSaberCinema
 			foreach (var config in configs)
 			{
 				BundledConfigs.TryAdd(config.levelID, config.config);
-				Plugin.Logger.Debug($"Adding config for level {config.levelID}: {config.config.videoFile}");
 			}
-		}
-
-		public static void AddConfigToCache(VideoConfig config)
-		{
-			CachedConfigs.TryAdd(config.Level.levelID, config);
-		}
-
-		private static void RemoveConfigFromCache(VideoConfig config)
-		{
-			CachedConfigs.TryRemove(config.Level.levelID, out _);
-		}
-
-		private static VideoConfig? GetConfigFromCache(IPreviewBeatmapLevel level)
-		{
-			CachedConfigs.TryGetValue(level.levelID, out var config);
-			return config;
 		}
 
 		private static VideoConfig? GetConfigFromBundledConfigs(IPreviewBeatmapLevel level)
@@ -70,12 +52,6 @@ namespace BeatSaberCinema
 
 		public static VideoConfig? GetConfigForLevel(IPreviewBeatmapLevel level)
 		{
-			var cachedConfig = GetConfigFromCache(level);
-			if (cachedConfig != null)
-			{
-				return cachedConfig;
-			}
-
 			if (level.GetType() == typeof(PreviewBeatmapLevelSO))
 			{
 				//DLC songs currently not supported.
@@ -101,10 +77,6 @@ namespace BeatSaberCinema
 			if (results.Length != 0)
 			{
 				videoConfig = LoadConfig(results[0], levelPath, level);
-				if (videoConfig != null)
-				{
-					AddConfigToCache(videoConfig);
-				}
 			}
 			else
 			{
@@ -114,7 +86,6 @@ namespace BeatSaberCinema
 				{
 					videoConfig.Level = level;
 					videoConfig.NeedsToSave = true;
-					AddConfigToCache(videoConfig);
 					Plugin.Logger.Debug("Success");
 				}
 			}
@@ -212,7 +183,6 @@ namespace BeatSaberCinema
 				Plugin.Logger.Error(e);
 			}
 
-			RemoveConfigFromCache(videoConfig);
 			Plugin.Logger.Info("Deleted video config");
 
 			return true;
@@ -264,7 +234,6 @@ namespace BeatSaberCinema
 
 			videoConfig.Level = level;
 			videoConfig.UpdateDownloadState();
-			AddConfigToCache(videoConfig);
 
 			return videoConfig;
 		}
