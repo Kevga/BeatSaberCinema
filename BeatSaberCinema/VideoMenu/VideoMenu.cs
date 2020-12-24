@@ -79,7 +79,7 @@ namespace BeatSaberCinema
 
 			if (!_downloadController.LibrariesAvailable())
 			{
-				Plugin.Logger.Warn("One or more of the libraries are missing. Downloading will most likely not work.");
+				Plugin.Logger.Warn("One or more of the libraries are missing. Downloading videos will not work.");
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace BeatSaberCinema
 
 			if (!_downloadController.LibrariesAvailable())
 			{
-				_noVideoText.text = "Libraries not found. Please reinstall Cinema.";
+				_noVideoText.text = "Libraries not found. Please reinstall Cinema.\r\nMake sure you unzip the files from the Libs folder into 'Beat Saber\\Libs'.";
 				return;
 			}
 
@@ -169,7 +169,7 @@ namespace BeatSaberCinema
 		{
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
 
-			if (_currentVideo == null || !_videoMenuActive)
+			if (_currentVideo == null || !_videoMenuActive || !_downloadController.LibrariesAvailable())
 			{
 				ResetVideoMenu();
 				return;
