@@ -71,11 +71,12 @@ namespace BeatSaberCinema
 			_screenGameObject.transform.parent = parentTransform;
 		}
 
-		public void SetPlacement(Vector3 pos, Vector3 rot, float width, float height, float? curvatureDegrees)
+		public void SetPlacement(Vector3 pos, Vector3 rot, float width, float height, float? curvatureDegrees = null)
 		{
 			_screenGameObject.transform.position = pos;
 			_screenGameObject.transform.eulerAngles = rot;
 			InitializeSurfaces(width, height, pos.z, curvatureDegrees);
+			RegenerateScreenSurfaces();
 		}
 
 		public void InitializeSurfaces(float width, float height, float distance, float? curvatureDegrees)

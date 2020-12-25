@@ -18,6 +18,10 @@ namespace BeatSaberCinema
 		private readonly Vector3 _defaultGameplayRotation = new Vector3(-8, 0, 0);
 		private readonly float _defaultGameplayHeight = 25;
 
+		private readonly Vector3 _defaultCoverPosition = new Vector3(0, 5.9f, 55f);
+		private readonly Vector3 _defaultCoverRotation = new Vector3(-8, 0, 0);
+		private readonly float _defaultCoverHeight = 12;
+
 		private readonly Vector3 _menuPosition = new Vector3(0, 3.90f, 16);
 		private readonly Vector3 _menuRotation = new Vector3(0, 0, 0);
 		private readonly float _menuHeight = 8;
@@ -102,8 +106,7 @@ namespace BeatSaberCinema
 			Player.audioOutputMode = VideoAudioOutputMode.AudioSource;
 			Player.SetTargetAudioSource(0, _videoPlayerAudioSource);
 
-			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
-			BSEvents.gameSceneLoaded += OnGameSceneLoaded;
+			BSEvents.menuSceneLoaded += SetDefaultMenuPlacement;
 		}
 
 		private void CreateScreen()
@@ -111,17 +114,7 @@ namespace BeatSaberCinema
 			_screen =  gameObject.AddComponent<Screen>();
 			_screen.SetTransform(transform);
 			_screen.Show();
-			OnMenuSceneLoaded();
-		}
-
-		private void OnMenuSceneLoaded()
-		{
-			SetMenuPlacement();
-		}
-
-		private void OnGameSceneLoaded()
-		{
-			SetPlacement(_defaultGameplayPosition, _defaultGameplayRotation, _defaultGameplayHeight);
+			SetDefaultMenuPlacement();
 		}
 
 		private Shader GetShader()
@@ -158,20 +151,18 @@ namespace BeatSaberCinema
 			IsSyncing = false;
 		}
 
-		public void SetMenuPlacement()
+		public void SetDefaultMenuPlacement()
 		{
-			SetPlacement(_menuPosition, _menuRotation, _menuHeight);
-			RegenerateScreen();
+			SetPlacement(_menuPosition, _menuRotation, _menuHeight * (21f/9f), _menuHeight);
 		}
 
-		public void SetPlacement(SerializableVector3? position, SerializableVector3? rotation, float? height, float? curvatureDegrees = null)
+		public void SetPlacement(SerializableVector3? position, SerializableVector3? rotation, float? width = null, float? height = null, float? curvatureDegrees = null)
 		{
 			//Scale doesnt need to be a vector. Width is calculated based on height and aspect ratio. Depth is a constant value.
-			height ??= _defaultGameplayHeight;
 			_screen.SetPlacement(position ?? _defaultGameplayPosition,
 				rotation ?? _defaultGameplayRotation,
-				GetAspectRatio() * height.Value,
-				height.Value,
+				width ?? height * GetVideoAspectRatio() ?? _defaultGameplayHeight * GetVideoAspectRatio(),
+				height ?? _defaultGameplayHeight,
 				curvatureDegrees);
 		}
 
@@ -185,9 +176,8 @@ namespace BeatSaberCinema
 			{
 				_waitForFirstFrame = false;
 				SetScreenColor(_screenColorOn);
-				_screen.SetAspectRatio(GetAspectRatio());
+				_screen.SetAspectRatio(GetVideoAspectRatio());
 				Player.frameReady -= FrameReady;
-
 			}
 		}
 
@@ -241,8 +231,23 @@ namespace BeatSaberCinema
 
 		public void Update()
 		{
-			//This is required for the CustomBloomPrePass
-			_screen.GetRenderer().material.SetTexture(MainTex, Player.texture);
+			if (Player.isPlaying)
+			{
+				SetTexture(Player.texture);
+			}
+		}
+
+		private void SetTexture(Texture texture)
+		{
+			_screen.GetRenderer().material.SetTexture(MainTex, texture);
+		}
+
+		public void SetStaticTexture(Texture texture)
+		{
+			var width = ((float) texture.width / texture.height) * _defaultCoverHeight;
+			SetTexture(texture);
+			SetPlacement(_defaultCoverPosition, _defaultCoverRotation, width, _defaultCoverHeight);
+			SetScreenColor(_screenColorOn);
 		}
 
 		private static void VideoPlayerPrepareComplete(VideoPlayer source)
@@ -267,18 +272,17 @@ namespace BeatSaberCinema
 			Plugin.Logger.Error("Video player error: " + message);
 		}
 
-		private float GetAspectRatio()
+		private float GetVideoAspectRatio()
 		{
-			if (Player == null)
-			{
-				return 16f / 9f;
-			}
 			var texture = Player.texture;
-			if (texture == null || texture.width == 0 || texture.height == 0)
+			if (texture != null && texture.width != 0 && texture.height != 0)
 			{
-				return 16f / 9f;
+				var aspectRatio = (float) texture.width / texture.height;
+				return aspectRatio;
 			}
-			return (float) texture.width / texture.height;
+
+			Plugin.Logger.Debug("Using default aspect ratio (texture missing)");
+			return 16f / 9f;
 		}
 
 		public void Mute()
@@ -294,11 +298,6 @@ namespace BeatSaberCinema
 		public void SetScreenDistance(float value)
 		{
 			_screen.SetDistance(value);
-		}
-
-		public void RegenerateScreen()
-		{
-			_screen.RegenerateScreenSurfaces();
 		}
 	}
 }

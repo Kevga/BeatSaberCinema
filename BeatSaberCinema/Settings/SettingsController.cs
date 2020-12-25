@@ -50,7 +50,7 @@ namespace BeatSaberCinema
 	        set
 	        {
 		        SettingsStore.Instance.CurvedScreen = value;
-		        PlaybackController.Instance.SetMenuPlacement();
+		        PlaybackController.Instance.SetDefaultMenuPlacement();
 	        }
         }
 
@@ -73,6 +73,13 @@ namespace BeatSaberCinema
 	        }
         }
 
+        [UIValue("cover-enabled")]
+        public bool CoverEnabled
+        {
+	        get => SettingsStore.Instance.CoverEnabled;
+	        set => SettingsStore.Instance.CoverEnabled = value;
+        }
+
         [UIValue("quality")]
         public string QualityMode
         {
@@ -86,6 +93,7 @@ namespace BeatSaberCinema
             if (SettingsStore.Instance.PlaybackEnabled)
             {
 	            PlaybackController.Instance.ShowScreen();
+	            PlaybackController.Instance.SetDefaultMenuPlacement();
             }
         }
 
@@ -96,7 +104,7 @@ namespace BeatSaberCinema
             {
 	            //Throws NRE if the settings menu is open while the plugin gets disabled (e.g. by closing the game)
 	            PlaybackController.Instance.HideScreen();
-	            PlaybackController.Instance.SetMenuPlacement();
+	            PlaybackController.Instance.SetDefaultMenuPlacement();
             }
             catch (Exception e)
             {

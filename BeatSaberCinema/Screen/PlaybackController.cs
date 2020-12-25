@@ -83,9 +83,9 @@ namespace BeatSaberCinema
 			_videoPlayer.HideScreenBody();
 		}
 
-		public void SetMenuPlacement()
+		public void SetDefaultMenuPlacement()
 		{
-			_videoPlayer.SetMenuPlacement();
+			_videoPlayer.SetDefaultMenuPlacement();
 		}
 
 		public void PauseVideo()
@@ -304,6 +304,34 @@ namespace BeatSaberCinema
 			PrepareVideo(_currentVideo);
 		}
 
+		private void ShowSongCover()
+		{
+			if (_currentLevel == null)
+			{
+				return;
+			}
+
+			try
+			{
+				var coverSprite = _currentLevel.GetCoverImageAsync(new CancellationToken()).Result;
+				_videoPlayer.SetStaticTexture(coverSprite.texture);
+				ShowScreen();
+
+				if (!SettingsStore.Instance.TransparencyEnabled)
+				{
+					_videoPlayer.ShowScreenBody();
+				}
+				else
+				{
+					_videoPlayer.HideScreenBody();
+				}
+			}
+			catch (Exception e)
+			{
+				Plugin.Logger.Error(e);
+			}
+		}
+
 		private void GameSceneLoaded()
 		{
 			StopAllCoroutines();
@@ -320,6 +348,10 @@ namespace BeatSaberCinema
 			if (_currentVideo == null || !_currentVideo.IsPlayable)
 			{
 				Plugin.Logger.Debug("No video configured or video is not playable");
+				if (SettingsStore.Instance.CoverEnabled)
+				{
+					ShowSongCover();
+				}
 				return;
 			}
 
@@ -327,6 +359,8 @@ namespace BeatSaberCinema
 			{
 				VideoLoader.SaveVideoConfig(_currentVideo);
 			}
+
+			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, null, _currentVideo?.screenHeight, _currentVideo?.screenCurvature);
 
 			ModifyGameScene();
 			SetAudioSourcePanning(0);
@@ -363,7 +397,6 @@ namespace BeatSaberCinema
 		private void ModifyGameScene()
 		{
 			Plugin.Logger.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName);
-			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, _currentVideo?.screenHeight, _currentVideo?.screenCurvature);
 
 			try
 			{
@@ -726,7 +759,7 @@ namespace BeatSaberCinema
 					}
 
 					//Use different defaults for this environment
-					_videoPlayer.SetPlacement(_currentVideo?.screenPosition ?? new Vector3(0f, 6.2f, 52.7f), _currentVideo?.screenRotation ?? Vector3.zero, _currentVideo?.screenHeight ?? 16f, _currentVideo?.screenCurvature ?? 0f);
+					_videoPlayer.SetPlacement(_currentVideo?.screenPosition ?? new Vector3(0f, 6.2f, 52.7f), _currentVideo?.screenRotation ?? Vector3.zero, null, _currentVideo?.screenHeight ?? 16f, _currentVideo?.screenCurvature ?? 0f);
 					break;
 				}
 			}
