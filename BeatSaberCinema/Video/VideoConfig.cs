@@ -45,7 +45,7 @@ namespace BeatSaberCinema
 					return Path.Combine(LevelDir, videoFile);
 				}
 
-				if (videoFile != null && !IsLocal)
+				if (videoFile != null && IsStreamable)
 				{
 					return videoFile;
 				}
@@ -56,8 +56,9 @@ namespace BeatSaberCinema
 
 		[JsonIgnore] public string LevelDir => VideoLoader.GetLevelPath(Level);
 		[JsonIgnore] public IPreviewBeatmapLevel Level = null!;
-		[JsonIgnore] public bool IsLocal => videoFile != null && !videoFile.StartsWith("http");
-		[JsonIgnore] public bool IsPlayable => DownloadState == DownloadState.Downloaded || !IsLocal;
+		[JsonIgnore] public bool IsStreamable => videoFile != null && (videoFile.StartsWith("http://") || videoFile.StartsWith("https://"));
+		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
+		[JsonIgnore] public bool IsPlayable => DownloadState == DownloadState.Downloaded || IsStreamable;
 
 
 		private static Regex _regexParseID = new Regex(@"\/watch\?v=([a-z0-9_-]*)",

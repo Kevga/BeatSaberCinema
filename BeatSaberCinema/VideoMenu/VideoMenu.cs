@@ -210,17 +210,17 @@ namespace BeatSaberCinema
 			}
 			else if (videoConfig.DownloadState == DownloadState.NotDownloaded)
 			{
-				if (_currentVideo.IsLocal)
-				{
-					_videoStatusText.text = "Not downloaded";
-					_videoStatusText.color = Color.red;
-					_previewButton.interactable = false;
-				}
-				else
+				if (_currentVideo.IsStreamable)
 				{
 					_videoStatusText.text = "Streaming";
 					_videoStatusText.color = Color.yellow;
 					_previewButton.interactable = true;
+				}
+				else
+				{
+					_videoStatusText.text = "Not downloaded";
+					_videoStatusText.color = Color.red;
+					_previewButton.interactable = false;
 				}
 			} else if (videoConfig.DownloadState == DownloadState.Cancelled)
 			{
