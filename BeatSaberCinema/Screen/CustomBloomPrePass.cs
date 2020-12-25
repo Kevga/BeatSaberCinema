@@ -21,13 +21,13 @@ namespace BeatSaberCinema
 		private Mesh _mesh = null!;
 		private static readonly int Alpha = Shader.PropertyToID("_Alpha");
 		private const int DOWNSAMPLE = 2;
-		private const float BLOOM_BOOST_FACTOR = 0.08f;
-		private float _boost1;
-		private float _boost2;
+		private const float BLOOM_BOOST_FACTOR = 0.11f;
+		private float _screenWidth;
+		private float _screenHeight;
 
 		private void Start()
 		{
-			_mesh = GetComponent<MeshFilter>().mesh;
+			UpdateMesh();
 			_renderer = GetComponent<Renderer>();
 
 			KawaseBloomMainEffectSO kawaseBloomMainEffect = Resources.FindObjectsOfTypeAll<KawaseBloomMainEffectSO>().First();
@@ -43,14 +43,30 @@ namespace BeatSaberCinema
 		public void UpdateMesh()
 		{
 			_mesh = GetComponent<MeshFilter>().mesh;
-			_renderer = GetComponent<Renderer>();
 		}
 
-		public void UpdateBloomBoost(float screenHeight, float screenDistance)
+		public void UpdateScreenDimensions(float width, float height)
 		{
-			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(screenHeight/screenDistance)) * (float) Math.Sqrt(SettingsStore.Instance.BloomIntensity/100f);
-			_boost1 = _boost2 = boost;
-			Plugin.Logger.Debug("Set bloom boost to "+boost);
+			_screenWidth = width;
+			_screenHeight = height;
+		}
+
+		private float GetBloomBoost(Camera camera)
+		{
+			//Base calculation scales down with screen width and up with distance
+			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(_screenWidth/GetCameraDistance(camera)));
+
+			//Apply user setting on top
+			boost *= (float) Math.Sqrt(SettingsStore.Instance.BloomIntensity / 100f);
+
+			//Mitigate extreme amounts of bloom at the edges of the camera frustum when not looking directly at the screen
+			boost /= (Vector3.Distance(camera.transform.forward, Vector3.forward) + 1)* (camera.fieldOfView / 90f);
+			return boost;
+		}
+
+		private float GetCameraDistance(Camera camera)
+		{
+			return (gameObject.transform.position - camera.transform.position).magnitude;
 		}
 
 		private void GetPrivateFields(Camera camera)
@@ -162,11 +178,12 @@ namespace BeatSaberCinema
 			Graphics.DrawMeshNow(_mesh, Matrix4x4.TRS(transformTemp.position, transformTemp.rotation, transformTemp.lossyScale));
 			GL.PopMatrix();
 
+			var boost = GetBloomBoost(camera);
 			RenderTexture blur2 = RenderTexture.GetTemporary(bloomPrePassParams.textureWidth >> DOWNSAMPLE, bloomPrePassParams.textureHeight >> DOWNSAMPLE,
 				0, RenderTextureFormat.RGB111110Float, RenderTextureReadWrite.Linear);
 			DoubleBlur(temporary, blur2,
-				KawaseBlurRendererSO.KernelSize.Kernel127, _boost1,
-				KawaseBlurRendererSO.KernelSize.Kernel35, _boost2, 0.5f, DOWNSAMPLE);
+				KawaseBlurRendererSO.KernelSize.Kernel127, boost,
+				KawaseBlurRendererSO.KernelSize.Kernel35, boost, 0.5f, DOWNSAMPLE);
 
 			Graphics.Blit(blur2, bloomPrePassRenderData.bloomPrePassRenderTexture, _additiveMaterial);
 

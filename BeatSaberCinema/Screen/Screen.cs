@@ -83,7 +83,7 @@ namespace BeatSaberCinema
 		{
 			_screenSurface.Initialize(width, height, distance, curvatureDegrees);
 			_screenBodySurface.Initialize(width, height, distance, curvatureDegrees);
-			_screenBloomPrePass.UpdateBloomBoost(height, distance);
+			_screenBloomPrePass.UpdateScreenDimensions(width, height);
 		}
 
 		public void RegenerateScreenSurfaces()
