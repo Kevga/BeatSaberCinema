@@ -21,6 +21,7 @@ namespace BeatSaberCinema
 		public int offset; //in ms
 		public int formatVersion = CURREN_FORMAT_VERSION;
 		public bool? loop;
+		public float? endVideoAt;
 		public bool? configByMapper;
 		public bool? transparency;
 

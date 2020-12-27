@@ -175,17 +175,27 @@ namespace BeatSaberCinema
 
 			if (frame % 120 == 0)
 			{
-				Plugin.Logger.Debug("Frame: "+frame+" - Player: "+Util.FormatFloat((float) playerTime) + " - AudioSource: " + Util.FormatFloat(audioSourceTime) + " - Error (ms): "+Math.Round(error*1000));
+				Plugin.Logger.Debug("Frame: " + frame + " - Player: " + Util.FormatFloat((float) playerTime) + " - AudioSource: " +
+				                    Util.FormatFloat(audioSourceTime) + " - Error (ms): " + Math.Round(error * 1000));
 			}
 
-			if (Math.Abs(audioSourceTime - _lastKnownAudioSourceTime) > 0.3f)
+			if (_currentVideo.endVideoAt != null)
+			{
+				if (audioSourceTime > _currentVideo.endVideoAt)
+				{
+					Plugin.Logger.Debug("Reached video endpoint as configured at "+audioSourceTime);
+					_videoPlayer.Pause();
+				}
+			}
+
+			if (Math.Abs(audioSourceTime - _lastKnownAudioSourceTime) > 0.3f && _videoPlayer.IsPlaying)
 			{
 				Plugin.Logger.Debug("Detected AudioSource seek, resyncing...");
 				ResyncVideo();
 			}
 
 			//Sync if the error exceeds a threshold, but not if the video is close to the looping point
-			if (Math.Abs(error) > 0.3f && Math.Abs(_videoPlayer.VideoDuration - playerTime) > 0.5f)
+			if (Math.Abs(error) > 0.3f && Math.Abs(_videoPlayer.VideoDuration - playerTime) > 0.5f && _videoPlayer.IsPlaying)
 			{
 				Plugin.Logger.Debug($"Detected desync (reference {referenceTime}, actual {playerTime}), resyncing...");
 				ResyncVideo();
@@ -808,6 +818,12 @@ namespace BeatSaberCinema
 
 			_videoPlayer.Show();
 			_videoPlayer.IsSyncing = false;
+
+			if (_currentVideo.endVideoAt != null && startTime > _currentVideo.endVideoAt)
+			{
+				startTime = _currentVideo.endVideoAt.Value;
+			}
+
 			if ((_currentVideo.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
 			    (_currentVideo.transparency != null && !_currentVideo.transparency.Value))
 			{
