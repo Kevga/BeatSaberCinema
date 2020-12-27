@@ -53,6 +53,8 @@ namespace BeatSaberCinema
 
 		private float GetBloomBoost(Camera camera)
 		{
+			var fov = camera.fieldOfView;
+
 			//Base calculation scales down with screen width and up with distance
 			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(_screenWidth/GetCameraDistance(camera)));
 
@@ -60,7 +62,13 @@ namespace BeatSaberCinema
 			boost *= (float) Math.Sqrt(SettingsStore.Instance.BloomIntensity / 100f);
 
 			//Mitigate extreme amounts of bloom at the edges of the camera frustum when not looking directly at the screen
-			boost /= (Vector3.Distance(camera.transform.forward, Vector3.forward) + 1)* (camera.fieldOfView / 90f);
+			var distance = Vector3.Distance(camera.transform.forward, Vector3.forward);
+			var threshold = 0.3f;
+			distance = Math.Max(threshold, distance); //Prevent brightness from fluctuating when looking close to the center
+			boost /= ((distance + (1 - threshold)) * (fov / 100f));
+
+			//Adjust for FoV
+			boost *= fov / 100f;
 			return boost;
 		}
 
