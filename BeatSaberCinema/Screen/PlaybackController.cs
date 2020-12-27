@@ -410,7 +410,11 @@ namespace BeatSaberCinema
 
 			try
 			{
-				DefaultSceneModifications();
+				if (_currentVideo!.disableEnvironmentModifications == null || _currentVideo.disableEnvironmentModifications.Value == false)
+				{
+					DefaultSceneModifications();
+				}
+
 				VideoConfigSceneModifications();
 			}
 			catch (Exception e)
