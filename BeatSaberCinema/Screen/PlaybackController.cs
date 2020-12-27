@@ -181,9 +181,9 @@ namespace BeatSaberCinema
 
 			if (_currentVideo.endVideoAt != null)
 			{
-				if (audioSourceTime > _currentVideo.endVideoAt)
+				if (referenceTime >= _currentVideo.endVideoAt)
 				{
-					Plugin.Logger.Debug("Reached video endpoint as configured at "+audioSourceTime);
+					Plugin.Logger.Debug("Reached video endpoint as configured at "+referenceTime);
 					_videoPlayer.Pause();
 				}
 			}
@@ -819,11 +819,6 @@ namespace BeatSaberCinema
 			_videoPlayer.Show();
 			_videoPlayer.IsSyncing = false;
 
-			if (_currentVideo.endVideoAt != null && startTime > _currentVideo.endVideoAt)
-			{
-				startTime = _currentVideo.endVideoAt.Value;
-			}
-
 			if ((_currentVideo.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
 			    (_currentVideo.transparency != null && !_currentVideo.transparency.Value))
 			{
@@ -866,6 +861,11 @@ namespace BeatSaberCinema
 			if (!IsPreviewPlaying)
 			{
 				totalOffset += 0.0667f;
+			}
+
+			if (_currentVideo.endVideoAt != null && totalOffset > _currentVideo.endVideoAt)
+			{
+				totalOffset = _currentVideo.endVideoAt.Value;
 			}
 
 			//This will fail if the video is not prepared yet
