@@ -26,7 +26,10 @@ namespace BeatSaberCinema
 		private readonly Vector3 _menuRotation = new Vector3(0, 0, 0);
 		private readonly float _menuHeight = 8;
 
-
+		private const float DEFAULT_BRIGHTNESS = 1f;
+		private const float DEFAULT_CONTRAST = 1f;
+		private const float DEFAULT_SATURATION = 1f;
+		private const float DEFAULT_HUE = 0f;
 
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
 
@@ -34,6 +37,10 @@ namespace BeatSaberCinema
 		private readonly Color _screenColorOn = Color.white.ColorWithAlpha(0f) * SCREEN_BRIGHTNESS;
 		private readonly Color _screenColorOff = Color.clear;
 		private static readonly int MainTex = Shader.PropertyToID(MAIN_TEXTURE_NAME);
+		private static readonly int Brightness = Shader.PropertyToID("_Brightness");
+		private static readonly int Contrast = Shader.PropertyToID("_Contrast");
+		private static readonly int Saturation = Shader.PropertyToID("_Saturation");
+		private static readonly int Hue = Shader.PropertyToID("_Hue");
 		private bool _waitForFirstFrame;
 
 		private float _correctPlaybackSpeed = 1.0f;
@@ -227,6 +234,25 @@ namespace BeatSaberCinema
 		public void SetScreenColor(Color color)
 		{
 			_screenRenderer.material.color = color;
+		}
+
+		public void SetShaderParameters(float? brightness, float? contrast, float? saturation, float? hue)
+		{
+			brightness ??= DEFAULT_BRIGHTNESS;
+			contrast ??= DEFAULT_CONTRAST;
+			saturation ??= DEFAULT_SATURATION;
+			hue ??= DEFAULT_HUE;
+
+			brightness = Math.Min(2f, Math.Max(0f, brightness.Value));
+			contrast = Math.Min(2f, Math.Max(0f, contrast.Value));
+			saturation = Math.Min(2f, Math.Max(0f, saturation.Value));
+
+			Plugin.Logger.Debug($"Setting shader params brightness {brightness}, contrast {contrast}, saturation {saturation}, hue {hue}");
+
+			_screenRenderer.material.SetFloat(Brightness, brightness.Value);
+			_screenRenderer.material.SetFloat(Contrast, contrast.Value);
+			_screenRenderer.material.SetFloat(Saturation, saturation.Value);
+			_screenRenderer.material.SetFloat(Hue, hue.Value);
 		}
 
 		public void Update()
