@@ -35,6 +35,7 @@ namespace BeatSaberCinema
 		public float? contrast;
 		public float? saturation;
 		public float? hue;
+		public float? bloom;
 
 		public EnvironmentModification[]? environment;
 

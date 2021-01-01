@@ -93,6 +93,11 @@ namespace BeatSaberCinema
 			_screenBloomPrePass.UpdateMesh();
 		}
 
+		public void SetBloomIntensity(float? bloomIntensity)
+		{
+			_screenBloomPrePass.SetBloomIntensityConfigSetting(bloomIntensity);
+		}
+
 		public void SetDistance(float distance)
 		{
 			var currentPos = _screenGameObject.transform.position;

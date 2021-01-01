@@ -953,6 +953,7 @@ namespace BeatSaberCinema
 
 			_videoPlayer.Player.isLooping = (video.loop == true);
 			_videoPlayer.SetShaderParameters(video.brightness, video.contrast, video.saturation, video.hue);
+			_videoPlayer.SetBloomIntensity(video.bloom);
 
 			if (video.VideoPath == null)
 			{

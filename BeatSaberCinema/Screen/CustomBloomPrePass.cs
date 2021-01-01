@@ -22,6 +22,7 @@ namespace BeatSaberCinema
 		private static readonly int Alpha = Shader.PropertyToID("_Alpha");
 		private const int DOWNSAMPLE = 2;
 		private const float BLOOM_BOOST_FACTOR = 0.11f;
+		private float? _bloomIntensityConfigSetting;
 		private float _screenWidth;
 		private float _screenHeight;
 
@@ -51,6 +52,11 @@ namespace BeatSaberCinema
 			_screenHeight = height;
 		}
 
+		public void SetBloomIntensityConfigSetting(float? bloomIntensity)
+		{
+			_bloomIntensityConfigSetting = bloomIntensity;
+		}
+
 		private float GetBloomBoost(Camera camera)
 		{
 			var fov = camera.fieldOfView;
@@ -58,8 +64,18 @@ namespace BeatSaberCinema
 			//Base calculation scales down with screen width and up with distance
 			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(_screenWidth/GetCameraDistance(camera)));
 
-			//Apply user setting on top
-			boost *= (float) Math.Sqrt(SettingsStore.Instance.BloomIntensity / 100f);
+			//Apply map/user setting on top
+			if (_bloomIntensityConfigSetting != null)
+			{
+				Plugin.Logger.Debug("Overriding user bloom intensity with map config setting");
+				_bloomIntensityConfigSetting = Math.Min(2f, Math.Max(0f, _bloomIntensityConfigSetting.Value));
+				boost *= (float) Math.Sqrt(_bloomIntensityConfigSetting.Value);
+			}
+			else
+			{
+				boost *= (float) Math.Sqrt(SettingsStore.Instance.BloomIntensity / 100f);
+			}
+
 
 			//Mitigate extreme amounts of bloom at the edges of the camera frustum when not looking directly at the screen
 			var distance = Vector3.Distance(camera.transform.forward, Vector3.forward);

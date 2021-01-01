@@ -188,6 +188,11 @@ namespace BeatSaberCinema
 			}
 		}
 
+		public void SetBloomIntensity(float? bloomIntensity)
+		{
+			_screen.SetBloomIntensity(bloomIntensity);
+		}
+
 		public void Show()
 		{
 			_screen.Show();
