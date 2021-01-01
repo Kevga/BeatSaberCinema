@@ -285,6 +285,7 @@ namespace BeatSaberCinema
 				VideoLoader.DeleteVideo(video);
 			}
 
+			Plugin.Logger.Debug(eventArgs.Data);
 			ParseDownloadProgress(video, eventArgs);
 		}
 
@@ -345,10 +346,9 @@ namespace BeatSaberCinema
 
 		private IEnumerator WaitForDownloadToFinishCoroutine(VideoConfig video)
 		{
-			var timeout = new Timeout(1);
+			var timeout = new Timeout(3);
 			yield return new WaitUntil(() => timeout.HasTimedOut || File.Exists(video.VideoPath));
 
-			DownloadProgress?.Invoke(video);
 			DownloadFinished?.Invoke(video);
 			VideoMenu.instance.SetupVideoDetails();
 		}
