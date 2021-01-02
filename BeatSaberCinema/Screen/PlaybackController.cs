@@ -358,7 +358,12 @@ namespace BeatSaberCinema
 			if (_currentVideo == null || !_currentVideo.IsPlayable)
 			{
 				Plugin.Logger.Debug("No video configured or video is not playable");
-				if (SettingsStore.Instance.CoverEnabled)
+
+				if (_currentVideo != null && _currentVideo.forceEnvironmentModifications == true)
+				{
+					ModifyGameScene();
+				}
+				else if (SettingsStore.Instance.CoverEnabled)
 				{
 					ShowSongCover();
 				}
@@ -410,7 +415,7 @@ namespace BeatSaberCinema
 
 			try
 			{
-				if (_currentVideo!.disableEnvironmentModifications == null || _currentVideo.disableEnvironmentModifications.Value == false)
+				if (_currentVideo!.disableDefaultModifications == null || _currentVideo.disableDefaultModifications.Value == false)
 				{
 					DefaultSceneModifications();
 				}

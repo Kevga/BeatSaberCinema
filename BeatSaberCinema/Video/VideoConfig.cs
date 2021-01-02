@@ -30,7 +30,8 @@ namespace BeatSaberCinema
 		public float? screenHeight;
 		public float? screenCurvature;
 		public bool? disableBigMirrorOverride;
-		public bool? disableEnvironmentModifications;
+		public bool? disableDefaultModifications;
+		public bool? forceEnvironmentModifications;
 		public float? brightness;
 		public float? contrast;
 		public float? saturation;
