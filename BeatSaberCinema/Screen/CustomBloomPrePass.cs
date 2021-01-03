@@ -67,7 +67,6 @@ namespace BeatSaberCinema
 			//Apply map/user setting on top
 			if (_bloomIntensityConfigSetting != null)
 			{
-				Plugin.Logger.Debug("Overriding user bloom intensity with map config setting");
 				_bloomIntensityConfigSetting = Math.Min(2f, Math.Max(0f, _bloomIntensityConfigSetting.Value));
 				boost *= (float) Math.Sqrt(_bloomIntensityConfigSetting.Value);
 			}
