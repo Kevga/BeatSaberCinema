@@ -44,6 +44,7 @@ namespace BeatSaberCinema
 		[JsonIgnore, NonSerialized] public bool BackCompat;
 		[JsonIgnore, NonSerialized] public bool NeedsToSave;
 		[JsonIgnore, NonSerialized] public float DownloadProgress;
+		[JsonIgnore, NonSerialized] public string? LevelDir;
 		[JsonIgnore] public string? VideoPath
 		{
 			get
@@ -62,8 +63,6 @@ namespace BeatSaberCinema
 			}
 		}
 
-		[JsonIgnore] public string LevelDir => VideoLoader.GetLevelPath(Level);
-		[JsonIgnore] public IPreviewBeatmapLevel Level = null!;
 		[JsonIgnore] public bool IsStreamable => videoFile != null && (videoFile.StartsWith("http://") || videoFile.StartsWith("https://"));
 		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
 		[JsonIgnore] public bool IsPlayable => DownloadState == DownloadState.Downloaded || IsStreamable;
@@ -114,14 +113,14 @@ namespace BeatSaberCinema
 			videoID = match.Groups[1].Value;
 		}
 
-		public VideoConfig(DownloadController.YTResult searchResult, IPreviewBeatmapLevel level)
+		public VideoConfig(DownloadController.YTResult searchResult, string levelPath)
 		{
 			videoID = searchResult.ID;
 			title = searchResult.Title;
 			author = searchResult.Author;
 			duration = searchResult.Duration;
 
-			Level = level;
+			LevelDir = levelPath;
 		}
 
 		public new string ToString()

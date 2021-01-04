@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,9 @@ namespace BeatSaberCinema
 		private const string WIP_DIRECTORY_NAME = "CustomWIPLevels";
 		private const string CONFIG_FILENAME = "cinema-video.json";
 		private const string CONFIG_FILENAME_MVP = "video.json";
+
+		private static FileSystemWatcher? _fileSystemWatcher;
+		public static event Action<VideoConfig?>? ConfigChanged;
 
 		private static readonly ConcurrentDictionary<string, VideoConfig> BundledConfigs = new ConcurrentDictionary<string, VideoConfig>();
 
@@ -50,6 +54,61 @@ namespace BeatSaberCinema
 			return config;
 		}
 
+		public static void StopFileSystemWatcher()
+		{
+			_fileSystemWatcher?.Dispose();
+		}
+
+		public static void ListenForConfigChanges(IPreviewBeatmapLevel level)
+		{
+			_fileSystemWatcher?.Dispose();
+
+			var levelPath = GetLevelPath(level);
+			if (!Directory.Exists(levelPath))
+			{
+				return;
+			}
+
+			_fileSystemWatcher = new FileSystemWatcher();
+			var configPath = Path.Combine(levelPath, CONFIG_FILENAME);
+			_fileSystemWatcher.Path = Path.GetDirectoryName(configPath);
+			_fileSystemWatcher.Filter = Path.GetFileName(configPath);
+			_fileSystemWatcher.EnableRaisingEvents = true;
+
+			_fileSystemWatcher.Changed += ChangeHandlerDelegate;
+			_fileSystemWatcher.Created += ChangeHandlerDelegate;
+			_fileSystemWatcher.Deleted += ChangeHandlerDelegate;
+			_fileSystemWatcher.Renamed += ChangeHandlerDelegate;
+		}
+
+		private static void ChangeHandlerDelegate(object source, FileSystemEventArgs e)
+		{
+			OnConfigChanged(e);
+		}
+
+		private static void OnConfigChanged(FileSystemEventArgs e)
+		{
+			Plugin.Logger.Debug("Config "+e.ChangeType+" detected: "+e.FullPath);
+			SharedCoroutineStarter.instance.StartCoroutine(WaitForConfigWriteCoroutine(e));
+		}
+
+		private static IEnumerator WaitForConfigWriteCoroutine(FileSystemEventArgs e)
+		{
+			if (e.ChangeType == WatcherChangeTypes.Deleted)
+			{
+				ConfigChanged?.Invoke(null);
+				yield break;
+			}
+
+			var configPath = e.FullPath;
+			var configFileInfo = new FileInfo(configPath);
+			var timeout = new Timeout(3f);
+			yield return new WaitUntil(() =>
+				!Util.IsFileLocked(configFileInfo) || timeout.HasTimedOut);
+			var config = LoadConfig(configPath);
+			ConfigChanged?.Invoke(config);
+		}
+
 		public static VideoConfig? GetConfigForLevel(IPreviewBeatmapLevel level)
 		{
 			if (level.GetType() == typeof(PreviewBeatmapLevelSO))
@@ -76,7 +135,7 @@ namespace BeatSaberCinema
 
 			if (results.Length != 0)
 			{
-				videoConfig = LoadConfig(results[0], levelPath, level);
+				videoConfig = LoadConfig(results[0]);
 			}
 			else
 			{
@@ -84,7 +143,7 @@ namespace BeatSaberCinema
 				videoConfig = GetConfigFromBundledConfigs(level);
 				if (videoConfig != null)
 				{
-					videoConfig.Level = level;
+					videoConfig.LevelDir = GetLevelPath(level);
 					videoConfig.NeedsToSave = true;
 					Plugin.Logger.Debug("Success");
 				}
@@ -107,19 +166,18 @@ namespace BeatSaberCinema
 
 		public static void SaveVideoConfig(VideoConfig videoConfig)
 		{
-			var levelPath = GetLevelPath(videoConfig.Level);
-			if (!Directory.Exists(levelPath))
+			if (videoConfig.LevelDir == null || !Directory.Exists(videoConfig.LevelDir))
 			{
-				Plugin.Logger.Warn("Failed to save video. Path "+levelPath+" does not exist.");
+				Plugin.Logger.Warn("Failed to save video. Path "+videoConfig.LevelDir+" does not exist.");
 				return;
 			}
 
-			if (levelPath.Contains(WIP_DIRECTORY_NAME))
+			if (videoConfig.LevelDir.Contains(WIP_DIRECTORY_NAME))
 			{
 				videoConfig.configByMapper = true;
 			}
 
-			var videoJsonPath = Path.Combine(levelPath, CONFIG_FILENAME);
+			var videoJsonPath = Path.Combine(videoConfig.LevelDir, CONFIG_FILENAME);
 			Plugin.Logger.Info($"Saving video config to {videoJsonPath}");
 
 			try
@@ -188,12 +246,18 @@ namespace BeatSaberCinema
 			return true;
 		}
 
-		private static VideoConfig? LoadConfig(string jsonPath, string levelDir, IPreviewBeatmapLevel level)
+		private static VideoConfig? LoadConfig(string configPath)
 		{
+			if (!File.Exists(configPath))
+			{
+				Plugin.Logger.Warn("Config file "+configPath+" does not exist");
+				return null;
+			}
+
 			string json;
 			try
 			{
-				json = File.ReadAllText(jsonPath);
+				json = File.ReadAllText(configPath);
 			}
 			catch (Exception e)
 			{
@@ -204,10 +268,10 @@ namespace BeatSaberCinema
 			VideoConfig? videoConfig;
 			try
 			{
-				if (jsonPath.EndsWith("\\" + CONFIG_FILENAME))
+				if (configPath.EndsWith("\\" + CONFIG_FILENAME))
 				{
 					videoConfig = JsonConvert.DeserializeObject<VideoConfig>(json);
-				} else if (jsonPath.EndsWith("\\" + CONFIG_FILENAME_MVP))
+				} else if (configPath.EndsWith("\\" + CONFIG_FILENAME_MVP))
 				{
 					//Back compatiblity with MVP configs
 					var videoConfigListBackCompat = JsonConvert.DeserializeObject<VideoConfigListBackCompat>(json);
@@ -215,24 +279,24 @@ namespace BeatSaberCinema
 				}
 				else
 				{
-					Plugin.Logger.Error($"jsonPath {jsonPath} did not match Cinema or MVP formats");
+					Plugin.Logger.Error($"jsonPath {configPath} did not match Cinema or MVP formats");
 					return null;
 				}
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error($"Error parsing video json {jsonPath}:");
+				Plugin.Logger.Error($"Error parsing video json {configPath}:");
 				Plugin.Logger.Error(e);
 				return null;
 			}
 
 			if (videoConfig.videoID == null)
 			{
-				Plugin.Logger.Debug("Video ID is null for "+jsonPath);
+				Plugin.Logger.Debug("Video ID is null for "+configPath);
 				return null;
 			}
 
-			videoConfig.Level = level;
+			videoConfig.LevelDir = Path.GetDirectoryName(configPath);
 			videoConfig.UpdateDownloadState();
 
 			return videoConfig;

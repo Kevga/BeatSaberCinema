@@ -355,11 +355,10 @@ namespace BeatSaberCinema
 
 		private Process StartDownloadProcess(VideoConfig video)
 		{
-			string levelPath = VideoLoader.GetLevelPath(video.Level);
-			if (!Directory.Exists(levelPath))
+			if (!Directory.Exists(video.LevelDir))
 			{
-				//Mostly for OST videos
-				Directory.CreateDirectory(levelPath);
+				//Needed for OST videos
+				Directory.CreateDirectory(video.LevelDir);
 			}
 
 			string videoFileName = Util.ReplaceIllegalFilesystemChars(video.title ?? video.videoID ?? "video");
@@ -385,7 +384,7 @@ namespace BeatSaberCinema
 					RedirectStandardError = true,
 					UseShellExecute = false,
 					CreateNoWindow = true,
-					WorkingDirectory = levelPath
+					WorkingDirectory = video.LevelDir
 				},
 				EnableRaisingEvents = true,
 				PriorityBoostEnabled = true

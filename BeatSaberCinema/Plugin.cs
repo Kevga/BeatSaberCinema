@@ -62,6 +62,7 @@ namespace BeatSaberCinema
 			RemoveHarmonyPatches();
 			SettingsUI.RemoveMenu();
 			VideoMenu.instance.RemoveTab();
+			VideoLoader.StopFileSystemWatcher();
 			Logger.Info($"{nameof(BeatSaberCinema)} disabled");
 		}
 

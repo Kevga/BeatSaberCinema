@@ -76,6 +76,7 @@ namespace BeatSaberCinema
 			_downloadController.SearchProgress += SearchProgress;
 			_downloadController.DownloadProgress += UpdateStatusText;
 			_downloadController.DownloadFinished += OnDownloadFinished;
+			VideoLoader.ConfigChanged += OnConfigChanged;
 
 			if (!_downloadController.LibrariesAvailable())
 			{
@@ -241,7 +242,14 @@ namespace BeatSaberCinema
 
 			_currentLevel = level;
 			_currentVideo = VideoLoader.GetConfigForLevel(level);
+			VideoLoader.ListenForConfigChanges(level);
 			PlaybackController.Instance.SetSelectedLevel(level, _currentVideo);
+			SetupVideoDetails();
+		}
+
+		public void OnConfigChanged(VideoConfig? config)
+		{
+			_currentVideo = config;
 			SetupVideoDetails();
 		}
 
@@ -522,7 +530,7 @@ namespace BeatSaberCinema
 			}
 
 			_downloadButton.interactable = false;
-			VideoConfig config = new VideoConfig(_downloadController.SearchResults[_selectedCell], _currentLevel);
+			VideoConfig config = new VideoConfig(_downloadController.SearchResults[_selectedCell], VideoLoader.GetLevelPath(_currentLevel));
 			VideoLoader.SaveVideoConfig(config);
 			_downloadController.StartDownload(config);
 			_currentVideo = config;

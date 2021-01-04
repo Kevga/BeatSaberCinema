@@ -15,6 +15,8 @@ namespace BeatSaberCinema
 {
 	public class PlaybackController: MonoBehaviour
 	{
+		public enum Scene { Gameplay, Menu, Other }
+
 		public static PlaybackController Instance { get; private set; } = null!;
 		private VideoConfig? _currentVideo;
 		private IPreviewBeatmapLevel? _currentLevel;
@@ -23,6 +25,7 @@ namespace BeatSaberCinema
 		private AudioSource[] _songPreviewAudioSources = null!;
 		private AudioSource? _activeAudioSource;
 		private float _lastKnownAudioSourceTime;
+		private Scene _activeScene = Scene.Other;
 
 		public bool IsPreviewPlaying { get; private set; }
 		public float PanStereo
@@ -57,6 +60,7 @@ namespace BeatSaberCinema
 			BSEvents.songUnpaused += ResumeVideo;
 			BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
 			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
+			VideoLoader.ConfigChanged += OnConfigChanged;
 			DontDestroyOnLoad(gameObject);
 
 			//The event handler is registered after the event is first fired, so we'll have to call the handler ourselves
@@ -272,6 +276,7 @@ namespace BeatSaberCinema
 		private void OnMenuSceneLoaded()
 		{
 			Plugin.Logger.Debug("MenuSceneLoaded");
+			_activeScene = Scene.Menu;
 			_videoPlayer.Stop();
 			_videoPlayer.Hide();
 			StopAllCoroutines();
@@ -296,6 +301,40 @@ namespace BeatSaberCinema
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)
 		{
 			OnMenuSceneLoaded();
+		}
+
+		private void OnConfigChanged(VideoConfig? config)
+		{
+			_currentVideo = config;
+
+			if (config == null || !config.IsPlayable)
+			{
+				_videoPlayer.Stop();
+				return;
+			}
+
+			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, null, _currentVideo?.screenHeight, _currentVideo?.screenCurvature);
+			if (IsPreviewPlaying)
+			{
+				StopPreview(true);
+				VideoMenu.instance.SetupVideoDetails();
+			}
+
+			if (!_videoPlayer.IsPlaying)
+			{
+				PrepareVideo(config);
+			}
+			else
+			{
+				_videoPlayer.Player.isLooping = (config.loop == true);
+				_videoPlayer.SetShaderParameters(config.brightness, config.contrast, config.saturation, config.hue);
+				_videoPlayer.SetBloomIntensity(config.bloom);
+			}
+
+			if (_activeScene == Scene.Gameplay)
+			{
+				VideoConfigSceneModifications();
+			}
 		}
 
 		public void SetSelectedLevel(IPreviewBeatmapLevel level, VideoConfig? config)
@@ -346,6 +385,7 @@ namespace BeatSaberCinema
 		{
 			StopAllCoroutines();
 			Plugin.Logger.Debug("GameSceneLoaded");
+			_activeScene = Scene.Gameplay;
 
 			if (!SettingsStore.Instance.PlaybackEnabled || !Plugin.Enabled || BS_Utils.Plugin.LevelData.Mode == Mode.Multiplayer)
 			{
@@ -437,7 +477,7 @@ namespace BeatSaberCinema
 				foreach (var environmentModification in _currentVideo.environment)
 				{
 					Plugin.Logger.Debug($"Modifying {environmentModification.name}");
-					var environmentObjectList = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == environmentModification.name && x.activeInHierarchy);
+					var environmentObjectList = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == environmentModification.name);
 
 					foreach (var environmentObject in environmentObjectList)
 					{
@@ -604,10 +644,10 @@ namespace BeatSaberCinema
 					}
 
 					var tentacles = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("Tentacle") && x.activeInHierarchy);
-					foreach (var spectrogram in tentacles)
+					foreach (var tentacle in tentacles)
 					{
-						var pos = spectrogram.transform.position;
-						var rot = spectrogram.transform.eulerAngles;
+						var pos = tentacle.transform.position;
+						var rot = tentacle.transform.eulerAngles;
 						const int newPosX = 15;
 						const int newRotY = -135;
 						var sign = 1;
@@ -616,8 +656,8 @@ namespace BeatSaberCinema
 							sign = -1;
 						}
 
-						spectrogram.transform.position = new Vector3(newPosX * sign, pos.y, pos.z);
-						spectrogram.transform.eulerAngles = new Vector3(rot.x, newRotY * sign, rot.z);
+						tentacle.transform.position = new Vector3(newPosX * sign, pos.y, pos.z);
+						tentacle.transform.eulerAngles = new Vector3(rot.x, newRotY * sign, rot.z);
 					}
 
 					var verticalLasers = Resources.FindObjectsOfTypeAll<GameObject>().Where(
