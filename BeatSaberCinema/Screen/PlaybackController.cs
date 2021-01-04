@@ -539,6 +539,7 @@ namespace BeatSaberCinema
 
 			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
 			{
+				case "NiceEnvironment":
 				case "BigMirrorEnvironment":
 				{
 					var doubleColorLasers = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("DoubleColorLaser") && x.activeInHierarchy);
