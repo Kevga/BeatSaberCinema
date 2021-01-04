@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -307,9 +308,14 @@ namespace BeatSaberCinema
 		{
 			_currentVideo = config;
 
-			if (config == null || !config.IsPlayable)
+			if (config == null)
 			{
 				_videoPlayer.Stop();
+				return;
+			}
+
+			if (!config.IsPlayable && (config.forceEnvironmentModifications == null || config.forceEnvironmentModifications == false))
+			{
 				return;
 			}
 
@@ -317,7 +323,6 @@ namespace BeatSaberCinema
 			if (IsPreviewPlaying)
 			{
 				StopPreview(true);
-				VideoMenu.instance.SetupVideoDetails();
 			}
 
 			if (!_videoPlayer.IsPlaying)
@@ -401,7 +406,7 @@ namespace BeatSaberCinema
 
 				if (_currentVideo != null && _currentVideo.forceEnvironmentModifications == true)
 				{
-					ModifyGameScene();
+					VideoConfigSceneModifications();
 				}
 				else if (SettingsStore.Instance.CoverEnabled)
 				{
@@ -477,7 +482,19 @@ namespace BeatSaberCinema
 				foreach (var environmentModification in _currentVideo.environment)
 				{
 					Plugin.Logger.Debug($"Modifying {environmentModification.name}");
-					var environmentObjectList = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == environmentModification.name);
+					IEnumerable<GameObject> environmentObjectList;
+					try
+					{
+						environmentObjectList = Resources.FindObjectsOfTypeAll<GameObject>().Where(x =>
+							x.name == environmentModification.name &&
+							(environmentModification.parentName == null || x.transform.parent.name == environmentModification.parentName));
+					}
+					catch (Exception e)
+					{
+						Plugin.Logger.Error($"Failed to apply this environment modification: name={environmentModification.name}, parentName={environmentModification.parentName}");
+						Plugin.Logger.Warn(e);
+						continue;
+					}
 
 					foreach (var environmentObject in environmentObjectList)
 					{

@@ -105,6 +105,7 @@ namespace BeatSaberCinema
 			if (!_downloadController.LibrariesAvailable())
 			{
 				_noVideoText.text = "Libraries not found. Please reinstall Cinema.\r\nMake sure you unzip the files from the Libs folder into 'Beat Saber\\Libs'.";
+				_searchButton.gameObject.SetActive(false);
 				return;
 			}
 
@@ -128,6 +129,7 @@ namespace BeatSaberCinema
 			_previewButton.interactable = state;
 			_deleteButton.interactable = state;
 			_deleteVideoButton.interactable = state;
+			_searchButton.gameObject.SetActive(true);
 			_searchButton.interactable = (_currentLevel != null &&
 			                              _currentLevel.GetType() != typeof(PreviewBeatmapLevelSO) &&
 			                              _downloadController.LibrariesAvailable());
@@ -173,6 +175,19 @@ namespace BeatSaberCinema
 			if (_currentVideo == null || !_videoMenuActive || !_downloadController.LibrariesAvailable())
 			{
 				ResetVideoMenu();
+				return;
+			}
+
+			if (_currentVideo.videoID == null)
+			{
+				ResetVideoMenu();
+				if (_currentVideo.forceEnvironmentModifications == true)
+				{
+					_noVideoText.text = "This map uses Cinema to modify the environment\r\nwithout displaying a video.\r\n\r\nNo configuration options available.";
+					_searchButton.interactable = false;
+					_searchButton.gameObject.SetActive(false);
+				}
+
 				return;
 			}
 

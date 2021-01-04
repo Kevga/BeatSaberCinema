@@ -56,6 +56,7 @@ namespace BeatSaberCinema
 
 		public static void StopFileSystemWatcher()
 		{
+			Plugin.Logger.Debug("Disposing FileSystemWatcher");
 			_fileSystemWatcher?.Dispose();
 		}
 
@@ -287,12 +288,6 @@ namespace BeatSaberCinema
 			{
 				Plugin.Logger.Error($"Error parsing video json {configPath}:");
 				Plugin.Logger.Error(e);
-				return null;
-			}
-
-			if (videoConfig.videoID == null)
-			{
-				Plugin.Logger.Debug("Video ID is null for "+configPath);
 				return null;
 			}
 
