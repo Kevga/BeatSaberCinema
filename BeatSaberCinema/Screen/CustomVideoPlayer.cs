@@ -229,6 +229,7 @@ namespace BeatSaberCinema
 		{
 			Player.Stop();
 			SetScreenColor(_screenColorOff);
+			SetStaticTexture(null);
 		}
 
 		public void Prepare()
@@ -268,13 +269,19 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private void SetTexture(Texture texture)
+		private void SetTexture(Texture? texture)
 		{
 			_screen.GetRenderer().material.SetTexture(MainTex, texture);
 		}
 
-		public void SetStaticTexture(Texture texture)
+		public void SetStaticTexture(Texture? texture)
 		{
+			if (texture == null)
+			{
+				SetTexture(texture);
+				return;
+			}
+
 			var width = ((float) texture.width / texture.height) * _defaultCoverHeight;
 			SetTexture(texture);
 			SetPlacement(_defaultCoverPosition, _defaultCoverRotation, width, _defaultCoverHeight);

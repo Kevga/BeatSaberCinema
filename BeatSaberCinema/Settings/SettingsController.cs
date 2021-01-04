@@ -93,6 +93,7 @@ namespace BeatSaberCinema
             if (SettingsStore.Instance.PlaybackEnabled)
             {
 	            PlaybackController.Instance.ShowScreen();
+	            PlaybackController.Instance.StopPlayback();
 	            PlaybackController.Instance.SetDefaultMenuPlacement();
             }
         }
