@@ -315,7 +315,7 @@ namespace BeatSaberCinema
 			else
 			{
 				video.DownloadState = DownloadState.Downloaded;
-				VideoLoader.SaveVideoConfig(video);
+				video.NeedsToSave = true;
 				SharedCoroutineStarter.instance.StartCoroutine(WaitForDownloadToFinishCoroutine(video));
 				Plugin.Logger.Info("Download finished");
 			}
