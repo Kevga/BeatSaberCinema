@@ -42,6 +42,7 @@ namespace BeatSaberCinema
 		private static readonly int Saturation = Shader.PropertyToID("_Saturation");
 		private static readonly int Hue = Shader.PropertyToID("_Hue");
 		private bool _waitForFirstFrame;
+		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
 		private float _correctPlaybackSpeed = 1.0f;
 
@@ -182,6 +183,9 @@ namespace BeatSaberCinema
 			if (_waitForFirstFrame)
 			{
 				_waitForFirstFrame = false;
+				_firstFrameStopwatch.Stop();
+				Plugin.Logger.Debug("Delay from Play() to first frame: "+_firstFrameStopwatch.ElapsedMilliseconds+" ms");
+				_firstFrameStopwatch.Reset();
 				SetScreenColor(_screenColorOn);
 				_screen.SetAspectRatio(GetVideoAspectRatio());
 				Player.frameReady -= FrameReady;
@@ -216,6 +220,7 @@ namespace BeatSaberCinema
 		public void Play()
 		{
 			_waitForFirstFrame = true;
+			_firstFrameStopwatch.Start();
 			Player.frameReady += FrameReady;
 			Player.Play();
 		}
