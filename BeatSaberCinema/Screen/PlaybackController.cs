@@ -146,7 +146,7 @@ namespace BeatSaberCinema
 			}
 
 			_videoPlayer.Player.time = newTime;
-			Plugin.Logger.Debug("Set time to: " + _videoPlayer.Player.time);
+			Plugin.Logger.Debug("Set time to: " + newTime);
 		}
 
 		public void FrameReady(VideoPlayer videoPlayer, long frame)
@@ -306,6 +306,7 @@ namespace BeatSaberCinema
 
 		private void OnConfigChanged(VideoConfig? config)
 		{
+			var previousVideoPath = _currentVideo?.VideoPath;
 			_currentVideo = config;
 
 			if (config == null)
@@ -325,7 +326,7 @@ namespace BeatSaberCinema
 				StopPreview(true);
 			}
 
-			if (!_videoPlayer.IsPlaying)
+			if (previousVideoPath != config.VideoPath)
 			{
 				PrepareVideo(config);
 			}
