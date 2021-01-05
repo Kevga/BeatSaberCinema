@@ -21,6 +21,7 @@ namespace BeatSaberCinema
 		private static FileSystemWatcher? _fileSystemWatcher;
 		public static event Action<VideoConfig?>? ConfigChanged;
 
+		private static readonly ConcurrentDictionary<string, VideoConfig> CachedConfigs = new ConcurrentDictionary<string, VideoConfig>();
 		private static readonly ConcurrentDictionary<string, VideoConfig> BundledConfigs = new ConcurrentDictionary<string, VideoConfig>();
 
 		// ReSharper disable once InconsistentNaming
@@ -45,7 +46,36 @@ namespace BeatSaberCinema
 			foreach (var config in configs)
 			{
 				BundledConfigs.TryAdd(config.levelID, config.config);
+				Plugin.Logger.Debug($"Adding config for level {config.levelID}: {config.config.videoFile}");
 			}
+		}
+
+		public static void AddConfigToCache(VideoConfig config, IPreviewBeatmapLevel level)
+		{
+			var success = CachedConfigs.TryAdd(level.levelID, config);
+			if (success)
+			{
+				Plugin.Logger.Debug($"Adding config for {level.levelID} to cache");
+			}
+		}
+
+		public static void RemoveConfigFromCache(IPreviewBeatmapLevel level)
+		{
+			var success = CachedConfigs.TryRemove(level.levelID, out _);
+			if (success)
+			{
+				Plugin.Logger.Debug($"Removing config for {level.levelID} from cache");
+			}
+		}
+
+		private static VideoConfig? GetConfigFromCache(IPreviewBeatmapLevel level)
+		{
+			var success = CachedConfigs.TryGetValue(level.levelID, out var config);
+			if (success)
+			{
+				Plugin.Logger.Debug($"Loading config for {level.levelID} from cache");
+			}
+			return config;
 		}
 
 		private static VideoConfig? GetConfigFromBundledConfigs(IPreviewBeatmapLevel level)
@@ -112,6 +142,16 @@ namespace BeatSaberCinema
 
 		public static VideoConfig? GetConfigForLevel(IPreviewBeatmapLevel level)
 		{
+			var cachedConfig = GetConfigFromCache(level);
+			if (cachedConfig != null)
+			{
+				if (cachedConfig.DownloadState == DownloadState.Downloaded)
+				{
+					RemoveConfigFromCache(level);
+				}
+				return cachedConfig;
+			}
+
 			if (level.GetType() == typeof(PreviewBeatmapLevelSO))
 			{
 				//DLC songs currently not supported.
@@ -140,13 +180,12 @@ namespace BeatSaberCinema
 			}
 			else
 			{
-				Plugin.Logger.Debug("Trying to load from bundled configs...");
 				videoConfig = GetConfigFromBundledConfigs(level);
 				if (videoConfig != null)
 				{
 					videoConfig.LevelDir = GetLevelPath(level);
 					videoConfig.NeedsToSave = true;
-					Plugin.Logger.Debug("Success");
+					Plugin.Logger.Debug("Loaded from bundled configs");
 				}
 			}
 
@@ -214,7 +253,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public static bool DeleteConfig(VideoConfig videoConfig)
+		public static bool DeleteConfig(VideoConfig videoConfig, IPreviewBeatmapLevel level)
 		{
 			if (videoConfig.LevelDir == null)
 			{
@@ -242,6 +281,7 @@ namespace BeatSaberCinema
 				Plugin.Logger.Error(e);
 			}
 
+			RemoveConfigFromCache(level);
 			Plugin.Logger.Info("Deleted video config");
 
 			return true;

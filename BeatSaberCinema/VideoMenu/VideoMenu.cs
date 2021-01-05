@@ -358,6 +358,11 @@ namespace BeatSaberCinema
 			if (_currentVideo == video)
 			{
 				PlaybackController.Instance.PrepareVideo(video);
+
+				if (_currentLevel != null)
+				{
+					VideoLoader.RemoveConfigFromCache(_currentLevel);
+				}
 			}
 			UpdateStatusText(video);
 		}
@@ -400,6 +405,8 @@ namespace BeatSaberCinema
 				case DownloadState.NotDownloaded:
 				case DownloadState.Cancelled:
 					_downloadController.StartDownload(_currentVideo);
+					_currentVideo.NeedsToSave = true;
+					VideoLoader.AddConfigToCache(_currentVideo, _currentLevel!);
 					break;
 				default:
 					VideoLoader.DeleteVideo(_currentVideo);
@@ -414,8 +421,9 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		private void OnDeleteConfigAction()
 		{
-			if (_currentVideo == null)
+			if (_currentVideo == null || _currentLevel == null)
 			{
+				Plugin.Logger.Warn("Failed to delete config: Either currentVideo or currentLevel is null");
 				return;
 			}
 
@@ -427,7 +435,7 @@ namespace BeatSaberCinema
 			}
 
 			VideoLoader.DeleteVideo(_currentVideo);
-			var success = VideoLoader.DeleteConfig(_currentVideo);
+			var success = VideoLoader.DeleteConfig(_currentVideo, _currentLevel);
 			if (success)
 			{
 				_currentVideo = null;
@@ -547,6 +555,7 @@ namespace BeatSaberCinema
 			_downloadButton.interactable = false;
 			VideoConfig config = new VideoConfig(_downloadController.SearchResults[_selectedCell], VideoLoader.GetLevelPath(_currentLevel));
 			config.NeedsToSave = true;
+			VideoLoader.AddConfigToCache(config, _currentLevel);
 			_downloadController.StartDownload(config);
 			_currentVideo = config;
 			SetupVideoDetails();
