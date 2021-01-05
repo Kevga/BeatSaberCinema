@@ -1,23 +1,23 @@
 <!--suppress CheckTagEmptyBody -->
 <settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                     xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-    <bool-setting apply-on-change="true" text='Play Videos' value='show-video'
-                      hover-hint='Enable or disable video playback'></bool-setting>
+    <bool-setting apply-on-change="true" text='Enable Cinema' value='show-video'
+                      hover-hint='Enable or disable video playback and other features'></bool-setting>
 	<dropdown-list-setting apply-on-change="true" text='Download Quality' value='quality' options='modes'></dropdown-list-setting>
 	<bool-setting apply-on-change="true" text='Force "Big Mirror" Environment' value='override-environment'
 				  hover-hint='Force the use of the Big Mirror environment for songs with videos.&#xD;&#xA;&#xD;&#xA;It is recommended to leave this checked for the best experience.'></bool-setting>
 	<bool-setting apply-on-change="true" text='Curved Screen' value='curved-screen'
 				  hover-hint='Curves the screen slightly towards you, based on the distance.'></bool-setting>
 	<bool-setting apply-on-change="true" text='Transparent Screen' value='transparency-enabled'
-				  hover-hint='Enables you to see through the screen. The darker the video, the more transparent the screen becomes.&#xD;&#xA;&#xD;&#xA;Turn off if you prefer the video to be more clearly visible.'></bool-setting>
+				  hover-hint="Allows you to see through the screen.&#xD;&#xA;&#xD;&#xA;Turn off if you don't want lights behind the screen to shine through."></bool-setting>
 	<bool-setting apply-on-change="true" text='Show Cover (Beta)' value='cover-enabled'
-				  hover-hint="Shows the song's cover image on screen if the map doesn't have a video.&#xD;&#xA;&#xD;&#xA;This may currently not work well on some environments. I'd love to get some feedback about whether or not you like this feature."></bool-setting>
+				  hover-hint="Shows the song's cover image on screen if the map doesn't have a video.&#xD;&#xA;&#xD;&#xA;This may currently not work well on some environments. I'd love to get some feedback about this feature."></bool-setting>
 	<horizontal horizontal-fit="PreferredSize">
 		<horizontal horizontal-fit="PreferredSize">
 			<text text="Bloom Intensity" italics="true"></text>
 		</horizontal>
 		<horizontal horizontal-fit="PreferredSize">
-			<slider-setting apply-on-change="true" integer-only="true" value="bloom-intensity" text="" hover-hint="Change the amount of glow around the screen when the image is bright. Default is 100." min="0" max="150" increment="5"></slider-setting>
+			<slider-setting apply-on-change="true" integer-only="true" value="bloom-intensity" text="" hover-hint="Change the amount of glow around the screen when the image is bright. Default is 100." min="0" max="150" increment="10"></slider-setting>
 		</horizontal>
 	</horizontal>
 </settings-container>

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using BS_Utils.Utilities;
 using UnityEngine;
@@ -18,7 +21,7 @@ namespace BeatSaberCinema
 		private readonly Vector3 _defaultGameplayRotation = new Vector3(-8, 0, 0);
 		private readonly float _defaultGameplayHeight = 25;
 
-		private readonly Vector3 _defaultCoverPosition = new Vector3(0, 5.9f, 55f);
+		private readonly Vector3 _defaultCoverPosition = new Vector3(0, 5.9f, 75f);
 		private readonly Vector3 _defaultCoverRotation = new Vector3(-8, 0, 0);
 		private readonly float _defaultCoverHeight = 12;
 
@@ -117,6 +120,17 @@ namespace BeatSaberCinema
 			BSEvents.menuSceneLoaded += SetDefaultMenuPlacement;
 		}
 
+		private IEnumerator ReloadShaderCoroutine(string path)
+		{
+			var shaderFileInfo = new FileInfo(path);
+			var timeout = new Timeout(3f);
+			yield return new WaitUntil(() =>
+				!Util.IsFileLocked(shaderFileInfo) || timeout.HasTimedOut);
+			_screenRenderer.material = new Material(GetShader());
+			var timeout2 = new Timeout(1f);
+			yield return new WaitUntil(() => timeout2.HasTimedOut);
+		}
+
 		private void CreateScreen()
 		{
 			_screen =  gameObject.AddComponent<Screen>();
@@ -127,11 +141,6 @@ namespace BeatSaberCinema
 
 		private Shader GetShader()
 		{
-			if (_glowShader != null)
-			{
-				return _glowShader;
-			}
-
 			var bundle = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.bscinema.bundle");
 			if (bundle == null || bundle.Length == 0)
 			{
