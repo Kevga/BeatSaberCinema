@@ -44,6 +44,11 @@ namespace BeatSaberCinema
 		private static readonly int Contrast = Shader.PropertyToID("_Contrast");
 		private static readonly int Saturation = Shader.PropertyToID("_Saturation");
 		private static readonly int Hue = Shader.PropertyToID("_Hue");
+		private static readonly int Gamma = Shader.PropertyToID("_Gamma");
+		private static readonly int Exposure = Shader.PropertyToID("_Exposure");
+		private static readonly int Shadows = Shader.PropertyToID("_Shadows");
+		private static readonly int Midtones = Shader.PropertyToID("_Midtones");
+		private static readonly int Highlights = Shader.PropertyToID("_Highlights");
 		private bool _waitForFirstFrame;
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
@@ -256,23 +261,59 @@ namespace BeatSaberCinema
 			_screenRenderer.material.color = color;
 		}
 
-		public void SetShaderParameters(float? brightness, float? contrast, float? saturation, float? hue)
+		public void SetShaderParameters(VideoConfig config)
 		{
-			brightness ??= DEFAULT_BRIGHTNESS;
-			contrast ??= DEFAULT_CONTRAST;
-			saturation ??= DEFAULT_SATURATION;
-			hue ??= DEFAULT_HUE;
+			if (config.colorCorrection == null)
+			{
+				return;
+			}
 
-			brightness = Math.Min(2f, Math.Max(0f, brightness.Value));
-			contrast = Math.Min(2f, Math.Max(0f, contrast.Value));
-			saturation = Math.Min(2f, Math.Max(0f, saturation.Value));
+			var colorCorrection = config.colorCorrection;
 
-			Plugin.Logger.Debug($"Setting shader params brightness {brightness}, contrast {contrast}, saturation {saturation}, hue {hue}");
+			if (colorCorrection.brightness != null)
+			{
+				_screenRenderer.material.SetFloat(Brightness, Math.Min(2f, Math.Max(0f, colorCorrection.brightness.Value)));
+			}
 
-			_screenRenderer.material.SetFloat(Brightness, brightness.Value);
-			_screenRenderer.material.SetFloat(Contrast, contrast.Value);
-			_screenRenderer.material.SetFloat(Saturation, saturation.Value);
-			_screenRenderer.material.SetFloat(Hue, hue.Value);
+			if (colorCorrection.contrast != null)
+			{
+				_screenRenderer.material.SetFloat(Contrast, Math.Min(2f, Math.Max(0f, colorCorrection.contrast.Value)));
+			}
+
+			if (colorCorrection.saturation != null)
+			{
+				_screenRenderer.material.SetFloat(Saturation, Math.Min(2f, Math.Max(0f, colorCorrection.saturation.Value)));
+			}
+
+			if (colorCorrection.hue != null)
+			{
+				_screenRenderer.material.SetFloat(Hue, Math.Min(360f, Math.Max(-360f, colorCorrection.hue.Value)));
+			}
+
+			if (colorCorrection.exposure != null)
+			{
+				_screenRenderer.material.SetFloat(Exposure, Math.Min(2, Math.Max(0f, colorCorrection.exposure.Value)));
+			}
+
+			if (colorCorrection.gamma != null)
+			{
+				_screenRenderer.material.SetFloat(Gamma, Math.Min(2, Math.Max(0f, colorCorrection.gamma.Value)));
+			}
+
+			if (colorCorrection.shadows != null)
+			{
+				_screenRenderer.material.SetFloat(Shadows, Math.Min(2, Math.Max(1f, colorCorrection.shadows.Value)));
+			}
+
+			if (colorCorrection.midtones != null)
+			{
+				_screenRenderer.material.SetFloat(Midtones, Math.Min(2, Math.Max(0f, colorCorrection.midtones.Value)));
+			}
+
+			if (colorCorrection.highlights != null)
+			{
+				_screenRenderer.material.SetFloat(Highlights, Math.Min(2, Math.Max(0f, colorCorrection.highlights.Value)));
+			}
 		}
 
 		public void Update()

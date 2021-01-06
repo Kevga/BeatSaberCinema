@@ -333,7 +333,7 @@ namespace BeatSaberCinema
 			else
 			{
 				_videoPlayer.Player.isLooping = (config.loop == true);
-				_videoPlayer.SetShaderParameters(config.brightness, config.contrast, config.saturation, config.hue);
+				_videoPlayer.SetShaderParameters(config);
 				_videoPlayer.SetBloomIntensity(config.bloom);
 			}
 
@@ -1016,7 +1016,7 @@ namespace BeatSaberCinema
 			}
 
 			_videoPlayer.Player.isLooping = (video.loop == true);
-			_videoPlayer.SetShaderParameters(video.brightness, video.contrast, video.saturation, video.hue);
+			_videoPlayer.SetShaderParameters(video);
 			_videoPlayer.SetBloomIntensity(video.bloom);
 
 			if (video.VideoPath == null)

@@ -32,12 +32,9 @@ namespace BeatSaberCinema
 		public bool? disableBigMirrorOverride;
 		public bool? disableDefaultModifications;
 		public bool? forceEnvironmentModifications;
-		public float? brightness;
-		public float? contrast;
-		public float? saturation;
-		public float? hue;
 		public float? bloom;
 
+		public ColorCorrection? colorCorrection;
 		public EnvironmentModification[]? environment;
 
 		[JsonIgnore, NonSerialized] public DownloadState DownloadState;
@@ -148,6 +145,20 @@ namespace BeatSaberCinema
 			public SerializableVector3? position;
 			public SerializableVector3? rotation;
 			public SerializableVector3? scale;
+		}
+
+		[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+		public class ColorCorrection
+		{
+			public float? brightness;
+			public float? contrast;
+			public float? saturation;
+			public float? hue;
+			public float? exposure;
+			public float? gamma;
+			public float? shadows;
+			public float? midtones;
+			public float? highlights;
 		}
 	}
 }
