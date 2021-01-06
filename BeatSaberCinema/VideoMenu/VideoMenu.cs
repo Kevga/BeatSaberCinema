@@ -246,7 +246,18 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public void HandleDidSelectLevel(LevelCollectionViewController sender, IPreviewBeatmapLevel level)
+		public void SetSelectedLevel(IPreviewBeatmapLevel level)
+		{
+			if (_currentLevel != null && level.levelID == _currentLevel.levelID)
+			{
+				return;
+			}
+
+			Plugin.Logger.Debug($"Setting level to {level.levelID}");
+			HandleDidSelectLevel(null, level);
+		}
+
+		public void HandleDidSelectLevel(LevelCollectionViewController? sender, IPreviewBeatmapLevel level)
 		{
 			PlaybackController.Instance.StopPreview(true);
 

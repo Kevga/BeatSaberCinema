@@ -13,13 +13,13 @@ namespace BeatSaberCinema
 	internal static class StandardLevelScenesTransitionSetupDataSOInit
 	{
 		[UsedImplicitly]
-		private static void Prefix(IDifficultyBeatmap difficultyBeatmap, ref OverrideEnvironmentSettings overrideEnvironmentSettings)
+		public static void Prefix(IDifficultyBeatmap difficultyBeatmap, ref OverrideEnvironmentSettings overrideEnvironmentSettings)
 		{
 			//Wrap all of it in try/catch so an exception would not prevent the player from playing songs
 			try
 			{
+				VideoMenu.instance.SetSelectedLevel(difficultyBeatmap.level);
 				var overrideEnvironmentEnabled = SettingsStore.Instance.OverrideEnvironment;
-
 				var environmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();
 
 				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
@@ -60,6 +60,29 @@ namespace BeatSaberCinema
 				bigMirrorOverrideSettings.SetEnvironmentInfoForType(bigMirrorEnvInfo.environmentType, bigMirrorEnvInfo);
 				overrideEnvironmentSettings = bigMirrorOverrideSettings;
 				Plugin.Logger.Info("Overwriting environment to Big Mirror");
+			}
+			catch (Exception e)
+			{
+				Plugin.Logger.Warn(e);
+			}
+		}
+	}
+
+
+
+	[HarmonyBefore("com.kyle1413.BeatSaber.BS-Utils")]
+	[HarmonyPatch(typeof(MissionLevelScenesTransitionSetupDataSO), "Init")]
+	[UsedImplicitly]
+	// ReSharper disable once InconsistentNaming
+	internal static class MissionLevelScenesTransitionSetupDataSOInit
+	{
+		[UsedImplicitly]
+		private static void Prefix(IDifficultyBeatmap difficultyBeatmap)
+		{
+			try
+			{
+				var overrideSettings = new OverrideEnvironmentSettings();
+				StandardLevelScenesTransitionSetupDataSOInit.Prefix(difficultyBeatmap, ref overrideSettings);
 			}
 			catch (Exception e)
 			{
