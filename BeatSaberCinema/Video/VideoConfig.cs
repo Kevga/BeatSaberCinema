@@ -156,9 +156,6 @@ namespace BeatSaberCinema
 			public float? hue;
 			public float? exposure;
 			public float? gamma;
-			public float? shadows;
-			public float? midtones;
-			public float? highlights;
 		}
 	}
 }
