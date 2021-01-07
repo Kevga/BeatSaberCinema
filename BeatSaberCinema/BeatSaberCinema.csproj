@@ -165,6 +165,7 @@
         <Compile Include="Download\DownloadController.cs" />
         <Compile Include="HarmonyPatches\EnvironmentOverridePatch.cs" />
         <Compile Include="HarmonyPatches\MultiplayerPatch.cs" />
+        <Compile Include="HarmonyPatches\WaitForChromaPatch.cs" />
         <Compile Include="Plugin.cs" />
         <Compile Include="Screen\CurvedSurface.cs" />
         <Compile Include="Screen\CustomBloomPrePass.cs" />

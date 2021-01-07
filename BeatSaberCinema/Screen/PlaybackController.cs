@@ -27,6 +27,7 @@ namespace BeatSaberCinema
 		private AudioSource? _activeAudioSource;
 		private float _lastKnownAudioSourceTime;
 		private Scene _activeScene = Scene.Other;
+		private bool _environmentModified;
 
 		public bool IsPreviewPlaying { get; private set; }
 		public float PanStereo
@@ -278,6 +279,7 @@ namespace BeatSaberCinema
 		{
 			Plugin.Logger.Debug("MenuSceneLoaded");
 			_activeScene = Scene.Menu;
+			_environmentModified = false;
 			_videoPlayer.Stop();
 			_videoPlayer.Hide();
 			StopAllCoroutines();
@@ -423,7 +425,6 @@ namespace BeatSaberCinema
 
 			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, null, _currentVideo?.screenHeight, _currentVideo?.screenCurvature);
 
-			ModifyGameScene();
 			SetAudioSourcePanning(0);
 			_videoPlayer.Mute();
 			StartCoroutine(PlayVideoAfterAudioSourceCoroutine(false));
@@ -455,8 +456,15 @@ namespace BeatSaberCinema
 			PlayVideo(startTime);
 		}
 
-		private void ModifyGameScene()
+		public void ModifyGameScene()
 		{
+			if (_environmentModified)
+			{
+				return;
+			}
+
+			_environmentModified = true;
+
 			Plugin.Logger.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName);
 
 			try
