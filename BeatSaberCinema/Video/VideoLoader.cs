@@ -20,6 +20,7 @@ namespace BeatSaberCinema
 
 		private static FileSystemWatcher? _fileSystemWatcher;
 		public static event Action<VideoConfig?>? ConfigChanged;
+		private static string? _ignoreNextEventForPath;
 
 		private static readonly ConcurrentDictionary<string, VideoConfig> CachedConfigs = new ConcurrentDictionary<string, VideoConfig>();
 		private static readonly ConcurrentDictionary<string, VideoConfig> BundledConfigs = new ConcurrentDictionary<string, VideoConfig>();
@@ -120,6 +121,12 @@ namespace BeatSaberCinema
 		private static void OnConfigChanged(FileSystemEventArgs e)
 		{
 			Plugin.Logger.Debug("Config "+e.ChangeType+" detected: "+e.FullPath);
+			if (_ignoreNextEventForPath == e.FullPath)
+			{
+				Plugin.Logger.Debug($"Ignoring event after saving");
+				_ignoreNextEventForPath = null;
+				return;
+			}
 			SharedCoroutineStarter.instance.StartCoroutine(WaitForConfigWriteCoroutine(e));
 		}
 
@@ -218,6 +225,7 @@ namespace BeatSaberCinema
 			}
 
 			var videoJsonPath = Path.Combine(videoConfig.LevelDir, CONFIG_FILENAME);
+			_ignoreNextEventForPath = videoJsonPath;
 			Plugin.Logger.Info($"Saving video config to {videoJsonPath}");
 
 			try
