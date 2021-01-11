@@ -31,15 +31,18 @@ namespace BeatSaberCinema
 				var environmentWhitelist = new[] {"BigMirrorEnvironment", "OriginsEnvironment", "BTSEnvironment", "KDAEnvironment", "RocketEnvironment", "DragonsEnvironment", "LinkinParkEnvironment"};
 				if (environmentWhitelist.Contains(environmentInfoSo.serializedName))
 				{
+					Plugin.Logger.Debug("Environment in whitelist");
 					overrideEnvironmentEnabled = false;
 				}
 
-				var video = VideoLoader.GetConfigForLevel(difficultyBeatmap.level);
+				var video = PlaybackController.Instance.VideoConfig;
 				if (video == null || !video.IsPlayable)
 				{
+					Plugin.Logger.Debug($"No video or not playable, DownloadState: {video?.DownloadState}");
 					overrideEnvironmentEnabled = false;
 				} else if (video.disableBigMirrorOverride != null && video.disableBigMirrorOverride == true)
 				{
+					Plugin.Logger.Debug("Override disabled via config");
 					overrideEnvironmentEnabled = false;
 				}
 
