@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace BeatSaberCinema
 {
@@ -140,6 +141,10 @@ namespace BeatSaberCinema
 		{
 			[JsonRequired] public string name = null!;
 			public string? parentName;
+			public string? cloneFrom;
+
+			[JsonIgnore]
+			public GameObject? clonedObject;
 
 			public bool? active;
 			public SerializableVector3? position;

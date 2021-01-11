@@ -163,8 +163,10 @@
 
     <ItemGroup>
         <Compile Include="Download\DownloadController.cs" />
+        <Compile Include="Environment\EnvironmentController.cs" />
         <Compile Include="HarmonyPatches\EnvironmentOverridePatch.cs" />
         <Compile Include="HarmonyPatches\MultiplayerPatch.cs" />
+        <Compile Include="HarmonyPatches\ObjectCloningPatch.cs" />
         <Compile Include="HarmonyPatches\WaitForChromaPatch.cs" />
         <Compile Include="Plugin.cs" />
         <Compile Include="Screen\CurvedSurface.cs" />

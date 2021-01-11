@@ -297,7 +297,7 @@ namespace BeatSaberCinema
 			try
 			{
 				PlaybackController.Instance.StopPreview(true);
-				PlaybackController.Instance.HideScreen();
+				PlaybackController.Instance.VideoPlayer.Hide();
 				if (_currentVideo != null)
 				{
 					PlaybackController.Instance.PrepareVideo(_currentVideo);

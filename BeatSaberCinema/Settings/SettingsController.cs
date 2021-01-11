@@ -20,11 +20,11 @@ namespace BeatSaberCinema
 	            SettingsStore.Instance.PlaybackEnabled = value;
 	            if (value)
 	            {
-		            PlaybackController.Instance.ShowScreen();
+		            PlaybackController.Instance.VideoPlayer.Show();
 	            }
 	            else
 	            {
-		            PlaybackController.Instance.HideScreen();
+		            PlaybackController.Instance.VideoPlayer.Hide();
 	            }
             }
         }
@@ -50,7 +50,7 @@ namespace BeatSaberCinema
 	        set
 	        {
 		        SettingsStore.Instance.CurvedScreen = value;
-		        PlaybackController.Instance.SetDefaultMenuPlacement();
+		        PlaybackController.Instance.VideoPlayer.SetDefaultMenuPlacement();
 	        }
         }
 
@@ -63,11 +63,11 @@ namespace BeatSaberCinema
 		        SettingsStore.Instance.TransparencyEnabled = value;
 		        if (value)
 		        {
-			        PlaybackController.Instance.HideScreenBody();
+			        PlaybackController.Instance.VideoPlayer.HideScreenBody();
 		        }
 		        else
 		        {
-			        PlaybackController.Instance.ShowScreenBody();
+			        PlaybackController.Instance.VideoPlayer.ShowScreenBody();
 		        }
 
 	        }
@@ -92,9 +92,9 @@ namespace BeatSaberCinema
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (SettingsStore.Instance.PlaybackEnabled)
             {
-	            PlaybackController.Instance.ShowScreen();
+	            PlaybackController.Instance.VideoPlayer.Show();
+	            PlaybackController.Instance.VideoPlayer.SetDefaultMenuPlacement();
 	            PlaybackController.Instance.StopPlayback();
-	            PlaybackController.Instance.SetDefaultMenuPlacement();
             }
         }
 
@@ -104,8 +104,8 @@ namespace BeatSaberCinema
             try
             {
 	            //Throws NRE if the settings menu is open while the plugin gets disabled (e.g. by closing the game)
-	            PlaybackController.Instance.HideScreen();
-	            PlaybackController.Instance.SetDefaultMenuPlacement();
+	            PlaybackController.Instance.VideoPlayer.Hide();
+	            PlaybackController.Instance.VideoPlayer.SetDefaultMenuPlacement();
             }
             catch (Exception e)
             {

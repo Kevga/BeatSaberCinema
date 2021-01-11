@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
@@ -16,23 +14,24 @@ namespace BeatSaberCinema
 {
 	public class PlaybackController: MonoBehaviour
 	{
-		public enum Scene { Gameplay, Menu, Other }
+		private enum Scene { Gameplay, Menu, Other }
 
 		public static PlaybackController Instance { get; private set; } = null!;
-		private VideoConfig? _currentVideo;
 		private IPreviewBeatmapLevel? _currentLevel;
-		private CustomVideoPlayer _videoPlayer = null!;
+		[NonSerialized]
+		public CustomVideoPlayer VideoPlayer = null!;
 		private SongPreviewPlayer _songPreviewPlayer = null!;
 		private AudioSource[] _songPreviewAudioSources = null!;
 		private AudioSource? _activeAudioSource;
 		private float _lastKnownAudioSourceTime;
 		private Scene _activeScene = Scene.Other;
-		private bool _environmentModified;
+
+		public VideoConfig? VideoConfig { get; private set; }
 
 		public bool IsPreviewPlaying { get; private set; }
 		public float PanStereo
 		{
-			set => _videoPlayer.PanStereo = value;
+			set => VideoPlayer.PanStereo = value;
 		}
 
 		public static void Create()
@@ -54,9 +53,9 @@ namespace BeatSaberCinema
 			}
 			Instance = this;
 
-			_videoPlayer = gameObject.AddComponent<CustomVideoPlayer>();
-			_videoPlayer.Player.frameReady += FrameReady;
-			_videoPlayer.Player.sendFrameReadyEvents = true;
+			VideoPlayer = gameObject.AddComponent<CustomVideoPlayer>();
+			VideoPlayer.Player.frameReady += FrameReady;
+			VideoPlayer.Player.sendFrameReadyEvents = true;
 			BSEvents.gameSceneLoaded += GameSceneLoaded;
 			BSEvents.songPaused += PauseVideo;
 			BSEvents.songUnpaused += ResumeVideo;
@@ -69,57 +68,32 @@ namespace BeatSaberCinema
 			OnMenuSceneLoadedFresh(null);
 		}
 
-		public void ShowScreen()
-		{
-			_videoPlayer.Show();
-		}
-
-		public void HideScreen()
-		{
-			_videoPlayer.Hide();
-		}
-
-		public void ShowScreenBody()
-		{
-			_videoPlayer.ShowScreenBody();
-		}
-
-		public void HideScreenBody()
-		{
-			_videoPlayer.HideScreenBody();
-		}
-
-		public void SetDefaultMenuPlacement()
-		{
-			_videoPlayer.SetDefaultMenuPlacement();
-		}
-
 		public void PauseVideo()
 		{
 			StopAllCoroutines();
-			if (_videoPlayer.IsPlaying && _currentVideo != null)
+			if (VideoPlayer.IsPlaying && VideoConfig != null)
 			{
-				_videoPlayer.Pause();
+				VideoPlayer.Pause();
 			}
 		}
 
 		public void ResumeVideo()
 		{
-			if (!_videoPlayer.IsPlaying && _currentVideo != null)
+			if (!VideoPlayer.IsPlaying && VideoConfig != null)
 			{
-				_videoPlayer.Play();
+				VideoPlayer.Play();
 			}
 		}
 
 		public void ApplyOffset(int offset)
 		{
-			if (!_videoPlayer.IsPlaying || _activeAudioSource == null)
+			if (!VideoPlayer.IsPlaying || _activeAudioSource == null)
 			{
 				return;
 			}
 
 			//Pause the preview audio source and start seeking. Audio Source will be re-enabled after video player draws its next frame
-			_videoPlayer.IsSyncing = true;
+			VideoPlayer.IsSyncing = true;
 			_activeAudioSource.Pause();
 
 			ResyncVideo();
@@ -128,25 +102,25 @@ namespace BeatSaberCinema
 
 		public void ResyncVideo()
 		{
-			if (_activeAudioSource == null || _currentVideo == null)
+			if (_activeAudioSource == null || VideoConfig == null)
 			{
 				return;
 			}
 
-			var newTime = _activeAudioSource.time + (_currentVideo.offset / 1000f);
+			var newTime = _activeAudioSource.time + (VideoConfig.offset / 1000f);
 
 			if (newTime < 0)
 			{
-				_videoPlayer.Hide();
+				VideoPlayer.Hide();
 				StopAllCoroutines();
 				StartCoroutine(PlayVideoDelayedCoroutine(-newTime));
 			}
-			else if (newTime > _videoPlayer.VideoDuration && _videoPlayer.VideoDuration > 0)
+			else if (newTime > VideoPlayer.VideoDuration && VideoPlayer.VideoDuration > 0)
 			{
-				newTime %= _videoPlayer.VideoDuration;
+				newTime %= VideoPlayer.VideoDuration;
 			}
 
-			_videoPlayer.Player.time = newTime;
+			VideoPlayer.Player.time = newTime;
 			Plugin.Logger.Debug("Set time to: " + newTime);
 		}
 
@@ -158,23 +132,23 @@ namespace BeatSaberCinema
 			}
 
 			var audioSourceTime = _activeAudioSource.time;
-			var playerTime = _videoPlayer.Player.time;
-			var referenceTime = audioSourceTime + (_currentVideo!.offset / 1000f);
-			if (_videoPlayer.VideoDuration > 0)
+			var playerTime = VideoPlayer.Player.time;
+			var referenceTime = audioSourceTime + (VideoConfig!.offset / 1000f);
+			if (VideoPlayer.VideoDuration > 0)
 			{
-				referenceTime %= _videoPlayer.VideoDuration;
+				referenceTime %= VideoPlayer.VideoDuration;
 			}
 			var error = referenceTime - playerTime;
 
-			if (audioSourceTime == 0 && !_activeAudioSource.isPlaying && IsPreviewPlaying && !_videoPlayer.IsSyncing)
+			if (audioSourceTime == 0 && !_activeAudioSource.isPlaying && IsPreviewPlaying && !VideoPlayer.IsSyncing)
 			{
 				Plugin.Logger.Debug("Preview AudioSource detected to have stopped playing");
 				StopPreview(false);
 				VideoMenu.instance.SetupVideoDetails();
-				PrepareVideo(_currentVideo);
+				PrepareVideo(VideoConfig);
 			}
 
-			if (!_activeAudioSource.isPlaying && !_videoPlayer.IsSyncing)
+			if (!_activeAudioSource.isPlaying && !VideoPlayer.IsSyncing)
 			{
 				return;
 			}
@@ -185,23 +159,23 @@ namespace BeatSaberCinema
 				                    Util.FormatFloat(audioSourceTime) + " - Error (ms): " + Math.Round(error * 1000));
 			}
 
-			if (_currentVideo.endVideoAt != null)
+			if (VideoConfig.endVideoAt != null)
 			{
-				if (referenceTime >= _currentVideo.endVideoAt)
+				if (referenceTime >= VideoConfig.endVideoAt)
 				{
 					Plugin.Logger.Debug("Reached video endpoint as configured at "+referenceTime);
-					_videoPlayer.Pause();
+					VideoPlayer.Pause();
 				}
 			}
 
-			if (Math.Abs(audioSourceTime - _lastKnownAudioSourceTime) > 0.3f && _videoPlayer.IsPlaying)
+			if (Math.Abs(audioSourceTime - _lastKnownAudioSourceTime) > 0.3f && VideoPlayer.IsPlaying)
 			{
 				Plugin.Logger.Debug("Detected AudioSource seek, resyncing...");
 				ResyncVideo();
 			}
 
 			//Sync if the error exceeds a threshold, but not if the video is close to the looping point
-			if (Math.Abs(error) > 0.3f && Math.Abs(_videoPlayer.VideoDuration - playerTime) > 0.5f && _videoPlayer.IsPlaying)
+			if (Math.Abs(error) > 0.3f && Math.Abs(VideoPlayer.VideoDuration - playerTime) > 0.5f && VideoPlayer.IsPlaying)
 			{
 				Plugin.Logger.Debug($"Detected desync (reference {referenceTime}, actual {playerTime}), resyncing...");
 				ResyncVideo();
@@ -209,12 +183,12 @@ namespace BeatSaberCinema
 
 			_lastKnownAudioSourceTime = audioSourceTime;
 
-			if (!_videoPlayer.IsSyncing)
+			if (!VideoPlayer.IsSyncing)
 			{
 				return;
 			}
 
-			_videoPlayer.IsSyncing = false;
+			VideoPlayer.IsSyncing = false;
 			if (!_activeAudioSource.isPlaying)
 			{
 				_activeAudioSource.Play();
@@ -223,7 +197,7 @@ namespace BeatSaberCinema
 
 		public IEnumerator StartPreviewCoroutine()
 		{
-			if (_currentVideo == null || _currentLevel == null)
+			if (VideoConfig == null || _currentLevel == null)
 			{
 				Plugin.Logger.Warn("No video or level selected in OnPreviewAction");
 				yield break;
@@ -236,17 +210,17 @@ namespace BeatSaberCinema
 			else
 			{
 				IsPreviewPlaying = true;
-				if (!_videoPlayer.IsPrepared)
+				if (!VideoPlayer.IsPrepared)
 				{
 					Plugin.Logger.Info("Not Prepped yet");
 				}
 
 				//Start the preview at the point the video kicks in
 				var startTime = 0f;
-				if (_currentVideo.offset < 0)
+				if (VideoConfig.offset < 0)
 				{
 					Plugin.Logger.Debug("Set preview start time to "+startTime);
-					startTime = -_currentVideo.GetOffsetInSec();
+					startTime = -VideoConfig.GetOffsetInSec();
 				}
 				_songPreviewPlayer.CrossfadeTo(_currentLevel.GetPreviewAudioClipAsync(new CancellationToken()).Result, startTime, _currentLevel.songDuration, 0.65f);
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
@@ -254,14 +228,14 @@ namespace BeatSaberCinema
 				SetAudioSourcePanning(0.85f);
 				StartCoroutine(PlayVideoAfterAudioSourceCoroutine(true));
 				PanStereo = -1f; // -1 is hard left
-				_videoPlayer.Unmute();
+				VideoPlayer.Unmute();
 			}
 		}
 
 		public void StopPreview(bool stopPreviewMusic)
 		{
 			StopPlayback();
-			HideScreen();
+			VideoPlayer.Hide();
 			StopAllCoroutines();
 
 			if (stopPreviewMusic && IsPreviewPlaying)
@@ -272,21 +246,21 @@ namespace BeatSaberCinema
 			IsPreviewPlaying = false;
 
 			SetAudioSourcePanning(0f); //0f is neutral
-			_videoPlayer.Mute();
+			VideoPlayer.Mute();
 		}
 
 		private void OnMenuSceneLoaded()
 		{
 			Plugin.Logger.Debug("MenuSceneLoaded");
 			_activeScene = Scene.Menu;
-			_environmentModified = false;
-			_videoPlayer.Stop();
-			_videoPlayer.Hide();
+			EnvironmentController.Reset();
+			VideoPlayer.Stop();
+			VideoPlayer.Hide();
 			StopAllCoroutines();
 
-			if (_currentVideo != null)
+			if (VideoConfig != null)
 			{
-				PrepareVideo(_currentVideo);
+				PrepareVideo(VideoConfig);
 			}
 
 			try
@@ -308,12 +282,12 @@ namespace BeatSaberCinema
 
 		private void OnConfigChanged(VideoConfig? config)
 		{
-			var previousVideoPath = _currentVideo?.VideoPath;
-			_currentVideo = config;
+			var previousVideoPath = VideoConfig?.VideoPath;
+			VideoConfig = config;
 
 			if (config == null)
 			{
-				_videoPlayer.Stop();
+				VideoPlayer.Stop();
 				return;
 			}
 
@@ -322,7 +296,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, null, _currentVideo?.screenHeight, _currentVideo?.screenCurvature);
+			VideoPlayer.SetPlacement(VideoConfig?.screenPosition, VideoConfig?.screenRotation, null, VideoConfig?.screenHeight, VideoConfig?.screenCurvature);
 			if (IsPreviewPlaying)
 			{
 				StopPreview(true);
@@ -334,31 +308,31 @@ namespace BeatSaberCinema
 			}
 			else
 			{
-				_videoPlayer.Player.isLooping = (config.loop == true);
-				_videoPlayer.SetShaderParameters(config);
-				_videoPlayer.SetBloomIntensity(config.bloom);
+				VideoPlayer.Player.isLooping = (config.loop == true);
+				VideoPlayer.SetShaderParameters(config);
+				VideoPlayer.SetBloomIntensity(config.bloom);
 			}
 
 			if (_activeScene == Scene.Gameplay)
 			{
-				VideoConfigSceneModifications();
+				EnvironmentController.VideoConfigSceneModifications(VideoConfig);
 			}
 		}
 
 		public void SetSelectedLevel(IPreviewBeatmapLevel level, VideoConfig? config)
 		{
-			_videoPlayer.Stop();
+			VideoPlayer.Stop();
 			_currentLevel = level;
-			_currentVideo = config;
+			VideoConfig = config;
 			Plugin.Logger.Debug($"Selected Level: {level.levelID}");
 
-			if (_currentVideo == null)
+			if (VideoConfig == null)
 			{
 				return;
 			}
 
 			Plugin.Logger.Debug("Preparing video...");
-			PrepareVideo(_currentVideo);
+			PrepareVideo(VideoConfig);
 		}
 
 		private void ShowSongCover()
@@ -371,16 +345,16 @@ namespace BeatSaberCinema
 			try
 			{
 				var coverSprite = _currentLevel.GetCoverImageAsync(new CancellationToken()).Result;
-				_videoPlayer.SetStaticTexture(coverSprite.texture);
-				ShowScreen();
+				VideoPlayer.SetStaticTexture(coverSprite.texture);
+				VideoPlayer.Show();
 
 				if (!SettingsStore.Instance.TransparencyEnabled)
 				{
-					_videoPlayer.ShowScreenBody();
+					VideoPlayer.ShowScreenBody();
 				}
 				else
 				{
-					_videoPlayer.HideScreenBody();
+					VideoPlayer.HideScreenBody();
 				}
 			}
 			catch (Exception e)
@@ -399,34 +373,30 @@ namespace BeatSaberCinema
 			{
 				//TODO add screen positioning for MP
 				Plugin.Logger.Debug("Plugin disabled");
-				HideScreen();
+				VideoPlayer.Hide();
 				return;
 			}
 
-			if (_currentVideo == null || !_currentVideo.IsPlayable)
+			if (VideoConfig == null || !VideoConfig.IsPlayable)
 			{
 				Plugin.Logger.Debug("No video configured or video is not playable");
 
-				if (_currentVideo != null && _currentVideo.forceEnvironmentModifications == true)
-				{
-					VideoConfigSceneModifications();
-				}
-				else if (SettingsStore.Instance.CoverEnabled)
+				if (SettingsStore.Instance.CoverEnabled && (VideoConfig?.forceEnvironmentModifications == null || VideoConfig.forceEnvironmentModifications == false))
 				{
 					ShowSongCover();
 				}
 				return;
 			}
 
-			if (_currentVideo.NeedsToSave)
+			if (VideoConfig.NeedsToSave)
 			{
-				VideoLoader.SaveVideoConfig(_currentVideo);
+				VideoLoader.SaveVideoConfig(VideoConfig);
 			}
 
-			_videoPlayer.SetPlacement(_currentVideo?.screenPosition, _currentVideo?.screenRotation, null, _currentVideo?.screenHeight, _currentVideo?.screenCurvature);
+			VideoPlayer.SetPlacement(VideoConfig?.screenPosition, VideoConfig?.screenRotation, null, VideoConfig?.screenHeight, VideoConfig?.screenCurvature);
 
 			SetAudioSourcePanning(0);
-			_videoPlayer.Mute();
+			VideoPlayer.Mute();
 			StartCoroutine(PlayVideoAfterAudioSourceCoroutine(false));
 		}
 
@@ -454,401 +424,6 @@ namespace BeatSaberCinema
 			}
 
 			PlayVideo(startTime);
-		}
-
-		public void ModifyGameScene()
-		{
-			if (_environmentModified)
-			{
-				return;
-			}
-
-			_environmentModified = true;
-
-			Plugin.Logger.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName);
-
-			try
-			{
-				if (_currentVideo!.disableDefaultModifications == null || _currentVideo.disableDefaultModifications.Value == false)
-				{
-					DefaultSceneModifications();
-				}
-
-				VideoConfigSceneModifications();
-			}
-			catch (Exception e)
-			{
-				Plugin.Logger.Error(e);
-			}
-
-			Plugin.Logger.Debug("Modified environment");
-		}
-
-		private void VideoConfigSceneModifications()
-		{
-			if (_currentVideo?.environment != null && _currentVideo.environment.Length > 0)
-			{
-				foreach (var environmentModification in _currentVideo.environment)
-				{
-					Plugin.Logger.Debug($"Modifying {environmentModification.name}");
-					IEnumerable<GameObject> environmentObjectList;
-					try
-					{
-						environmentObjectList = Resources.FindObjectsOfTypeAll<GameObject>().Where(x =>
-							x.name == environmentModification.name &&
-							(environmentModification.parentName == null || x.transform.parent.name == environmentModification.parentName));
-					}
-					catch (Exception e)
-					{
-						Plugin.Logger.Error($"Failed to apply this environment modification: name={environmentModification.name}, parentName={environmentModification.parentName}");
-						Plugin.Logger.Warn(e);
-						continue;
-					}
-
-					foreach (var environmentObject in environmentObjectList)
-					{
-						if (environmentObject == null)
-						{
-							Plugin.Logger.Warn($"Environment object {environmentModification.name} was not found in the scene. Skipping modifications.");
-							continue;
-						}
-
-						if (environmentModification.active.HasValue)
-						{
-							environmentObject.SetActive(environmentModification.active.Value);
-						}
-
-						if (environmentModification.position.HasValue)
-						{
-							environmentObject.gameObject.transform.position = environmentModification.position.Value;
-						}
-
-						if (environmentModification.rotation.HasValue)
-						{
-							environmentObject.gameObject.transform.eulerAngles = environmentModification.rotation.Value;
-						}
-
-						if (environmentModification.scale.HasValue)
-						{
-							environmentObject.gameObject.transform.localScale = environmentModification.scale.Value;
-						}
-					}
-				}
-			}
-		}
-
-		private void DefaultSceneModifications()
-		{
-			//FrontLights appear in many environments and need to be removed in all of them
-			var frontLights = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "FrontLights" && x.activeInHierarchy);
-			if (frontLights != null)
-			{
-				frontLights.SetActive(false);
-			}
-
-			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
-			{
-				case "NiceEnvironment":
-				case "BigMirrorEnvironment":
-				{
-					var doubleColorLasers = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("DoubleColorLaser") && x.activeInHierarchy);
-					foreach (var doubleColorLaser in doubleColorLasers)
-					{
-						var laserName = doubleColorLaser.name;
-						if (laserName == "DoubleColorLaser")
-						{
-							laserName = "DoubleColorLaser (0)";
-						}
-
-						var match = Regex.Match(laserName, "^DoubleColorLaser \\(([0-9])\\)$");
-						if (!match.Success)
-						{
-							Plugin.Logger.Debug($"Could not find index of: {laserName}");
-							continue;
-						}
-						var i = int.Parse(match.Groups[1].Value);
-
-						var sign = 1;
-						if (i % 2 == 0)
-						{
-							sign = -sign;
-						}
-
-						var shiftBy = 18f * sign;
-						var pos = doubleColorLaser.transform.position;
-						doubleColorLaser.transform.position = new Vector3(pos.x + shiftBy, pos.y, pos.z);
-					}
-					break;
-				}
-				case "BTSEnvironment":
-				{
-					var centerLight = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "MagicDoorSprite" && x.activeInHierarchy);
-					if (centerLight != null)
-					{
-						centerLight.SetActive(false);
-					}
-
-					//Not optimal, but if we don't deactivate this, it will override the x position set further down
-					var movementEffect = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "PillarsMovementEffect" && x.activeInHierarchy);
-					if (movementEffect != null)
-					{
-						movementEffect.SetActive(false);
-					}
-
-					var pillarPairs = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("PillarPair") && x.activeInHierarchy);
-					foreach (var pillarPair in pillarPairs)
-					{
-						var pillarPairName = pillarPair.name;
-						if (pillarPairName == "PillarPair" || pillarPairName == "SmallPillarPair")
-						{
-							pillarPairName += " (0)";
-						}
-
-						var match = Regex.Match(pillarPairName, "PillarPair \\(([0-9])\\)$");
-						if (!match.Success)
-						{
-							Plugin.Logger.Debug($"Could not find index of: {pillarPairName}");
-							continue;
-						}
-						var i = int.Parse(match.Groups[1].Value);
-
-						var children = Resources.FindObjectsOfTypeAll<GameObject>().Where(x =>
-						{
-							Transform parent;
-							return x.name.Contains("Pillar") &&
-							       (parent = x.transform.parent) != null &&
-							       parent.name == pillarPair.name &&
-							       x.activeInHierarchy;
-						});
-
-						foreach (var child in children)
-						{
-							var childPos = child.transform.position;
-							var sign = 1;
-							var newX = 16f;
-							if (child.name == "PillarL")
-							{
-								sign *= -1;
-							}
-
-							newX = (newX + (i * 2.3f)) * sign;
-							child.transform.position = new Vector3(newX, childPos.y, childPos.z);
-						}
-
-						var pairPos = pillarPair.transform.position;
-						pillarPair.transform.position = new Vector3(pairPos.x, pairPos.y - 2f, pairPos.z);
-					}
-
-					if (_currentVideo!.screenPosition == null)
-					{
-						SetScreenDistance(80f);
-					}
-
-					break;
-				}
-				case "OriginsEnvironment":
-				{
-					var spectrograms = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == "Spectrogram" && x.activeInHierarchy);
-					foreach (var spectrogram in spectrograms)
-					{
-						var pos = spectrogram.transform.position;
-						var newX = 12;
-						if (pos.x < 0)
-						{
-							newX *= -1;
-						}
-						spectrogram.transform.position = new Vector3(newX, pos.y, pos.z);
-					}
-					break;
-				}
-				case "KDAEnvironment":
-				{
-					var construction = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "Construction" && x.transform.parent.name != "PlayersPlace" && x.activeInHierarchy);
-					if (construction != null)
-					{
-						//Stretch it in the y-axis to get rid of the beam above
-						construction.transform.localScale = new Vector3(1, 2, 1);
-					}
-
-					var tentacles = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("Tentacle") && x.activeInHierarchy);
-					foreach (var tentacle in tentacles)
-					{
-						var pos = tentacle.transform.position;
-						var rot = tentacle.transform.eulerAngles;
-						const int newPosX = 15;
-						const int newRotY = -135;
-						var sign = 1;
-						if (pos.x < 0)
-						{
-							sign = -1;
-						}
-
-						tentacle.transform.position = new Vector3(newPosX * sign, pos.y, pos.z);
-						tentacle.transform.eulerAngles = new Vector3(rot.x, newRotY * sign, rot.z);
-					}
-
-					var verticalLasers = Resources.FindObjectsOfTypeAll<GameObject>().Where(
-						x => x.name.Contains("Laser") && !x.name.Contains("RotatingLasersPair") && x.activeInHierarchy);
-					foreach (var laser in verticalLasers)
-					{
-						var pos = laser.transform.position;
-						var newX = 10;
-						if (pos.x < 0)
-						{
-							newX *= -1;
-						}
-
-						laser.transform.position = new Vector3(newX, pos.y, pos.z);
-					}
-
-					var glowLines = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("GlowTopLine") && x.activeInHierarchy);
-					foreach (var glowLine in glowLines)
-					{
-						var pos = glowLine.transform.position;
-						glowLine.transform.position = new Vector3(pos.x, 20f, pos.z);
-					}
-
-					break;
-				}
-				case "RocketEnvironment":
-				{
-					var cars = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("RocketCar") && x.activeInHierarchy);
-					foreach (var car in cars)
-					{
-						var pos = car.transform.position;
-						var newX = 16;
-						if (pos.x < 0)
-						{
-							newX *= -1;
-						}
-						car.transform.position = new Vector3(newX, pos.y, pos.z);
-					}
-
-					var arena = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "RocketArena" && x.activeInHierarchy);
-					if (arena != null)
-					{
-						arena.transform.localScale = new Vector3(1, 2, 1);
-					}
-
-					var arenaLight = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "RocketArenaLight" && x.activeInHierarchy);
-					if (arenaLight != null)
-					{
-						arenaLight.transform.position = new Vector3(0, 23, 42);
-						arenaLight.transform.localScale = new Vector3(2.5f, 1, 1);
-					}
-
-					var gateLight = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "RocketGateLight" && x.activeInHierarchy);
-					if (gateLight != null)
-					{
-						gateLight.transform.position = new Vector3(0, -3, 64);
-						gateLight.transform.localScale = new Vector3(2.6f, 1, 4.5f);
-					}
-					break;
-				}
-				case "DragonsEnvironment":
-				{
-					var spectrograms = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == "Spectrogram" && x.activeInHierarchy);
-					foreach (var spectrogram in spectrograms)
-					{
-						var pos = spectrogram.transform.position;
-						var newX = 16;
-						if (pos.x < 0)
-						{
-							newX *= -1;
-						}
-						spectrogram.transform.position = new Vector3(newX, pos.y, pos.z);
-					}
-
-					var topConstructionParts = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("TopConstruction") && x.activeInHierarchy);
-					foreach (var topConstruction in topConstructionParts)
-					{
-						var pos = topConstruction.transform.position;
-						topConstruction.transform.position = new Vector3(pos.x, 27.0f, pos.z);
-					}
-
-					var hallConstruction = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "HallConstruction" && x.activeInHierarchy);
-					if (hallConstruction != null)
-					{
-						var pos = hallConstruction.transform.position;
-						hallConstruction.transform.position = new Vector3(pos.x, 22.0f, pos.z);
-					}
-
-					var trackLaneRings = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name.Contains("PanelsTrackLaneRing") && x.activeInHierarchy);
-					foreach (var ring in trackLaneRings)
-					{
-						var pos = ring.transform.position;
-						ring.transform.localScale = new Vector3(3.5f, 3.5f, 1f);
-					}
-					break;
-				}
-				case "LinkinParkEnvironment":
-				{
-					var logo = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x =>
-					{
-						Transform parent;
-						return x.name == "Logo" &&
-						       (parent = x.transform.parent) != null &&
-						       parent.name == "Environment" &&
-						       x.activeInHierarchy;
-					});
-					if (logo != null)
-					{
-						logo.SetActive(false);
-					}
-
-					var environmentScale = new Vector3(4f, 3f, 3f);
-					var invertedScale = new Vector3(1/environmentScale.x, 1/environmentScale.y, 1/environmentScale.z);
-
-					var environment = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "Environment" && x.activeInHierarchy);
-					if (environment != null)
-					{
-						environment.transform.localScale = environmentScale;
-					}
-
-					var trackConstruction = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "TrackConstruction" && x.activeInHierarchy);
-					if (trackConstruction != null)
-					{
-						trackConstruction.transform.position = new Vector3(0.9f, 0f, 106.5f);
-						trackConstruction.transform.localScale = invertedScale;
-					}
-
-					var trackMirror = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "TrackMirror" && x.activeInHierarchy);
-					if (trackMirror != null)
-					{
-						trackMirror.transform.position = new Vector3(0.3f, 0f, 6.55f);
-						trackMirror.transform.localScale = invertedScale;
-					}
-
-					var trackShadow = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "TrackShadow" && x.activeInHierarchy);
-					if (trackShadow != null)
-					{
-						trackShadow.transform.position = new Vector3(0f, -0.3f, 126.1f);
-						trackShadow.transform.localScale = invertedScale;
-					}
-
-					var playersPlace = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "PlayersPlace" && x.activeInHierarchy);
-					if (playersPlace != null)
-					{
-						playersPlace.transform.localScale = invertedScale;
-					}
-
-					var playersPlaceShadow = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "PlayersPlaceShadow" && x.activeInHierarchy);
-					if (playersPlaceShadow != null)
-					{
-						playersPlaceShadow.transform.localScale = invertedScale;
-					}
-
-					var hud = Resources.FindObjectsOfTypeAll<GameObject>().LastOrDefault(x => x.name == "NarrowGameHUD" && x.activeInHierarchy);
-					if (hud != null)
-					{
-						hud.transform.localScale = invertedScale;
-					}
-
-					//Use different defaults for this environment
-					_videoPlayer.SetPlacement(_currentVideo?.screenPosition ?? new Vector3(0f, 6.2f, 52.7f), _currentVideo?.screenRotation ?? Vector3.zero, null, _currentVideo?.screenHeight ?? 16f, _currentVideo?.screenCurvature ?? 0f);
-					break;
-				}
-			}
 		}
 
 		public void SetAudioSourcePanning(float pan)
@@ -887,25 +462,25 @@ namespace BeatSaberCinema
 
 		private void PlayVideo(float startTime)
 		{
-			if (_currentVideo == null)
+			if (VideoConfig == null)
 			{
 				return;
 			}
 
-			_videoPlayer.Show();
-			_videoPlayer.IsSyncing = false;
+			VideoPlayer.Show();
+			VideoPlayer.IsSyncing = false;
 
-			if ((_currentVideo.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
-			    (_currentVideo.transparency != null && !_currentVideo.transparency.Value))
+			if ((VideoConfig.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
+			    (VideoConfig.transparency != null && !VideoConfig.transparency.Value))
 			{
-				_videoPlayer.ShowScreenBody();
+				VideoPlayer.ShowScreenBody();
 			}
 			else
 			{
-				_videoPlayer.HideScreenBody();
+				VideoPlayer.HideScreenBody();
 			}
 
-			var totalOffset = _currentVideo.GetOffsetInSec();
+			var totalOffset = VideoConfig.GetOffsetInSec();
 			var songSpeed = 1f;
 			if (BS_Utils.Plugin.LevelData.IsSet)
 			{
@@ -921,14 +496,14 @@ namespace BeatSaberCinema
 				}
 			}
 
-			_videoPlayer.Player.playbackSpeed = songSpeed;
+			VideoPlayer.Player.playbackSpeed = songSpeed;
 			totalOffset += startTime; //This must happen after song speed adjustment
 
 			if (songSpeed < 1f && totalOffset > 0f)
 			{
 				//Unity crashes if the playback speed is less than 1 and the video time at the start of playback is greater than 0
 				Plugin.Logger.Warn("Video playback disabled to prevent Unity crash");
-				HideScreen();
+				VideoPlayer.Hide();
 				StopPlayback();
 				return;
 			}
@@ -939,18 +514,18 @@ namespace BeatSaberCinema
 				totalOffset += 0.0667f;
 			}
 
-			if (_currentVideo.endVideoAt != null && totalOffset > _currentVideo.endVideoAt)
+			if (VideoConfig.endVideoAt != null && totalOffset > VideoConfig.endVideoAt)
 			{
-				totalOffset = _currentVideo.endVideoAt.Value;
+				totalOffset = VideoConfig.endVideoAt.Value;
 			}
 
 			//This will fail if the video is not prepared yet
-			if (_videoPlayer.VideoDuration > 0)
+			if (VideoPlayer.VideoDuration > 0)
 			{
-				totalOffset %= _videoPlayer.VideoDuration;
+				totalOffset %= VideoPlayer.VideoDuration;
 			}
 
-			Plugin.Logger.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {_videoPlayer.Player.time}");
+			Plugin.Logger.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {VideoPlayer.Player.time}");
 
 			StopAllCoroutines();
 
@@ -969,13 +544,13 @@ namespace BeatSaberCinema
 				else
 				{
 					//In previews we start at the point where the video kicks in
-					_videoPlayer.Play();
+					VideoPlayer.Play();
 				}
 			}
 			else
 			{
-				_videoPlayer.Play();
-				_videoPlayer.Player.time = totalOffset;
+				VideoPlayer.Play();
+				VideoPlayer.Player.time = totalOffset;
 			}
 		}
 
@@ -984,8 +559,8 @@ namespace BeatSaberCinema
 			Plugin.Logger.Debug("Waiting for "+delayStartTime+" seconds before playing video");
 			Stopwatch stopwatch = new Stopwatch();
 			stopwatch.Start();
-			_videoPlayer.Pause();
-			_videoPlayer.Player.time = 0;
+			VideoPlayer.Pause();
+			VideoPlayer.Player.time = 0;
 			var ticksUntilStart = (delayStartTime) * TimeSpan.TicksPerSecond;
 			yield return new WaitUntil(() => stopwatch.ElapsedTicks >= ticksUntilStart);
 			Plugin.Logger.Debug("Elapsed ms: "+stopwatch.ElapsedMilliseconds);
@@ -995,8 +570,8 @@ namespace BeatSaberCinema
 				_lastKnownAudioSourceTime = _activeAudioSource.time;
 			}
 
-			_videoPlayer.Show();
-			_videoPlayer.Play();
+			VideoPlayer.Show();
+			VideoPlayer.Play();
 		}
 
 		private IEnumerator? _prepareVideoCoroutine;
@@ -1014,18 +589,18 @@ namespace BeatSaberCinema
 
 		private IEnumerator PrepareVideoCoroutine(VideoConfig video)
 		{
-			_currentVideo = video;
+			VideoConfig = video;
 
-			_videoPlayer.Pause();
+			VideoPlayer.Pause();
 			if (!video.IsPlayable)
 			{
 				Plugin.Logger.Debug("Video is not downloaded, stopping prepare");
 				yield break;
 			}
 
-			_videoPlayer.Player.isLooping = (video.loop == true);
-			_videoPlayer.SetShaderParameters(video);
-			_videoPlayer.SetBloomIntensity(video.bloom);
+			VideoPlayer.Player.isLooping = (video.loop == true);
+			VideoPlayer.SetShaderParameters(video);
+			VideoPlayer.SetBloomIntensity(video.bloom);
 
 			if (video.VideoPath == null)
 			{
@@ -1035,11 +610,11 @@ namespace BeatSaberCinema
 			var videoPath = video.VideoPath;
 			Plugin.Logger.Info($"Loading video: {videoPath}");
 
-			if (_currentVideo.IsLocal)
+			if (VideoConfig.IsLocal)
 			{
 				var videoFileInfo = new FileInfo(videoPath);
 				var timeout = new Timeout(3f);
-				if (_videoPlayer.Url != videoPath)
+				if (VideoPlayer.Url != videoPath)
 				{
 					yield return new WaitUntil(() =>
 						!Util.IsFileLocked(videoFileInfo) || timeout.HasTimedOut);
@@ -1054,18 +629,18 @@ namespace BeatSaberCinema
 				}
 			}
 
-			_videoPlayer.Url = videoPath;
-			_videoPlayer.Prepare();
+			VideoPlayer.Url = videoPath;
+			VideoPlayer.Prepare();
 		}
 
 		public void StopPlayback()
 		{
-			_videoPlayer.Stop();
+			VideoPlayer.Stop();
 		}
 
 		public void SetScreenDistance(float value)
 		{
-			_videoPlayer.SetScreenDistance(value);
+			VideoPlayer.SetScreenDistance(value);
 		}
 	}
 }
