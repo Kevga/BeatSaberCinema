@@ -239,11 +239,6 @@ namespace BeatSaberCinema
 		private IEnumerator DownloadVideoCoroutine(VideoConfig video)
 		{
 			Plugin.Logger.Info($"Starting download of {video.title}");
-			if (video.DownloadState == DownloadState.Cancelled)
-			{
-				Plugin.Logger.Debug("Download cancelled");
-				yield break;
-			}
 
 			video.DownloadState = DownloadState.Downloading;
 			DownloadProgress?.Invoke(video);

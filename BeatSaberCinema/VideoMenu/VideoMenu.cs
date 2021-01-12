@@ -74,7 +74,7 @@ namespace BeatSaberCinema
 			BSEvents.levelSelected += HandleDidSelectLevel;
 
 			_downloadController.SearchProgress += SearchProgress;
-			_downloadController.DownloadProgress += UpdateStatusText;
+			_downloadController.DownloadProgress += OnDownloadProgress;
 			_downloadController.DownloadFinished += OnDownloadFinished;
 			VideoLoader.ConfigChanged += OnConfigChanged;
 
@@ -122,6 +122,16 @@ namespace BeatSaberCinema
 			}
 
 			_noVideoText.text = "No video configured";
+		}
+
+		private void OnDownloadProgress(VideoConfig videoConfig)
+		{
+			UpdateStatusText(videoConfig);
+			if (videoConfig.DownloadState == DownloadState.Cancelled)
+			{
+				SetButtonState(true);
+			}
+
 		}
 
 		private void SetButtonState(bool state)
