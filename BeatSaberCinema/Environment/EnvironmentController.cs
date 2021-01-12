@@ -18,6 +18,11 @@ namespace BeatSaberCinema
 		public static void ModifyGameScene(VideoConfig? videoConfig)
 		{
 			//Make sure the environment is only modified once, since the trigger for this functions runs multiple times
+			if (!SettingsStore.Instance.PlaybackEnabled)
+			{
+				return;
+			}
+
 			if (_environmentModified)
 			{
 				return;
