@@ -313,6 +313,16 @@ namespace BeatSaberCinema
 				VideoPlayer.SetBloomIntensity(config.bloom);
 			}
 
+			if ((config.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
+			    (config.transparency != null && !config.transparency.Value))
+			{
+				VideoPlayer.ShowScreenBody();
+			}
+			else
+			{
+				VideoPlayer.HideScreenBody();
+			}
+
 			if (_activeScene == Scene.Gameplay)
 			{
 				EnvironmentController.VideoConfigSceneModifications(VideoConfig);
