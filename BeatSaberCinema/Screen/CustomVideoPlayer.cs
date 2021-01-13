@@ -257,12 +257,12 @@ namespace BeatSaberCinema
 		{
 			var colorCorrection = config.colorCorrection;
 
-			SetShaderFloat(Brightness, colorCorrection?.brightness, 0f,   5f, 1f);
+			SetShaderFloat(Brightness, colorCorrection?.brightness, 0f,   2f, 1f);
 			SetShaderFloat(Contrast,   colorCorrection?.contrast,   0f,   5f, 1f);
 			SetShaderFloat(Saturation, colorCorrection?.saturation, 0f,   5f, 1f);
 			SetShaderFloat(Hue,        colorCorrection?.hue,     -360f, 360f, 0f);
-			SetShaderFloat(Exposure,   colorCorrection?.exposure,  -5f,   5f, 1f);
-			SetShaderFloat(Gamma,      colorCorrection?.gamma,     -5f,   5f, 1f);
+			SetShaderFloat(Exposure,   colorCorrection?.exposure,  0,   5f, 1f);
+			SetShaderFloat(Gamma,      colorCorrection?.gamma,     0,   5f, 1f);
 		}
 
 		private void SetShaderFloat(int nameID, float? value, float min, float max, float defaultValue)

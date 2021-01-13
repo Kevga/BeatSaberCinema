@@ -105,11 +105,11 @@ When adjusting these values, you can make use of the hot reloading capability of
 
 | Property                   		| Data Type | Default       	    				| Description |
 | ----------------------------------|:---------:|:------------------------------------:	| ----------- |
-| `brightness`				 		| float		| 1.0				 					| Valid range: 0 to 5 |
+| `brightness`				 		| float		| 1.0				 					| Valid range: 0 to 2 |
 | `contrast`				 		| float		| 1.0				 					| Valid range: 0 to 5 |
 | `saturation`				 		| float		| 1.0				 					| Valid range: 0 to 5 |
-| `exposure`				 		| float		| 1.0				 					| Valid range: -5 to 5 |
-| `gamma`				 			| float		| 1.0				 					| Valid range: -5 to 5 |
+| `exposure`				 		| float		| 1.0				 					| Valid range: 0 to 5 |
+| `gamma`				 			| float		| 1.0				 					| Valid range: 0 to 5 |
 | `hue`				 				| float		| 0.0				 					| Valid range: -360 to +360 (in degrees) |
 
 ### Modifying the environment
