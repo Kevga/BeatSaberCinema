@@ -123,7 +123,7 @@ namespace BeatSaberCinema
 			var timeout = new Timeout(3f);
 			yield return new WaitUntil(() =>
 				!Util.IsFileLocked(shaderFileInfo) || timeout.HasTimedOut);
-			_screenRenderer.material = new Material(GetShader());
+			_screenRenderer.material = new Material(GetShader(path));
 			var timeout2 = new Timeout(1f);
 			yield return new WaitUntil(() => timeout2.HasTimedOut);
 		}
@@ -136,19 +136,28 @@ namespace BeatSaberCinema
 			SetDefaultMenuPlacement();
 		}
 
-		private Shader GetShader()
+		private Shader GetShader(string? path = null)
 		{
-			var bundle = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.bscinema.bundle");
-			if (bundle == null || bundle.Length == 0)
+			AssetBundle myLoadedAssetBundle;
+			if (path == null)
 			{
-				Plugin.Logger.Error("GetResource failed");
-				return Shader.Find("Hidden/BlitAdd");
+				var bundle = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.bscinema.bundle");
+				if (bundle == null || bundle.Length == 0)
+				{
+					Plugin.Logger.Error("GetResource failed");
+					return Shader.Find("Hidden/BlitAdd");
+				}
+
+				myLoadedAssetBundle = AssetBundle.LoadFromMemory(bundle);
+				if (myLoadedAssetBundle == null)
+				{
+					Plugin.Logger.Error("LoadFromMemory failed");
+					return Shader.Find("Hidden/BlitAdd");
+				}
 			}
-			var myLoadedAssetBundle = AssetBundle.LoadFromMemory(bundle);
-			if (myLoadedAssetBundle == null)
+			else
 			{
-				Plugin.Logger.Error("LoadFromMemory failed");
-				return Shader.Find("Hidden/BlitAdd");
+				myLoadedAssetBundle = AssetBundle.LoadFromFile(path);
 			}
 
 			Shader shader = myLoadedAssetBundle.LoadAsset<Shader>("ScreenShader");
