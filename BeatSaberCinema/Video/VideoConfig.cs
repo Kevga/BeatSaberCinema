@@ -36,6 +36,7 @@ namespace BeatSaberCinema
 		public float? bloom;
 
 		public ColorCorrection? colorCorrection;
+		public Vignette? vignette;
 		public EnvironmentModification[]? environment;
 
 		[JsonIgnore, NonSerialized] public DownloadState DownloadState;
@@ -161,6 +162,14 @@ namespace BeatSaberCinema
 			public float? hue;
 			public float? exposure;
 			public float? gamma;
+		}
+
+		[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+		public class Vignette
+		{
+			public string? type;
+			public float? radius;
+			public float? softness;
 		}
 	}
 }

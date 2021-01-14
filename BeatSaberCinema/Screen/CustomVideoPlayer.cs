@@ -41,6 +41,9 @@ namespace BeatSaberCinema
 		private static readonly int Hue = Shader.PropertyToID("_Hue");
 		private static readonly int Gamma = Shader.PropertyToID("_Gamma");
 		private static readonly int Exposure = Shader.PropertyToID("_Exposure");
+		private static readonly int VignetteRadius = Shader.PropertyToID("_VignetteRadius");
+		private static readonly int VignetteSoftness = Shader.PropertyToID("_VignetteSoftness");
+		private static readonly int VignetteOval = Shader.PropertyToID("_VignetteOval");
 		private bool _waitForFirstFrame;
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
@@ -265,13 +268,19 @@ namespace BeatSaberCinema
 		public void SetShaderParameters(VideoConfig config)
 		{
 			var colorCorrection = config.colorCorrection;
+			var vignette = config.vignette;
 
 			SetShaderFloat(Brightness, colorCorrection?.brightness, 0f,   2f, 1f);
 			SetShaderFloat(Contrast,   colorCorrection?.contrast,   0f,   5f, 1f);
 			SetShaderFloat(Saturation, colorCorrection?.saturation, 0f,   5f, 1f);
 			SetShaderFloat(Hue,        colorCorrection?.hue,     -360f, 360f, 0f);
-			SetShaderFloat(Exposure,   colorCorrection?.exposure,  0,   5f, 1f);
-			SetShaderFloat(Gamma,      colorCorrection?.gamma,     0,   5f, 1f);
+			SetShaderFloat(Exposure,   colorCorrection?.exposure,   0f,   5f, 1f);
+			SetShaderFloat(Gamma,      colorCorrection?.gamma,      0f,   5f, 1f);
+
+			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, 1f);
+			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, 0f);
+
+			_screenRenderer.material.SetInt(VignetteOval, vignette?.type == "oval" ? 1 : 0);
 		}
 
 		private void SetShaderFloat(int nameID, float? value, float min, float max, float defaultValue)

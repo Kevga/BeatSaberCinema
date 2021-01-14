@@ -112,6 +112,34 @@ When adjusting these values, you can make use of the hot reloading capability of
 | `gamma`				 			| float		| 1.0				 					| Valid range: 0 to 5 |
 | `hue`				 				| float		| 0.0				 					| Valid range: -360 to +360 (in degrees) |
 
+Example:
+```
+"colorCorrection": {
+  "gamma": 0.9,
+  "contrast": 1.05,
+  "saturation": 1.2
+}
+```
+
+### Vignette
+
+Using the vignette effect you can change the shape of the video player or soften its edges.
+
+| Property                   		| Data Type | Default       	    				| Description |
+| ----------------------------------|:---------:|:------------------------------------:	| ----------- |
+| `type`					 		| string	| "rectangular"		 					| Either "oval" or "rectangular". Changes how the radius and softness parameters behave. |
+| `radius`					 		| float		| 1.0				 					| Valid range: 0 to 1. If the type is "oval", the optimal value is 0.5 or below, since you will still see edges on the left and right on higher values. |
+| `softness`				 		| float		| 0.0				 					| Valid range: 0 to 1. Defines the sharpness of the cutout. If you only want to soften the edges, leave the radius at 1 and only slightly increase the softness. |
+
+Example:
+```
+"vignette": {
+  "type": "oval",
+  "radius": 0.5,
+  "softness": 0.1
+}
+```
+
 ### Modifying the environment
 
 There is an additional property called `environment` which can be used to alter other objects in the game scene. The `environment` parameter is an array that contains `EnvironmentModification` objects, which currently can have the following parameters:
