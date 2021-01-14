@@ -47,7 +47,6 @@ namespace BeatSaberCinema
 			foreach (var config in configs)
 			{
 				BundledConfigs.TryAdd(config.levelID, config.config);
-				Plugin.Logger.Debug($"Adding config for level {config.levelID}: {config.config.videoFile}");
 			}
 		}
 
