@@ -40,7 +40,6 @@ namespace BeatSaberCinema
 		[UIComponent("delete-video-button")] private readonly Button _deleteVideoButton = null!;
 		[UIComponent("delete-video-button")] private readonly TextMeshProUGUI _deleteVideoButtonText = null!;
 		[UIComponent("download-button")] private readonly Button _downloadButton = null!;
-		[UIComponent("refine-button")] private readonly Button _refineButton = null!;
 
 		[UIParams] private readonly BSMLParserParams _bsmlParserParams = null!;
 
@@ -51,6 +50,7 @@ namespace BeatSaberCinema
 		private VideoConfig? _currentVideo;
 		private bool _videoMenuActive;
 		private int _selectedCell;
+		private string _searchText = "";
 		private readonly DownloadController _downloadController = new DownloadController();
 		private readonly List<DownloadController.YTResult> _searchResults = new List<DownloadController.YTResult>();
 
@@ -62,6 +62,7 @@ namespace BeatSaberCinema
 			_menuStatus.DidDisable += StatusViewerDidDisable;
 
 			_deleteButton.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+			_searchKeyboard.clearOnOpen = false;
 
 			if (_videoMenuInitialized)
 			{
@@ -74,6 +75,7 @@ namespace BeatSaberCinema
 			BSEvents.levelSelected += HandleDidSelectLevel;
 
 			_downloadController.SearchProgress += SearchProgress;
+			_downloadController.SearchFinished += SearchFinished;
 			_downloadController.DownloadProgress += OnDownloadProgress;
 			_downloadController.DownloadFinished += OnDownloadFinished;
 			VideoLoader.ConfigChanged += OnConfigChanged;
@@ -98,6 +100,7 @@ namespace BeatSaberCinema
 
 		public void ResetVideoMenu()
 		{
+			_bsmlParserParams.EmitEvent("hide-keyboard");
 			_noVideoViewRect.gameObject.SetActive(true);
 			_videoDetailsViewRect.gameObject.SetActive(false);
 			SetButtonState(false);
@@ -281,6 +284,8 @@ namespace BeatSaberCinema
 			VideoLoader.ListenForConfigChanges(level);
 			PlaybackController.Instance.SetSelectedLevel(level, _currentVideo);
 			SetupVideoDetails();
+
+			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " - " + _currentLevel.songAuthorName : "");
 		}
 
 		public void OnConfigChanged(VideoConfig? config)
@@ -341,7 +346,7 @@ namespace BeatSaberCinema
 				Plugin.Logger.Warn("Selected level was null on search action");
 				return;
 			}
-			OnQueryAction(_currentLevel.songName + " - " + _currentLevel.songAuthorName);
+			OnQueryAction(_searchText);
 		}
 
 		private IEnumerator UpdateSearchResults(DownloadController.YTResult result)
@@ -364,7 +369,6 @@ namespace BeatSaberCinema
 			_customListTableData.data.Add(item);
 			_customListTableData.tableView.ReloadData();
 
-			_refineButton.interactable = true;
 			_downloadButton.interactable = true;
 			_downloadButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.green;
 			if (_selectedCell == -1)
@@ -390,12 +394,7 @@ namespace BeatSaberCinema
 
 		public void ShowKeyboard()
 		{
-			if (_currentLevel == null)
-			{
-				Plugin.Logger.Warn("Selected level was null on search action");
-				return;
-			}
-			_searchKeyboard.SetText(_currentLevel.songName + " - " + _currentLevel.songAuthorName);
+			_searchKeyboard.SetText(_searchText);
 			_bsmlParserParams.EmitEvent("show-keyboard");
 		}
 
@@ -483,10 +482,10 @@ namespace BeatSaberCinema
 
 			ResetSearchView();
 			_downloadButton.interactable = false;
-			_refineButton.interactable = false;
 			StartCoroutine(SearchLoadingCoroutine());
 
 			_downloadController.Search(query);
+			_searchText = query;
 		}
 
 		private void SearchProgress(DownloadController.YTResult result)
@@ -502,6 +501,18 @@ namespace BeatSaberCinema
 			StartCoroutine(updateSearchResultsCoroutine);
 		}
 
+		private void SearchFinished()
+		{
+			if (_searchResults.Count != 0)
+			{
+				return;
+			}
+
+			ResetSearchView();
+			_searchResultsLoadingText.gameObject.SetActive(true);
+			_searchResultsLoadingText.SetText("No search results found.\r\nUse the Refine Search button in the bottom right to choose a different search query.");
+		}
+
 		private void ResetSearchView()
 		{
 			StopAllCoroutines();
@@ -515,6 +526,8 @@ namespace BeatSaberCinema
 			_downloadButton.interactable = false;
 			_downloadButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.grey;
 			_selectedCell = -1;
+			_searchResults.Clear();
+			_bsmlParserParams.EmitEvent("hide-keyboard");
 		}
 
 		private IEnumerator SearchLoadingCoroutine()

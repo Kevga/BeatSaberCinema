@@ -59,6 +59,7 @@ namespace BeatSaberCinema
 		public event Action<VideoConfig>? DownloadProgress;
 		public event Action<VideoConfig>? DownloadFinished;
 		public event Action<YTResult>? SearchProgress;
+		public event Action? SearchFinished;
 
 		private bool? _librariesAvailable;
 		public bool LibrariesAvailable()
@@ -191,7 +192,7 @@ namespace BeatSaberCinema
 		private void SearchProcessExited(object sender, EventArgs e)
 		{
 			Plugin.Logger.Info($"Search process exited with exitcode {((Process) sender).ExitCode}");
-
+			SearchFinished?.Invoke();
 			DisposeProcess(_searchProcess);
 			_searchProcess = null;
 		}
