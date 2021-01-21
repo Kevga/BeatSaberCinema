@@ -4,7 +4,7 @@
 	"name": "Cinema",
 	"description": "Sync up videos to play alongside your beat maps",
 	"author": "Dakari",
-	"gameVersion": "1.13.0",
+	"gameVersion": "1.13.2",
 	"version": "1.2.2",
 	"dependsOn": {
 		"BSIPA": "^4.1.3",

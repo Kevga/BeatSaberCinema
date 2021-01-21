@@ -31,8 +31,7 @@ namespace BeatSaberCinema
 			UpdateMesh();
 			_renderer = GetComponent<Renderer>();
 
-			KawaseBloomMainEffectSO kawaseBloomMainEffect = Resources.FindObjectsOfTypeAll<KawaseBloomMainEffectSO>().First();
-			_kawaseBlurRenderer = kawaseBloomMainEffect.GetPrivateField<KawaseBlurRendererSO>("_kawaseBlurRenderer");
+			_kawaseBlurRenderer = Resources.FindObjectsOfTypeAll<KawaseBlurRendererSO>().First();
 			_additiveMaterial = new Material(Shader.Find("Hidden/BlitAdd"));
 			_additiveMaterial.SetFloat(Alpha, 1f);
 
