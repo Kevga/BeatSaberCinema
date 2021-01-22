@@ -89,7 +89,7 @@ namespace BeatSaberCinema
 		public void AddTab()
 		{
 			Plugin.Logger.Debug("Adding tab");
-			GameplaySetup.instance.AddTab("Cinema", "BeatSaberCinema.VideoMenu.Views.video-menu.bsml", this);
+			GameplaySetup.instance.AddTab("Cinema", "BeatSaberCinema.VideoMenu.Views.video-menu.bsml", this, MenuType.Solo);
 		}
 
 		public void RemoveTab()
