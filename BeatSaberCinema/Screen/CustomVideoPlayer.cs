@@ -278,7 +278,7 @@ namespace BeatSaberCinema
 			SetShaderFloat(Gamma,      colorCorrection?.gamma,      0f,   5f, 1f);
 
 			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, 1f);
-			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, 0f);
+			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, 0.005f);
 
 			_screenRenderer.material.SetInt(VignetteOval, vignette?.type == "oval" ? 1 : 0);
 		}
