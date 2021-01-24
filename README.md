@@ -1,11 +1,11 @@
 # BeatSaberCinema
 
-A Beat Saber plugin that allows you to sync up videos to play alongside your maps, heavily inspired by MusicVideoPlayer. Made by Dakari#0638
+A Beat Saber plugin that allows you to sync up videos to play in the background of your maps, heavily inspired by MusicVideoPlayer. Made by Dakari#0638
 
 ## How to use
 
 ### 1. Installation
-To install Cinema, download the latest release and simply unzip all of it's contents into the Beat Saber folder. Make sure you don't skip the files in the Libs folder, as those are required, too.
+To install Cinema, download the latest release [from here](https://github.com/Kevga/BeatSaberCinema/releases/latest) and simply unzip all of it's contents into the Beat Saber folder. Make sure you don't skip the files in the Libs folder, as those are required, too.
 
 Additionally, the following plugins are **required** for Cinema to work:
 
@@ -36,11 +36,11 @@ Select a song in-game, look to your left to the panel labeled "Gameplay Setup" a
 
 ![Video Menu Screenshot](Resources/video-menu.png)
 
-Click download in the center of the menu and wait for the download to complete, then simply play the map. If the download takes too long for you, you can lower the video quality from the main menu settings.
+Click download in the center of the menu and wait for the download to complete, then simply play the map. If the download takes too long for you, you can lower the video quality from the settings on the left side of the main menu.
 
-You can of course add videos to any song you like, even if they are not pre-configured. The menu will in that case show you a button labeled "Search", which will lead you to the search results from YouTube. After you choose a video, you will have to adjust the video offset. To do so, simply click the "Preview" button to play the video, and use the "+" or "-" buttons to adjust the offset until the sound from both ears lines up. Sound from the video will play in your left ear, the map in your right ear. If the sound from the left ear is behind, use the "+" buttons, otherwise the "-" buttons. If you have trouble hearing which one is ahead, try stopping and restarting the preview and listen to which one starts earlier. The sync doesn't have to be exactly perfect though, in most cases you will not notice a slight error in either direction when playing the map.
+You can of course add videos to any song you like, even if they are not pre-configured. The menu will in that case show you a button labeled "Search", which will lead you to the search results from YouTube. After you choose a video, you will have to adjust the video offset. To do so, simply click the "Preview" button to play the video, and use the "+" or "-" buttons to adjust the offset until the sound from both ears lines up. Sound from the video will play in your left ear, the map in your right ear. If the sound from the left ear is behind, use the "+" buttons, otherwise the "-" buttons. If you have trouble hearing which one is ahead, try stopping and restarting the preview and listen to which one starts earlier. The sync doesn't have to be exactly perfect though, in most cases you won't notice a slight error in either direction when playing the map.
 
-Cinema is also compatible with video configs created with MusicVideoPlayer. You can't however use both plugins at the same time. If MVP is installed as well, Cinema will not be enabled to avoid conflicts.
+Cinema is also compatible with video configs created with MusicVideoPlayer. However, you can't use both plugins at the same time. If MVP is installed as well, Cinema will not be enabled to avoid conflicts.
 
 ## Info for Mappers
 
@@ -195,7 +195,7 @@ Here is an example config that uses some of the more advanced settings, includin
   "disableBigMirrorOverride": true,
   "colorCorrection": {
   	"gamma": 0.9,
-  	"highlights": 1.1
+  	"saturation": 1.1
   },
   "environment": [
     {
@@ -227,8 +227,9 @@ The *Video ID* is currently required, but obviously doesn't exist if the video i
 
 The video file will need to be in the folder of the map. For the supported video codecs and file formats, please refer to the Windows Media Foundation documentation:
 
-https://docs.microsoft.com/en-us/windows/win32/medfound/supported-media-formats-in-media-foundation
-https://docs.microsoft.com/en-us/windows/win32/medfound/h-265---hevc-video-decoder#format-constraints
+[Supported Media Formats in Media Foundation](https://docs.microsoft.com/en-us/windows/win32/medfound/supported-media-formats-in-media-foundation)
+
+[H.265 / HEVC Video Decoder - Format constraints](https://docs.microsoft.com/en-us/windows/win32/medfound/h-265---hevc-video-decoder#format-constraints)
 
 Template for local videos:
 ```
