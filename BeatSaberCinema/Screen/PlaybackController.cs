@@ -345,7 +345,7 @@ namespace BeatSaberCinema
 			PrepareVideo(VideoConfig);
 		}
 
-		private void ShowSongCover()
+		private async void ShowSongCover()
 		{
 			if (_currentLevel == null)
 			{
@@ -354,7 +354,7 @@ namespace BeatSaberCinema
 
 			try
 			{
-				var coverSprite = _currentLevel.GetCoverImageAsync(new CancellationToken()).Result;
+				var coverSprite = await _currentLevel.GetCoverImageAsync(new CancellationToken());
 				VideoPlayer.SetStaticTexture(coverSprite.texture);
 				VideoPlayer.Show();
 

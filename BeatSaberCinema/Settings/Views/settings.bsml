@@ -11,7 +11,7 @@
 	<bool-setting apply-on-change="true" text='Transparent Screen' value='transparency-enabled'
 				  hover-hint="Allows you to see through the screen.&#xD;&#xA;&#xD;&#xA;Turn off if you don't want lights behind the screen to shine through."></bool-setting>
 	<bool-setting apply-on-change="true" text='Show Cover (Beta)' value='cover-enabled'
-				  hover-hint="Shows the song's cover image on screen if the map doesn't have a video.&#xD;&#xA;&#xD;&#xA;This may currently not work well on some environments. I'd love to get some feedback about this feature."></bool-setting>
+				  hover-hint="Shows the song's cover image on screen if the map doesn't have a video.&#xD;&#xA;&#xD;&#xA;This may currently not work well on some environments."></bool-setting>
 	<horizontal horizontal-fit="PreferredSize">
 		<horizontal horizontal-fit="PreferredSize">
 			<text text="Bloom Intensity" italics="true"></text>
