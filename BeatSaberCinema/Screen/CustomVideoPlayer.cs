@@ -25,7 +25,7 @@ namespace BeatSaberCinema
 		private readonly Vector3 _defaultCoverRotation = new Vector3(-8, 0, 0);
 		private readonly float _defaultCoverHeight = 12;
 
-		private readonly Vector3 _menuPosition = new Vector3(0, 3.90f, 16);
+		private readonly Vector3 _menuPosition = new Vector3(0, 4f, 16);
 		private readonly Vector3 _menuRotation = new Vector3(0, 0, 0);
 		private readonly float _menuHeight = 8;
 
