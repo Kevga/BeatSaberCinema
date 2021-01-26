@@ -16,7 +16,7 @@ Additionally, the following plugins are **required** for Cinema to work:
 You can find all of these in ModAssistant.
 
 ### 2. Download Pre-Configured Maps (*optional*)
-The plugin includes more than 70 video configurations for you to try. For your convenience, here are a few examples:
+The plugin includes more than 70 video configurations for you to try. Here are a few examples:
 
 - [Madeon - The Prince \[Bearly & dgrj4life\]](https://beatsaver.com/beatmap/110ac)
 - [2WEI feat. Edda Hayes - Warriors \[halcyon12\]](https://beatsaver.com/beatmap/8e98)
@@ -27,7 +27,10 @@ The plugin includes more than 70 video configurations for you to try. For your c
 - [K/DA - MORE \[DACK\]](https://beatsaver.com/beatmap/1059c)
 - [BLACKPINK - Kill This Love \[aggrogahu\]](https://beatsaver.com/beatmap/46be)
 
-You can find the full list of maps with videos (without download links) [here](Resources/bundled-configs.txt).
+A playlist file (.bplist) with all pre-configured maps can be found [here](https://raw.githubusercontent.com/Kevga/BeatSaberCinema/master/Resources/cinema.bplist). Right-click the link and click `Save link as...` to download the file and save it in `Beat Saber\Playlists`. You can then use a mod like PlaylistManager to access it in game.
+
+A readable full list of maps with videos (without download links) can be found [here](Resources/bundled-configs.txt).
+
 **Please note that you can add a video to any map you like, the maps listed here are not the only ones Cinema works with**.
 
 
