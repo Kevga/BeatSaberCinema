@@ -195,6 +195,11 @@ namespace BeatSaberCinema
 			}
 		}
 
+		private async void CrossfadePreviewPlayer(IPreviewBeatmapLevel level, float startTime)
+		{
+			_songPreviewPlayer.CrossfadeTo(await level.GetPreviewAudioClipAsync(new CancellationToken()), startTime, level.songDuration, 0.65f);
+		}
+
 		public IEnumerator StartPreviewCoroutine()
 		{
 			if (VideoConfig == null || _currentLevel == null)
@@ -222,7 +227,8 @@ namespace BeatSaberCinema
 					Plugin.Logger.Debug("Set preview start time to "+startTime);
 					startTime = -VideoConfig.GetOffsetInSec();
 				}
-				_songPreviewPlayer.CrossfadeTo(_currentLevel.GetPreviewAudioClipAsync(new CancellationToken()).Result, startTime, _currentLevel.songDuration, 0.65f);
+
+				CrossfadePreviewPlayer(_currentLevel, startTime);
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
 				SetAudioSourcePanning(0.85f);
