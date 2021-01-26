@@ -15,7 +15,7 @@
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<ModVersion>1.2.3</ModVersion>
+		<ModVersion>1.2.4</ModVersion>
 		<ModName>BeatSaberCinema</ModName>
 		<OutDir>$(ProjectDir)bin\$(Configuration)</OutDir>
 		<AssemblyVersion>$(ModVersion)</AssemblyVersion>
