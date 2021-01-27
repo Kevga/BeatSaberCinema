@@ -12,15 +12,12 @@ namespace BeatSaberCinema
 	[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
 	public class VideoConfig
 	{
-		private const int CURREN_FORMAT_VERSION = 1;
-
 		public string? videoID;
 		public string? title;
 		public string? author;
 		public string? videoFile;
 		public int duration; //s
 		public int offset; //in ms
-		public int formatVersion = CURREN_FORMAT_VERSION;
 		public bool? loop;
 		public float? endVideoAt;
 		public bool? configByMapper;
