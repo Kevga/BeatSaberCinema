@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using BS_Utils.Utilities;
+using IPA.Utilities;
+using UnityEngine;
 
 namespace BeatSaberCinema
 {
@@ -110,10 +111,10 @@ namespace BeatSaberCinema
 			}
 
 			_bloomPrePassDict.Add(camera, bloomPrePass);
-			_bloomPrePassRendererDict.Add(camera, bloomPrePass.GetPrivateField<BloomPrePassRendererSO>("_bloomPrepassRenderer"));
-			_bloomPrePassRenderDataDict.Add(camera, bloomPrePass.GetPrivateField<BloomPrePassRenderDataSO.Data>("_renderData"));
-			var effectsContainer = bloomPrePass.GetPrivateField<BloomPrePassEffectContainerSO>("_bloomPrePassEffectContainer");
-			_bloomPrePassParamsDict.Add(camera, effectsContainer.GetPrivateField<BloomPrePassEffectSO>("_bloomPrePassEffect"));
+			_bloomPrePassRendererDict.Add(camera, bloomPrePass.GetField<BloomPrePassRendererSO, BloomPrePass>("_bloomPrepassRenderer"));
+			_bloomPrePassRenderDataDict.Add(camera, bloomPrePass.GetField<BloomPrePassRenderDataSO.Data, BloomPrePass>("_renderData"));
+			var effectsContainer = bloomPrePass.GetField<BloomPrePassEffectContainerSO, BloomPrePass>("_bloomPrePassEffectContainer");
+			_bloomPrePassParamsDict.Add(camera, effectsContainer.GetField<BloomPrePassEffectSO, BloomPrePassEffectContainerSO>("_bloomPrePassEffect"));
 		}
 
 		public void OnCameraPostRender(Camera camera)
@@ -156,7 +157,16 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			GetPrivateFields(camera);
+			try
+			{
+				GetPrivateFields(camera);
+			}
+			catch (Exception e)
+			{
+				Plugin.Logger.Error(e);
+				_bloomPrePassDict.Add(camera, null);
+			}
+
 			_bloomPrePassDict.TryGetValue(camera, out var bloomPrePass);
 			if (bloomPrePass == null)
 			{
