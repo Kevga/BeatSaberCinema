@@ -13,6 +13,7 @@ namespace BeatSaberCinema
 	public class Plugin
 	{
 		private const string HARMONY_ID = "com.github.kevga.cinema";
+		private const string CAPABILITY = "Cinema";
 		private Harmony _harmonyInstance = null!;
 		public static bool Enabled;
 		internal static Logger Logger = null!;
@@ -51,6 +52,7 @@ namespace BeatSaberCinema
 			ApplyHarmonyPatches();
 			SettingsUI.CreateMenu();
 			VideoMenu.instance.AddTab();
+			SongCore.Collections.RegisterCapability(CAPABILITY);
 			Logger.Info($"{nameof(BeatSaberCinema)} enabled");
 		}
 
@@ -63,6 +65,7 @@ namespace BeatSaberCinema
 			SettingsUI.RemoveMenu();
 			VideoMenu.instance.RemoveTab();
 			VideoLoader.StopFileSystemWatcher();
+			SongCore.Collections.DeregisterizeCapability(CAPABILITY);
 			Logger.Info($"{nameof(BeatSaberCinema)} disabled");
 		}
 
