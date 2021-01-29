@@ -106,18 +106,13 @@ namespace BeatSaberCinema
 			_fileSystemWatcher.Filter = Path.GetFileName(configPath);
 			_fileSystemWatcher.EnableRaisingEvents = true;
 
-			_fileSystemWatcher.Changed += ChangeHandlerDelegate;
-			_fileSystemWatcher.Created += ChangeHandlerDelegate;
-			_fileSystemWatcher.Deleted += ChangeHandlerDelegate;
-			_fileSystemWatcher.Renamed += ChangeHandlerDelegate;
+			_fileSystemWatcher.Changed += OnConfigChanged;
+			_fileSystemWatcher.Created += OnConfigChanged;
+			_fileSystemWatcher.Deleted += OnConfigChanged;
+			_fileSystemWatcher.Renamed += OnConfigChanged;
 		}
 
-		private static void ChangeHandlerDelegate(object source, FileSystemEventArgs e)
-		{
-			OnConfigChanged(e);
-		}
-
-		private static void OnConfigChanged(FileSystemEventArgs e)
+		private static void OnConfigChanged(object _, FileSystemEventArgs e)
 		{
 			Plugin.Logger.Debug("Config "+e.ChangeType+" detected: "+e.FullPath);
 			if (_ignoreNextEventForPath == e.FullPath)
