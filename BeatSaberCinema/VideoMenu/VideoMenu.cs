@@ -120,12 +120,6 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (_currentLevel.GetType() == typeof(PreviewBeatmapLevelSO))
-			{
-				_noVideoText.text = "DLC songs are currently not supported.";
-				return;
-			}
-
 			_noVideoText.text = "No video configured";
 		}
 
@@ -144,11 +138,15 @@ namespace BeatSaberCinema
 			_previewButton.interactable = state;
 			_deleteButton.interactable = state;
 			_deleteVideoButton.interactable = state;
-			_searchButton.gameObject.SetActive(true);
-			_searchButton.interactable = (_currentLevel != null &&
-			                              _currentLevel.GetType() != typeof(PreviewBeatmapLevelSO) &&
+			_searchButton.gameObject.SetActive(_currentLevel != null &&
+			                              !VideoLoader.IsDlcSong(_currentLevel) &&
 			                              _downloadController.LibrariesAvailable());
 			_previewButtonText.text = PlaybackController.Instance.IsPreviewPlaying ? "Stop preview" : "Preview";
+
+			if (_currentLevel != null && VideoLoader.IsDlcSong(_currentLevel) && _downloadController.LibrariesAvailable())
+			{
+				CheckEntitlement(_currentLevel);
+			}
 
 			if (_currentVideo == null)
 			{
@@ -180,6 +178,15 @@ namespace BeatSaberCinema
 					_deleteVideoButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.grey;
 					_previewButton.interactable = state;
 					break;
+			}
+		}
+
+		private async void CheckEntitlement(IPreviewBeatmapLevel level)
+		{
+			var entitlement = await VideoLoader.GetEntitlementForLevel(level);
+			if (entitlement == AdditionalContentModel.EntitlementStatus.Owned)
+			{
+				_searchButton.gameObject.SetActive(true);
 			}
 		}
 

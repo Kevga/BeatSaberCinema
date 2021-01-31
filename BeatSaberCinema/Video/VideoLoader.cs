@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using BS_Utils.Utilities;
+using System.Threading;
+using System.Threading.Tasks;
+using IPA.Utilities;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -25,21 +27,36 @@ namespace BeatSaberCinema
 		private static readonly ConcurrentDictionary<string, VideoConfig> CachedConfigs = new ConcurrentDictionary<string, VideoConfig>();
 		private static readonly ConcurrentDictionary<string, VideoConfig> BundledConfigs = new ConcurrentDictionary<string, VideoConfig>();
 
-		// ReSharper disable once InconsistentNaming
-		public static BeatmapLevelsModel? BeatmapLevelsModelSO
+		private static AdditionalContentModel? _additionalContentModel;
+		private static AdditionalContentModel? AdditionalContentModel
 		{
 			get
 			{
-				if (_beatmapLevelsModel == null)
+				if (_additionalContentModel == null)
 				{
-					_beatmapLevelsModel = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault();
+					//The game has instances for AdditionalContentModels for each platform. The "true" one has (Clone) in its name.
+					_additionalContentModel = Resources.FindObjectsOfTypeAll<AdditionalContentModel>().First(x => x.name.Contains("(Clone)"));
 				}
 
-				return _beatmapLevelsModel;
+				return _additionalContentModel;
 			}
 		}
 
-		private static BeatmapLevelsModel? _beatmapLevelsModel;
+		public static AsyncCache<string, IBeatmapLevel>? BeatmapLevelAsyncCache
+		{
+			get
+			{
+				var levelDataLoader = Resources.FindObjectsOfTypeAll<BeatmapLevelDataLoaderSO>().FirstOrDefault();
+				if (levelDataLoader != null)
+				{
+					_beatmapLevelAsyncCache = levelDataLoader.GetField<AsyncCache<string, IBeatmapLevel>, BeatmapLevelDataLoaderSO>("_beatmapLevelsAsyncCache");
+				}
+
+				return _beatmapLevelAsyncCache;
+			}
+		}
+
+		private static AsyncCache<string, IBeatmapLevel>? _beatmapLevelAsyncCache;
 
 		public static void Init()
 		{
@@ -141,6 +158,36 @@ namespace BeatSaberCinema
 			ConfigChanged?.Invoke(config);
 		}
 
+		public static bool IsDlcSong(IPreviewBeatmapLevel level)
+		{
+			return level.GetType() == typeof(PreviewBeatmapLevelSO);
+		}
+
+		public static async Task<AudioClip> GetAudioClipForLevel(IPreviewBeatmapLevel level)
+		{
+			if (IsDlcSong(level) && BeatmapLevelAsyncCache != null)
+			{
+				Plugin.Logger.Debug("Getting audio clip from async cache");
+				var levelData = await BeatmapLevelAsyncCache[level.levelID];
+				if (levelData != null)
+				{
+					return levelData.beatmapLevelData.audioClip;
+				}
+			}
+
+			return await level.GetPreviewAudioClipAsync(new CancellationToken());
+		}
+
+		public static async Task<AdditionalContentModel.EntitlementStatus> GetEntitlementForLevel(IPreviewBeatmapLevel level)
+		{
+			if (AdditionalContentModel != null)
+			{
+				return await AdditionalContentModel.GetLevelEntitlementStatusAsync(level.levelID, new CancellationToken());
+			}
+
+			return AdditionalContentModel.EntitlementStatus.Owned;
+		}
+
 		public static VideoConfig? GetConfigForLevel(IPreviewBeatmapLevel level)
 		{
 			var cachedConfig = GetConfigFromCache(level);
@@ -151,13 +198,6 @@ namespace BeatSaberCinema
 					RemoveConfigFromCache(level);
 				}
 				return cachedConfig;
-			}
-
-			if (level.GetType() == typeof(PreviewBeatmapLevelSO))
-			{
-				//DLC songs currently not supported.
-				//TODO look into BeatmapLevelsModelSO.GetBeatmapLevelAsync(). In previous attempts the async task never finished.
-				return null;
 			}
 
 			var levelPath = GetLevelPath(level);
@@ -341,7 +381,7 @@ namespace BeatSaberCinema
 
 		private static BundledConfig[] LoadBundledConfigs()
 		{
-			var buffer = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.configs.json");
+			var buffer = BS_Utils.Utilities.UIUtilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.configs.json");
 			string jsonString = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
 			var configs = JsonConvert.DeserializeObject<BundledConfig[]>(jsonString);
 			return configs;

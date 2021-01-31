@@ -197,7 +197,7 @@ namespace BeatSaberCinema
 
 		private async void CrossfadePreviewPlayer(IPreviewBeatmapLevel level, float startTime)
 		{
-			_songPreviewPlayer.CrossfadeTo(await level.GetPreviewAudioClipAsync(new CancellationToken()), startTime, level.songDuration, 0.65f);
+			_songPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(level), startTime, level.songDuration, 0.65f);
 		}
 
 		public IEnumerator StartPreviewCoroutine()

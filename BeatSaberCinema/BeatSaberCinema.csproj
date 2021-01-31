@@ -127,6 +127,9 @@
 		<Reference Include="Zenject">
 			<HintPath>$(GameDirPath)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
 		</Reference>
+		<Reference Include="MediaLoader">
+			<HintPath>$(GameDirPath)\Beat Saber_Data\Managed\MediaLoader.dll</HintPath>
+		</Reference>
 		<Reference Include="UnityEngine.AssetBundleModule">
 			<SpecificVersion>False</SpecificVersion>
 			<HintPath>$(GameDirPath)\Beat Saber_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
