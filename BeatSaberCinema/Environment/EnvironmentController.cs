@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -17,12 +16,12 @@ namespace BeatSaberCinema
 
 		public static void ModifyGameScene(VideoConfig? videoConfig)
 		{
-			//Make sure the environment is only modified once, since the trigger for this functions runs multiple times
-			if (!SettingsStore.Instance.PlaybackEnabled || videoConfig == null || !videoConfig.IsPlayable)
+			if (!SettingsStore.Instance.PlaybackEnabled || videoConfig == null || (!videoConfig.IsPlayable && videoConfig.forceEnvironmentModifications == false))
 			{
 				return;
 			}
 
+			//Make sure the environment is only modified once, since the trigger for this functions runs multiple times
 			if (_environmentModified)
 			{
 				return;
