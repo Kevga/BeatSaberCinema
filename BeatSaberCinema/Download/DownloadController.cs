@@ -17,6 +17,7 @@ namespace BeatSaberCinema
 		private readonly string _youtubeDLFilepath = Environment.CurrentDirectory + "\\Libs\\youtube-dl.exe";
 		private readonly string _ffmpegFilepath = Environment.CurrentDirectory + "\\Libs\\ffmpeg.exe";
 		public readonly List<YTResult> SearchResults = new List<YTResult>();
+		private Coroutine? _searchCoroutine;
 		private Process? _searchProcess;
 		private Process? _downloadProcess;
 		private bool SearchInProgress
@@ -75,9 +76,8 @@ namespace BeatSaberCinema
 
 		public void Search(string query)
 		{
-			// ReSharper disable once NotResolvedInText
-			SharedCoroutineStarter.instance.StopCoroutine("SearchCoroutine");
-			SharedCoroutineStarter.instance.StartCoroutine(SearchCoroutine(query));
+			SharedCoroutineStarter.instance.StopCoroutine(_searchCoroutine);
+			_searchCoroutine = SharedCoroutineStarter.instance.StartCoroutine(SearchCoroutine(query));
 		}
 
 		private IEnumerator SearchCoroutine(string query, int expectedResultCount = 10)
