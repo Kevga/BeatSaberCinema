@@ -463,6 +463,8 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			var sceneObjectList = Resources.FindObjectsOfTypeAll<GameObject>();
+
 			var cloneCounter = 0;
 			foreach (var objectToBeCloned in config.environment)
 			{
@@ -471,7 +473,7 @@ namespace BeatSaberCinema
 					continue;
 				}
 
-				var environmentObjectList = SelectObjectsFromScene(objectToBeCloned.cloneFrom!, objectToBeCloned.parentName);
+				var environmentObjectList = SelectObjectsFromScene(objectToBeCloned.cloneFrom!, objectToBeCloned.parentName, false, sceneObjectList);
 				if (environmentObjectList == null || !environmentObjectList.Any())
 				{
 					Plugin.Logger.Error($"Failed to find object while cloning: name={objectToBeCloned.name}, parentName={objectToBeCloned.parentName}");
