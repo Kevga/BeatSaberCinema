@@ -385,7 +385,7 @@ namespace BeatSaberCinema
 			Plugin.Logger.Debug("GameSceneLoaded");
 			_activeScene = Scene.Gameplay;
 
-			if (!SettingsStore.Instance.PlaybackEnabled || !Plugin.Enabled || BS_Utils.Plugin.LevelData.Mode == Mode.Multiplayer)
+			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || BS_Utils.Plugin.LevelData.Mode == Mode.Multiplayer)
 			{
 				//TODO add screen positioning for MP
 				Plugin.Logger.Debug("Plugin disabled");
@@ -657,6 +657,11 @@ namespace BeatSaberCinema
 		public void SetScreenDistance(float value)
 		{
 			VideoPlayer.SetScreenDistance(value);
+		}
+
+		public void SceneTransitionInitCalled()
+		{
+			Events.InvokeSceneTransitionEvents(VideoConfig);
 		}
 	}
 }

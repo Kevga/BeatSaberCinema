@@ -6,6 +6,8 @@
 	<dropdown-list-setting apply-on-change="true" text='Download Quality' value='quality' options='modes'></dropdown-list-setting>
 	<bool-setting apply-on-change="true" text='Force "Big Mirror" Environment' value='override-environment'
 				  hover-hint='Force the use of the Big Mirror environment for songs with videos.&#xD;&#xA;&#xD;&#xA;It is recommended to leave this checked for the best experience.'></bool-setting>
+	<bool-setting apply-on-change="true" text='Disable CustomPlatforms' value='disable-custom-platforms'
+				  hover-hint='Prevents custom platforms from loading when a video is playing.&#xD;&#xA;&#xD;&#xA;It is recommended to leave this checked for the best experience.'></bool-setting>
 	<bool-setting apply-on-change="true" text='Curved Screen' value='curved-screen'
 				  hover-hint='Curves the screen slightly towards you, based on the distance.'></bool-setting>
 	<bool-setting apply-on-change="true" text='Transparent Screen' value='transparency-enabled'

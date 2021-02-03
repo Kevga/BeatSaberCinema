@@ -30,6 +30,7 @@ namespace BeatSaberCinema
 		public bool? disableBigMirrorOverride;
 		public bool? disableDefaultModifications;
 		public bool? forceEnvironmentModifications;
+		public bool? allowCustomPlatform;
 		public float? bloom;
 
 		public ColorCorrection? colorCorrection;

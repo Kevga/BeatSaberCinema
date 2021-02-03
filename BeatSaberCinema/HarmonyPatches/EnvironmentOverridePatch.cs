@@ -18,7 +18,9 @@ namespace BeatSaberCinema
 			//Wrap all of it in try/catch so an exception would not prevent the player from playing songs
 			try
 			{
+				PlaybackController.Instance.SceneTransitionInitCalled();
 				VideoMenu.instance.SetSelectedLevel(difficultyBeatmap.level);
+
 				var overrideEnvironmentEnabled = SettingsStore.Instance.OverrideEnvironment;
 				var environmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();
 

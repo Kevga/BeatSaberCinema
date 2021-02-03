@@ -12,12 +12,12 @@ namespace BeatSaberCinema
         [UIValue("modes")] [UsedImplicitly] private List<object> _qualityModes = VideoQuality.GetModeList();
 
         [UIValue("show-video")]
-        public bool PlaybackEnabled
+        public bool PluginEnabled
         {
-            get => SettingsStore.Instance.PlaybackEnabled;
+            get => SettingsStore.Instance.PluginEnabled;
             set
             {
-	            SettingsStore.Instance.PlaybackEnabled = value;
+	            SettingsStore.Instance.PluginEnabled = value;
 	            if (value)
 	            {
 		            PlaybackController.Instance.VideoPlayer.Show();
@@ -34,6 +34,13 @@ namespace BeatSaberCinema
         {
 	        get => SettingsStore.Instance.OverrideEnvironment;
 	        set => SettingsStore.Instance.OverrideEnvironment = value;
+        }
+
+        [UIValue("disable-custom-platforms")]
+        public bool DisableCustomPlatforms
+        {
+	        get => SettingsStore.Instance.DisableCustomPlatforms;
+	        set => SettingsStore.Instance.DisableCustomPlatforms = value;
         }
 
         [UIValue("bloom-intensity")]
@@ -90,12 +97,14 @@ namespace BeatSaberCinema
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-            if (SettingsStore.Instance.PlaybackEnabled)
+            if (!SettingsStore.Instance.PluginEnabled)
             {
-	            PlaybackController.Instance.VideoPlayer.Show();
-	            PlaybackController.Instance.VideoPlayer.SetDefaultMenuPlacement();
-	            PlaybackController.Instance.StopPlayback();
+	            return;
             }
+
+            PlaybackController.Instance.VideoPlayer.Show();
+            PlaybackController.Instance.VideoPlayer.SetDefaultMenuPlacement();
+            PlaybackController.Instance.StopPlayback();
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)

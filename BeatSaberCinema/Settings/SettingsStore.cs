@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using BS_Utils.Utilities;
+﻿using System.Runtime.CompilerServices;
 using IPA.Config.Stores;
 using JetBrains.Annotations;
 
@@ -11,8 +9,9 @@ namespace BeatSaberCinema
     internal class SettingsStore
     {
         public static SettingsStore Instance { get; set; } = null!;
-        public virtual bool PlaybackEnabled { get; set; } = true;
+        public virtual bool PluginEnabled { get; set; } = true;
         public virtual bool OverrideEnvironment { get; set; } = true;
+        public virtual bool DisableCustomPlatforms { get; set; } = true;
         public virtual bool CurvedScreen { get; set; } = true;
         public virtual bool TransparencyEnabled { get; set; } = true;
         public virtual bool CoverEnabled { get; set; }
