@@ -231,7 +231,7 @@ namespace BeatSaberCinema
 			UpdateMesh();
 		}
 
-		private void OnWillRenderObject() {
+		private void OnEnable() {
 			CameraRenderCallbacksManager.RegisterForCameraCallbacks(Camera.current, this);
 		}
 
@@ -243,6 +243,9 @@ namespace BeatSaberCinema
 		private void OnDestroy()
 		{
 			CameraRenderCallbacksManager.UnregisterFromCameraCallbacks(this);
+			BSEvents.menuSceneLoaded -= UpdateMesh;
+			BSEvents.gameSceneLoaded -= UpdateMesh;
+			BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoaded;
 		}
 
 		private void DoubleBlur(RenderTexture src, RenderTexture dest, KawaseBlurRendererSO.KernelSize kernelSize0, float boost0, KawaseBlurRendererSO.KernelSize kernelSize1, float boost1, float secondBlurAlpha, int downsample)

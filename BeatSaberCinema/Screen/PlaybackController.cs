@@ -68,6 +68,17 @@ namespace BeatSaberCinema
 			OnMenuSceneLoadedFresh(null);
 		}
 
+		private void OnDestroy()
+		{
+			VideoPlayer.Player.frameReady -= FrameReady;
+			BSEvents.gameSceneLoaded -= GameSceneLoaded;
+			BSEvents.songPaused -= PauseVideo;
+			BSEvents.songUnpaused -= ResumeVideo;
+			BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoadedFresh;
+			BSEvents.menuSceneLoaded -= OnMenuSceneLoaded;
+			VideoLoader.ConfigChanged -= OnConfigChanged;
+		}
+
 		public void PauseVideo()
 		{
 			StopAllCoroutines();
