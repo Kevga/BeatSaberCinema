@@ -404,6 +404,12 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			if (BS_Utils.Plugin.LevelData.Mode == Mode.None)
+			{
+				Plugin.Logger.Debug("Level mode is None");
+				return;
+			}
+
 			if (VideoConfig == null || !VideoConfig.IsPlayable)
 			{
 				Plugin.Logger.Debug("No video configured or video is not playable");
@@ -429,21 +435,19 @@ namespace BeatSaberCinema
 
 		private IEnumerator PlayVideoAfterAudioSourceCoroutine(bool preview)
 		{
-			var audioSource = _activeAudioSource;
 			var startTime = 0f;
 
 			if (!preview)
 			{
 				yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
 				var syncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
-				audioSource = syncController.audioSource;
-				_activeAudioSource = audioSource;
+				_activeAudioSource = syncController.audioSource;
 			}
 
-			if (audioSource != null)
+			if (_activeAudioSource != null)
 			{
-				yield return new WaitUntil(() => audioSource.isPlaying);
-				startTime = audioSource.time;
+				yield return new WaitUntil(() => _activeAudioSource.isPlaying);
+				startTime = _activeAudioSource.time;
 			}
 			else
 			{
