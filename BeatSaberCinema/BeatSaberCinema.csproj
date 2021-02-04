@@ -53,9 +53,6 @@
 		<Reference Include="SongCore">
 			<HintPath>$(GameDirPath)\Plugins\SongCore.dll</HintPath>
 		</Reference>
-		<Reference Include="BeatSaberPlaylistsLib">
-			<HintPath>$(GameDirPath)\Libs\BeatSaberPlaylistsLib.dll</HintPath>
-		</Reference>
         <Reference Include="GameplayCore, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>$(GameDirPath)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
         </Reference>

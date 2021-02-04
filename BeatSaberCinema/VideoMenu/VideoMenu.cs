@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.Parser;
-using BeatSaberPlaylistsLib.Types;
 using BS_Utils.Utilities;
 using HMUI;
 using JetBrains.Annotations;
@@ -288,16 +286,6 @@ namespace BeatSaberCinema
 				VideoLoader.SaveVideoConfig(_currentVideo);
 			}
 
-			//Fixes issue with PlaylistManager. Check if the lib is installed first to not be runtime dependent on it.
-			if (Util.IsModInstalled("BeatSaberPlaylistsLib"))
-			{
-				var playlistLevel = GetLevelFromPlaylistLib(level);
-				if (playlistLevel != null)
-				{
-					level = playlistLevel;
-				}
-			}
-
 			_currentLevel = level;
 			_currentVideo = VideoLoader.GetConfigForLevel(level);
 			VideoLoader.ListenForConfigChanges(level);
@@ -305,16 +293,6 @@ namespace BeatSaberCinema
 			SetupVideoDetails();
 
 			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " - " + _currentLevel.songAuthorName : "");
-		}
-
-		private static IPreviewBeatmapLevel? GetLevelFromPlaylistLib(IPreviewBeatmapLevel level)
-		{
-			if (level is PlaylistSong song)
-			{
-				return song.PreviewBeatmapLevel;
-			}
-
-			return level;
 		}
 
 		public void OnConfigChanged(VideoConfig? config)
