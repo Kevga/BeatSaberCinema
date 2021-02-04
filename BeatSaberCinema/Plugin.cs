@@ -33,7 +33,6 @@ namespace BeatSaberCinema
 		public void OnApplicationStart()
 		{
 			BS_Utils.Utilities.BSEvents.OnLoad();
-			BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
 			_harmonyInstance = new Harmony(HARMONY_ID);
 			VideoLoader.Init();
 		}
@@ -49,6 +48,7 @@ namespace BeatSaberCinema
 		public void OnEnable()
 		{
 			Enabled = true;
+			BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
 			ApplyHarmonyPatches();
 			SettingsUI.CreateMenu();
 			VideoMenu.instance.AddTab();
@@ -61,8 +61,13 @@ namespace BeatSaberCinema
 		public void OnDisable()
 		{
 			Enabled = false;
+			BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoadedFresh;
 			RemoveHarmonyPatches();
 			SettingsUI.RemoveMenu();
+
+			//TODO Destroying and re-creating the PlaybackController messes up the VideoMenu without any exceptions in the log. Investigate.
+			//PlaybackController.Destroy();
+
 			VideoMenu.instance.RemoveTab();
 			VideoLoader.StopFileSystemWatcher();
 			SongCore.Collections.DeregisterizeCapability(CAPABILITY);

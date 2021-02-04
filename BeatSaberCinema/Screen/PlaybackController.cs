@@ -17,6 +17,7 @@ namespace BeatSaberCinema
 		private enum Scene { Gameplay, Menu, Other }
 
 		public static PlaybackController Instance { get; private set; } = null!;
+		private static GameObject PlaybackControllerGameObject = null!;
 		private IPreviewBeatmapLevel? _currentLevel;
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
@@ -41,7 +42,20 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			new GameObject("CinemaPlaybackController").AddComponent<PlaybackController>();
+			PlaybackControllerGameObject = new GameObject("CinemaPlaybackController");
+			PlaybackControllerGameObject.AddComponent<PlaybackController>();
+		}
+
+		public static void Destroy()
+		{
+			if (Instance == null)
+			{
+				return;
+			}
+			Instance.StopPreview(true);
+
+			Destroy(Instance);
+			Destroy(PlaybackControllerGameObject);
 		}
 
 		private void Start()

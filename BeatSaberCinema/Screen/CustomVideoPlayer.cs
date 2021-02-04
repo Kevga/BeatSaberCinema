@@ -114,6 +114,11 @@ namespace BeatSaberCinema
 			BSEvents.menuSceneLoaded += SetDefaultMenuPlacement;
 		}
 
+		public void OnDestroy()
+		{
+			BSEvents.menuSceneLoaded -= SetDefaultMenuPlacement;
+		}
+
 		private IEnumerator ReloadShaderCoroutine(string path)
 		{
 			var shaderFileInfo = new FileInfo(path);

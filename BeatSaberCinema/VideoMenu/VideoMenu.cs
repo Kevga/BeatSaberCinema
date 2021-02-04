@@ -279,6 +279,11 @@ namespace BeatSaberCinema
 
 		public void HandleDidSelectLevel(LevelCollectionViewController? sender, IPreviewBeatmapLevel level)
 		{
+			if (!Plugin.Enabled)
+			{
+				return;
+			}
+
 			PlaybackController.Instance.StopPreview(true);
 
 			if (_currentVideo?.NeedsToSave == true)
@@ -314,6 +319,11 @@ namespace BeatSaberCinema
 			if (_currentVideo?.NeedsToSave == true)
 			{
 				VideoLoader.SaveVideoConfig(_currentVideo);
+			}
+
+			if (PlaybackController.Instance == null)
+			{
+				return;
 			}
 
 			try
