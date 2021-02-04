@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace BeatSaberCinema
@@ -51,6 +52,11 @@ namespace BeatSaberCinema
 			Regex regex = new Regex($"[{Regex.Escape(regexSearch)}]");
 			var result = regex.Replace(s, "_");
 			return result;
+		}
+
+		public static bool IsModInstalled(string modName)
+		{
+			return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName);
 		}
 	}
 }

@@ -122,7 +122,7 @@ namespace BeatSaberCinema
 			DisposeProcess(_searchProcess);
 		}
 
-		private void SearchProcessErrorDataReceived(object sender, DataReceivedEventArgs e)
+		private static void SearchProcessErrorDataReceived(object sender, DataReceivedEventArgs e)
 		{
 			if (e.Data == null)
 			{
@@ -164,7 +164,7 @@ namespace BeatSaberCinema
 			SearchProgress?.Invoke(ytResult);
 		}
 
-		private YTResult? ParseSearchResult(string searchResultJson)
+		private static YTResult? ParseSearchResult(string searchResultJson)
 		{
 			if (!(JsonConvert.DeserializeObject(searchResultJson) is JObject result))
 			{
@@ -197,7 +197,7 @@ namespace BeatSaberCinema
 			_searchProcess = null;
 		}
 
-		private void DisposeProcess(Process? process)
+		private static void DisposeProcess(Process? process)
 		{
 			if (process == null)
 			{
@@ -321,7 +321,7 @@ namespace BeatSaberCinema
 			_downloadProcess = null;
 		}
 
-		private void ParseDownloadProgress(VideoConfig video, DataReceivedEventArgs dataReceivedEventArgs)
+		private static void ParseDownloadProgress(VideoConfig video, DataReceivedEventArgs dataReceivedEventArgs)
 		{
 			if (dataReceivedEventArgs.Data == null)
 			{
@@ -330,14 +330,16 @@ namespace BeatSaberCinema
 
 			Regex rx = new Regex(@"(\d*).\d%+");
 			Match match = rx.Match(dataReceivedEventArgs.Data);
-			if (match.Success)
+			if (!match.Success)
 			{
-				CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
-				ci.NumberFormat.NumberDecimalSeparator = ".";
-
-				video.DownloadProgress =
-					float.Parse(match.Value.Substring(0, match.Value.Length - 1), ci) / 100;
+				return;
 			}
+
+			CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+			ci.NumberFormat.NumberDecimalSeparator = ".";
+
+			video.DownloadProgress =
+				float.Parse(match.Value.Substring(0, match.Value.Length - 1), ci) / 100;
 		}
 
 		private IEnumerator WaitForDownloadToFinishCoroutine(VideoConfig video)

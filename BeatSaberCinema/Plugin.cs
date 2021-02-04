@@ -24,7 +24,7 @@ namespace BeatSaberCinema
 		{
 			Logger = new Logger(ipaLogger);
 			SettingsStore.Instance = config.Generated<SettingsStore>();
-			VideoMenu.instance.AddTab(); //Do this in Init (asap) to get a good spot in the menu
+			VideoMenu.instance.AddTab();
 			Logger.Debug("Plugin initialized");
 		}
 

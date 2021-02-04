@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -42,7 +43,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public static AsyncCache<string, IBeatmapLevel>? BeatmapLevelAsyncCache
+		private static AsyncCache<string, IBeatmapLevel>? BeatmapLevelAsyncCache
 		{
 			get
 			{
@@ -134,7 +135,7 @@ namespace BeatSaberCinema
 			Plugin.Logger.Debug("Config "+e.ChangeType+" detected: "+e.FullPath);
 			if (_ignoreNextEventForPath == e.FullPath)
 			{
-				Plugin.Logger.Debug($"Ignoring event after saving");
+				Plugin.Logger.Debug("Ignoring event after saving");
 				_ignoreNextEventForPath = null;
 				return;
 			}
@@ -165,14 +166,16 @@ namespace BeatSaberCinema
 
 		public static async Task<AudioClip> GetAudioClipForLevel(IPreviewBeatmapLevel level)
 		{
-			if (IsDlcSong(level) && BeatmapLevelAsyncCache != null)
+			if (!IsDlcSong(level) || BeatmapLevelAsyncCache == null)
 			{
-				Plugin.Logger.Debug("Getting audio clip from async cache");
-				var levelData = await BeatmapLevelAsyncCache[level.levelID];
-				if (levelData != null)
-				{
-					return levelData.beatmapLevelData.audioClip;
-				}
+				return await level.GetPreviewAudioClipAsync(new CancellationToken());
+			}
+
+			Plugin.Logger.Debug("Getting audio clip from async cache");
+			var levelData = await BeatmapLevelAsyncCache[level.levelID];
+			if (levelData != null)
+			{
+				return levelData.beatmapLevelData.audioClip;
 			}
 
 			return await level.GetPreviewAudioClipAsync(new CancellationToken());
@@ -222,12 +225,14 @@ namespace BeatSaberCinema
 			else
 			{
 				videoConfig = GetConfigFromBundledConfigs(level);
-				if (videoConfig != null)
+				if (videoConfig == null)
 				{
-					videoConfig.LevelDir = GetLevelPath(level);
-					videoConfig.NeedsToSave = true;
-					Plugin.Logger.Debug("Loaded from bundled configs");
+					return videoConfig;
 				}
+
+				videoConfig.LevelDir = GetLevelPath(level);
+				videoConfig.NeedsToSave = true;
+				Plugin.Logger.Debug("Loaded from bundled configs");
 			}
 
 			return videoConfig;
@@ -379,7 +384,7 @@ namespace BeatSaberCinema
 			return videoConfig;
 		}
 
-		private static BundledConfig[] LoadBundledConfigs()
+		private static IEnumerable<BundledConfig> LoadBundledConfigs()
 		{
 			var buffer = BS_Utils.Utilities.UIUtilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.configs.json");
 			string jsonString = Encoding.UTF8.GetString(buffer, 0, buffer.Length);

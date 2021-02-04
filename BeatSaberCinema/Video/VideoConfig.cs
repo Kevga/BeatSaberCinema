@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using UnityEngine;
+// ReSharper disable InconsistentNaming
 
 namespace BeatSaberCinema
 {
@@ -46,7 +47,7 @@ namespace BeatSaberCinema
 		{
 			get
 			{
-				if (videoFile != null && IsLocal)
+				if (videoFile != null && IsLocal && LevelDir != null)
 				{
 					return Path.Combine(LevelDir, videoFile);
 				}

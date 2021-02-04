@@ -203,12 +203,14 @@ namespace BeatSaberCinema
 			if (_currentVideo.videoID == null)
 			{
 				ResetVideoMenu();
-				if (_currentVideo.forceEnvironmentModifications == true)
+				if (_currentVideo.forceEnvironmentModifications != true)
 				{
-					_noVideoText.text = "This map uses Cinema to modify the environment\r\nwithout displaying a video.\r\n\r\nNo configuration options available.";
-					_searchButton.interactable = false;
-					_searchButton.gameObject.SetActive(false);
+					return;
 				}
+
+				_noVideoText.text = "This map uses Cinema to modify the environment\r\nwithout displaying a video.\r\n\r\nNo configuration options available.";
+				_searchButton.interactable = false;
+				_searchButton.gameObject.SetActive(false);
 
 				return;
 			}
@@ -235,36 +237,34 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (videoConfig.DownloadState == DownloadState.Downloaded)
+			switch (videoConfig.DownloadState)
 			{
-				_videoStatusText.text = "Downloaded";
-				_videoStatusText.color = Color.green;
-			}
-			else if (videoConfig.DownloadState == DownloadState.Downloading)
-			{
-				_videoStatusText.text = $"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress*100).ToString()}%)";
-				_videoStatusText.color = Color.yellow;
-				_previewButton.interactable = false;
-			}
-			else if (videoConfig.DownloadState == DownloadState.NotDownloaded)
-			{
-				if (_currentVideo.IsStreamable)
-				{
+				case DownloadState.Downloaded:
+					_videoStatusText.text = "Downloaded";
+					_videoStatusText.color = Color.green;
+					break;
+				case DownloadState.Downloading:
+					_videoStatusText.text = $"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress*100).ToString()}%)";
+					_videoStatusText.color = Color.yellow;
+					_previewButton.interactable = false;
+					break;
+				case DownloadState.NotDownloaded when _currentVideo.IsStreamable:
 					_videoStatusText.text = "Streaming";
 					_videoStatusText.color = Color.yellow;
 					_previewButton.interactable = true;
-				}
-				else
-				{
+					break;
+				case DownloadState.NotDownloaded:
 					_videoStatusText.text = "Not downloaded";
 					_videoStatusText.color = Color.red;
 					_previewButton.interactable = false;
-				}
-			} else if (videoConfig.DownloadState == DownloadState.Cancelled)
-			{
-				_videoStatusText.text = "Download cancelled";
-				_videoStatusText.color = Color.red;
-				_previewButton.interactable = false;
+					break;
+				case DownloadState.Cancelled:
+					_videoStatusText.text = "Download cancelled";
+					_videoStatusText.color = Color.red;
+					_previewButton.interactable = false;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 		}
 
@@ -289,7 +289,7 @@ namespace BeatSaberCinema
 			}
 
 			//Fixes issue with PlaylistManager. Check if the lib is installed first to not be runtime dependent on it.
-			if (IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == "BeatSaberPlaylistsLib"))
+			if (Util.IsModInstalled("BeatSaberPlaylistsLib"))
 			{
 				var playlistLevel = GetLevelFromPlaylistLib(level);
 				if (playlistLevel != null)

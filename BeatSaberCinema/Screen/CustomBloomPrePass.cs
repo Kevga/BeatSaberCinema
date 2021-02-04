@@ -24,8 +24,7 @@ namespace BeatSaberCinema
 		private const int DOWNSAMPLE = 2;
 		private const float BLOOM_BOOST_FACTOR = 0.11f;
 		private float? _bloomIntensityConfigSetting;
-		private float _screenWidth;
-		private float _screenHeight;
+		private Vector2 _screnDimensions;
 
 		private void Start()
 		{
@@ -48,8 +47,7 @@ namespace BeatSaberCinema
 
 		public void UpdateScreenDimensions(float width, float height)
 		{
-			_screenWidth = width;
-			_screenHeight = height;
+			_screnDimensions = new Vector2(width, height);
 		}
 
 		public void SetBloomIntensityConfigSetting(float? bloomIntensity)
@@ -62,7 +60,7 @@ namespace BeatSaberCinema
 			var fov = camera.fieldOfView;
 
 			//Base calculation scales down with screen width and up with distance
-			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(_screenWidth/GetCameraDistance(camera)));
+			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(_screnDimensions.x/GetCameraDistance(camera)));
 
 			//Apply map/user setting on top
 			if (_bloomIntensityConfigSetting != null)
@@ -78,7 +76,7 @@ namespace BeatSaberCinema
 
 			//Mitigate extreme amounts of bloom at the edges of the camera frustum when not looking directly at the screen
 			var distance = Vector3.Distance(camera.transform.forward, Vector3.forward);
-			var threshold = 0.3f;
+			const float threshold = 0.3f;
 			distance = Math.Max(threshold, distance); //Prevent brightness from fluctuating when looking close to the center
 			boost /= ((distance + (1 - threshold)) * (fov / 100f));
 

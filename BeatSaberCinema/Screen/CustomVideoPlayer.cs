@@ -15,7 +15,6 @@ namespace BeatSaberCinema
 		private readonly AudioSource _videoPlayerAudioSource;
 		private Screen _screen = null!;
 		private readonly Renderer _screenRenderer;
-		private Shader _glowShader = null!;
 
 		private readonly Vector3 _defaultGameplayPosition = new Vector3(0, 12.4f, 67.8f);
 		private readonly Vector3 _defaultGameplayRotation = new Vector3(-8, 0, 0);
@@ -63,7 +62,6 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public float FrameDuration => Player.frameRate / 1000f;
 		public float VideoDuration => (float) Player.length;
 		public float Volume
 		{
@@ -90,10 +88,6 @@ namespace BeatSaberCinema
 			CreateScreen();
 			_screenRenderer = _screen.GetRenderer();
 			_screenRenderer.material = new Material(GetShader()) {color = _screenColorOff};
-			if (_glowShader == null)
-			{
-				Plugin.Logger.Error("SHADER WAS NULL");
-			}
 
 			Player = gameObject.AddComponent<VideoPlayer>();
 			Player.source = VideoSource.Url;
@@ -139,7 +133,7 @@ namespace BeatSaberCinema
 			SetDefaultMenuPlacement();
 		}
 
-		private Shader GetShader(string? path = null)
+		private static Shader GetShader(string? path = null)
 		{
 			AssetBundle myLoadedAssetBundle;
 			if (path == null)
@@ -164,10 +158,8 @@ namespace BeatSaberCinema
 			}
 
 			Shader shader = myLoadedAssetBundle.LoadAsset<Shader>("ScreenShader");
-
 			myLoadedAssetBundle.Unload(false);
 
-			_glowShader = shader;
 			return shader;
 		}
 
@@ -198,16 +190,18 @@ namespace BeatSaberCinema
 			//When no video is playing, we want it to be black though to not blind the user.
 			//If we set the white color when calling Play(), a few frames of white screen are still visible.
 			//So, we wait before the player renders its first frame and then set the color, making the switch invisible.
-			if (_waitForFirstFrame)
+			if (!_waitForFirstFrame)
 			{
-				_waitForFirstFrame = false;
-				_firstFrameStopwatch.Stop();
-				Plugin.Logger.Debug("Delay from Play() to first frame: "+_firstFrameStopwatch.ElapsedMilliseconds+" ms");
-				_firstFrameStopwatch.Reset();
-				SetScreenColor(_screenColorOn);
-				_screen.SetAspectRatio(GetVideoAspectRatio());
-				Player.frameReady -= FrameReady;
+				return;
 			}
+
+			_waitForFirstFrame = false;
+			_firstFrameStopwatch.Stop();
+			Plugin.Logger.Debug("Delay from Play() to first frame: "+_firstFrameStopwatch.ElapsedMilliseconds+" ms");
+			_firstFrameStopwatch.Reset();
+			SetScreenColor(_screenColorOn);
+			_screen.SetAspectRatio(GetVideoAspectRatio());
+			Player.frameReady -= FrameReady;
 		}
 
 		public void SetBloomIntensity(float? bloomIntensity)

@@ -151,7 +151,7 @@ namespace BeatSaberCinema
 			surface.UVs[i + SUBSURFACE_COUNT + 1] = new Vector2(i / (float)SUBSURFACE_COUNT, 0);
 		}
 
-		private void ConnectVertices(MeshData surface, int i, ref int j)
+		private static void ConnectVertices(MeshData surface, int i, ref int j)
 		{
 			//Left triangle
 			surface.Triangles[j++] = i;

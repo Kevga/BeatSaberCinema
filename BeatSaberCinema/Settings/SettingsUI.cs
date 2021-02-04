@@ -3,39 +3,43 @@ using BeatSaberMarkupLanguage.MenuButtons;
 
 namespace BeatSaberCinema
 {
-    internal class SettingsUI
+    internal static class SettingsUI
     {
         private static readonly MenuButton MenuButton = new MenuButton("Cinema", "Cinema Settings", ShowFlow);
 
-        public static SettingsFlowCoordinator? FlowCoordinator;
-        public static bool Created;
+        private static SettingsFlowCoordinator? _flowCoordinator;
+        private static bool _created;
 
         public static void CreateMenu()
         {
-            if (!Created)
-            {
-                MenuButtons.instance.RegisterButton(MenuButton);
-                Created = true;
-            }
+	        if (_created)
+	        {
+		        return;
+	        }
+
+	        MenuButtons.instance.RegisterButton(MenuButton);
+	        _created = true;
         }
 
         public static void RemoveMenu()
         {
-            if (Created)
-            {
-                MenuButtons.instance.UnregisterButton(MenuButton);
-                Created = false;
-            }
+	        if (!_created)
+	        {
+		        return;
+	        }
+
+	        MenuButtons.instance.UnregisterButton(MenuButton);
+	        _created = false;
         }
 
-        public static void ShowFlow()
+        private static void ShowFlow()
         {
-            if (FlowCoordinator == null)
+            if (_flowCoordinator == null)
             {
-                FlowCoordinator = BeatSaberUI.CreateFlowCoordinator<SettingsFlowCoordinator>();
+                _flowCoordinator = BeatSaberUI.CreateFlowCoordinator<SettingsFlowCoordinator>();
             }
 
-            BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(FlowCoordinator);
+            BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(_flowCoordinator);
         }
     }
 }

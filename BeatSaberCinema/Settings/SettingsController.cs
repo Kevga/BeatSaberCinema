@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using JetBrains.Annotations;
+// ReSharper disable UnusedMember.Global -- The getter functions are used by BSML
 
 namespace BeatSaberCinema
 {

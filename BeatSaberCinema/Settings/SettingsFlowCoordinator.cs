@@ -20,12 +20,14 @@ namespace BeatSaberCinema
         {
             try
             {
-                if (firstActivation)
-                {
-                    SetTitle("Cinema Settings");
-                    showBackButton = true;
-                    ProvideInitialViewControllers(_controller);
-                }
+	            if (!firstActivation)
+	            {
+		            return;
+	            }
+
+	            SetTitle("Cinema Settings");
+	            showBackButton = true;
+	            ProvideInitialViewControllers(_controller);
             }
             catch (Exception ex)
             {

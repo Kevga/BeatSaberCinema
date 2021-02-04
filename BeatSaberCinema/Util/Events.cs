@@ -1,4 +1,7 @@
 ﻿using System;
+// These events are primarily for other mods to use, so they have no usages in this code base and need to be public
+// ReSharper disable UnassignedField.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace BeatSaberCinema
 {
