@@ -40,8 +40,27 @@ namespace BeatSaberCinema
 		[UIComponent("delete-video-button")] private readonly Button _deleteVideoButton = null!;
 		[UIComponent("delete-video-button")] private readonly TextMeshProUGUI _deleteVideoButtonText = null!;
 		[UIComponent("download-button")] private readonly Button _downloadButton = null!;
-
+		[UIObject("offset-controls")] private readonly GameObject _offsetControls = null!;
+		[UIObject("customize-offset-toggle")] private readonly GameObject _customizeOffsetToggle = null!;
 		[UIParams] private readonly BSMLParserParams _bsmlParserParams = null!;
+		[UIValue("customize-offset")]
+		public bool CustomizeOffset
+		{
+			get => _currentVideo != null && (_currentVideo.configByMapper == false || _currentVideo.userSettings?.customOffset == true || _currentVideo.IsWIPLevel);
+			set
+			{
+				if (_currentVideo == null || !value)
+				{
+					return;
+				}
+
+				_currentVideo.userSettings ??= new VideoConfig.UserSettings();
+				_currentVideo.userSettings.customOffset = true;
+				_currentVideo.NeedsToSave = true;
+				_customizeOffsetToggle.SetActive(false);
+				_offsetControls.SetActive(true);
+			}
+		}
 
 		private VideoMenuStatus _menuStatus = null!;
 		private bool _videoMenuInitialized;
@@ -226,6 +245,18 @@ namespace BeatSaberCinema
 			_videoThumnnail.SetImage($"https://i.ytimg.com/vi/{_currentVideo.videoID}/hqdefault.jpg");
 
 			UpdateStatusText(_currentVideo);
+			if (CustomizeOffset)
+			{
+				_customizeOffsetToggle.SetActive(false);
+				_offsetControls.SetActive(true);
+			}
+			else
+			{
+				_customizeOffsetToggle.SetActive(true);
+				_offsetControls.SetActive(false);
+			}
+
+			_bsmlParserParams.EmitEvent("update-customize-offset");
 		}
 
 		public void UpdateStatusText(VideoConfig videoConfig)

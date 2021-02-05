@@ -79,7 +79,7 @@ These basic settings get set automatically when you add a video to your map.
 | `videoFile`                		| string    | *none*           	 	| Name of the video file on the local file system. Path is not included, the file is assumed to be in the map's folder. Will be set automatically after downloading and set to the title of the video, with illegal characters replaced by `_`. |
 | `duration`                 		| int       | 0                	 	| Video duration in **seconds**. Will be shown to the user, but has no other function than that. |
 | `offset`                   		| int       | 0                	 	| The offset in **milliseconds** to align the video with the map. Use the video menu in-game to determine the offset. |
-| `configByMapper`           		| bool      | false            	 	| Used to indicate whether the config was created by the mapper. May in the future be used to mark it as the "official" config. |
+| `configByMapper`           		| bool      | false            	 	| Used to indicate whether the config was created by the mapper (as opposed to by the user). Changes the UI in various small ways. |
 
 ### Advanced settings
 

@@ -258,7 +258,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (videoConfig.LevelDir.Contains(WIP_DIRECTORY_NAME))
+			if (videoConfig.IsWIPLevel)
 			{
 				videoConfig.configByMapper = true;
 			}

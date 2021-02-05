@@ -36,6 +36,7 @@ namespace BeatSaberCinema
 
 		public ColorCorrection? colorCorrection;
 		public Vignette? vignette;
+		public UserSettings? userSettings;
 		public EnvironmentModification[]? environment;
 
 		[JsonIgnore, NonSerialized] public DownloadState DownloadState;
@@ -64,6 +65,7 @@ namespace BeatSaberCinema
 		[JsonIgnore] public bool IsStreamable => videoFile != null && (videoFile.StartsWith("http://") || videoFile.StartsWith("https://"));
 		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
 		[JsonIgnore] public bool IsPlayable => DownloadState == DownloadState.Downloaded || IsStreamable;
+		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains("WIPLevels");
 
 
 		private static Regex _regexParseID = new Regex(@"\/watch\?v=([a-z0-9_-]*)",
@@ -169,6 +171,12 @@ namespace BeatSaberCinema
 			public string? type;
 			public float? radius;
 			public float? softness;
+		}
+
+		[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+		public class UserSettings
+		{
+			public bool? customOffset;
 		}
 	}
 }

@@ -24,18 +24,24 @@
             </horizontal>
 
             <vertical pad-top='2'>
-                <text id='video-offset-label' align='Center' font-size='3' text='Video Offset'></text>
-                <horizontal horizontal-fit='PreferredSize'  align='Center' spacing="1">
-                    <button id='offset-decrease-button-high' font-size='3' pref-width='10' hover-hint='Starts video later (-1000 ms)' text='---' on-click='on-offset-decrease-action-high'/>
-                    <button id='offset-decrease-button-mid' font-size='3' pref-width='10' hover-hint='Starts video later (-100 ms)' text='--' on-click='on-offset-decrease-action-mid'/>
-                    <button id='offset-decrease-button-low' font-size='3' pref-width='10' hover-hint='Starts video later (-20 ms)' text='-' on-click='on-offset-decrease-action-low'/>
-                    <vertical pref-width='12'>
-                        <text   id='video-offset' text="0" pad-left='4' pad-right='4' min-width='12' font-size='5' align='Center'></text>
-                    </vertical>
-                    <button id='offset-increase-button-low' font-size='3' pref-width='10' hover-hint='Starts video earlier (+20 ms)' text='+' on-click='on-offset-increase-action-low'/>
-                    <button id='offset-increase-button-mid' font-size='3' pref-width='10' hover-hint='Starts video earlier (+100 ms)' text='++' on-click='on-offset-increase-action-mid'/>
-                    <button id='offset-increase-button-high' font-size='3' pref-width='10' hover-hint='Starts video earlier (+1000 ms)' text='+++' on-click='on-offset-increase-action-high'/>
-                </horizontal>
+				<vertical id="offset-controls">
+					<text id='video-offset-label' align='Center' font-size='3' text='Video Offset'></text>
+					<horizontal horizontal-fit='PreferredSize'  align='Center' spacing="1">
+						<button id='offset-decrease-button-high' font-size='3' pref-width='10' hover-hint='Starts video later (-1000 ms)' text='---' on-click='on-offset-decrease-action-high'/>
+						<button id='offset-decrease-button-mid' font-size='3' pref-width='10' hover-hint='Starts video later (-100 ms)' text='--' on-click='on-offset-decrease-action-mid'/>
+						<button id='offset-decrease-button-low' font-size='3' pref-width='10' hover-hint='Starts video later (-20 ms)' text='-' on-click='on-offset-decrease-action-low'/>
+						<vertical pref-width='12'>
+							<text   id='video-offset' text="0" pad-left='4' pad-right='4' min-width='12' font-size='5' align='Center'></text>
+						</vertical>
+						<button id='offset-increase-button-low' font-size='3' pref-width='10' hover-hint='Starts video earlier (+20 ms)' text='+' on-click='on-offset-increase-action-low'/>
+						<button id='offset-increase-button-mid' font-size='3' pref-width='10' hover-hint='Starts video earlier (+100 ms)' text='++' on-click='on-offset-increase-action-mid'/>
+						<button id='offset-increase-button-high' font-size='3' pref-width='10' hover-hint='Starts video earlier (+1000 ms)' text='+++' on-click='on-offset-increase-action-high'/>
+					</horizontal>
+				</vertical>
+				<horizontal id="customize-offset-toggle">
+					<bool-setting apply-on-change="true" text='Customize offset' value='customize-offset' bind-value="true" get-event="update-customize-offset"
+								  hover-hint="Change the offset that was configured by the mapper.&#xD;&#xA;&#xD;&#xA;Only check this if the video is out of sync for you."></bool-setting>
+				</horizontal>
 				<button id='preview-button' hover-hint='Left ear is the video, right ear is the map' text='Preview' on-click='on-preview-action'/>
             </vertical>
         </vertical>
