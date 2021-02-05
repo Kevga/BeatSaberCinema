@@ -53,7 +53,7 @@ If you want to add a video to your map, you can simply set it up in the game fro
 
 You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments (Big Mirror, Origins, KDA, Rocket, BTS, Dragons, Linkin Park) to make the video screen fit in seamlessly. If your chosen environment is not yet supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
 
-Since version 1.2, the mod can also be used to just modify the environment without any video being involved. To do that, create a new config file by hand, set the property `forceEnvironmentModifications` to true and then use the environment modification options listed below.
+The mod can also be used to just modify the environment without any video being involved. To do that, create a new config file by hand, set the property `forceEnvironmentModifications` to true and then use the environment modification options listed below.
 
 If you have any questions, please contact me on Discord (Dakari#0638).
 
@@ -63,7 +63,7 @@ If you have any questions, please contact me on Discord (Dakari#0638).
 
 Editing the json file by hand allows you to modify some settings that are not available in-game, for example to create a custom screen placement. Cinema includes the ability to change any object in the game scene, to better fit the video screen in environments that are currently not supported by Cinema. When editing the json file by hand, consider using a json validator to check for errors afterwards.
 
-Since version 1.2 the mod implements hot reloading the config file, so **changes to the video config take effect immediately upon saving the file**. This even applies while you are playing the map you are editing.
+The mod implements hot reloading the config file, so **changes to the video config take effect immediately upon saving the file**. This even applies while you are playing the map you are editing.
 
 The following tables list the currently available configuration options:
 
@@ -89,7 +89,7 @@ Optional settings which you can set to fine tune function and form of the video 
 | ----------------------------------|:---------:|:------------------------------------:	| ----------- |
 | `loop`                     		| bool      | false            	 					| Whether the video should loop if it ends before the map does. |
 | `endVideoAt`				 		| float     | *none*			 					| This parameter allows you to let a video end early (e.g. to hide sponsor segments, credits, logos etc.). The time references the video time, not the map time. The video will be paused at that time, and the last displayed frame stays until the map ends. Value is in seconds (e.g.: 296.5 would be 4 minutes and 56.5 seconds)  |
-| `screenPosition`           		| Vector3   | `{"x": 0.0,"y": 12.4,"z": 67.8.0}` 	| This setting can be used to create a custom positioning of the video player. **x** is the deviation from the center, **y** is up/down and **z** controls the distance. **y** should usually be about half of the video height minus 0.1 if you want the video to be above the track. |
+| `screenPosition`           		| Vector3   | `{"x": 0.0,"y": 12.4,"z": 67.8}`	 	| This setting can be used to create a custom positioning of the video player. **x** is the deviation from the center, **y** is up/down and **z** controls the distance. **y** should usually be about half of the video height minus 0.1 if you want the video to be above the track. |
 | `screenRotation`           		| Vector3   | `{"x": -8.0,"y": 0.0,"z": 0.0}`     	| Rotates the video screen. By default, it tilts down by 8 degrees for better visibility. |
 | `screenHeight`             		| float     | 25.0             	 					| Determines the size of the screen. There is no setting for the width, since that is calculated automatically by the height and the aspect ratio of the video. If you change the height, you might want to also change the **y** positioning of the screen so it doesn't float above the ground. |
 | `screenCurvature`			 		| float     | *automatic*		 					| Use this setting to force a specific curvature of the screen. The allowed range of values is 0-180 (degrees). Setting this to 0 forces curvature to be disabled. If this parameter is not included and the user has curvature enabled, the curvature is calculated automatically based on the distance and the width of the screen.|
@@ -161,7 +161,7 @@ To find the names of objects you want to modify, you can use [this document](htt
 
 ### Cloning objects
 
-Currently (version 1.2), Cinema can be used to clone static objects and lights. Dynamic objects other than lights, like spectrograms or rings, will currently have no function if cloned.
+Cinema can be used to clone static objects and lights. Dynamic objects other than lights, like spectrograms or rings, will currently have no function if cloned.
 
 If you clone lights, they will be in the same light group as the light they are cloned from. If you use Chroma, cloned lights will get IDs that are above all of the original light IDs, so the lighting setup in ChroMapper will not be changed. The same goes for prop groups: If you clone multiple lights that are in the same prop group, the cloned objects will be together in a new prop group that has a new ID, without changing prop group IDs of existing lights.
 
@@ -223,7 +223,7 @@ Here is an example config that uses some of the more advanced settings, includin
 
 ## Playing local files not found on YouTube
 
-If you want to play videos that are not found on YouTube in a map (*a certain green ogre comes to mind*), you'll have to create a config by hand. You can use the template below and edit the entries, see the section about the JSON format above for reference. Make sure to use a JSON validator afterwards to find errors if there are any.
+If you want to play videos that are not found on YouTube in a map (*a certain ogre comes to mind*), you'll have to create a config by hand. You can use the template below and edit the entries, see the section about the JSON format above for reference. Make sure to use a JSON validator afterwards to find errors if there are any.
 
 The *Video ID* is currently required, but obviously doesn't exist if the video is not found on YouTube. It will be used to display the thumbnail of the video inside the game. You can either leave it empty, in which case the thumbnail will be missing, or you can find a related video on YouTube with a thumbnail that fits your video and enter that video's ID.
 
