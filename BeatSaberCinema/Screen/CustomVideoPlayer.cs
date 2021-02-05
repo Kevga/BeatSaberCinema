@@ -112,6 +112,7 @@ namespace BeatSaberCinema
 			Player.SetTargetAudioSource(0, _videoPlayerAudioSource);
 
 			BSEvents.menuSceneLoaded += SetDefaultMenuPlacement;
+			SetDefaultMenuPlacement();
 		}
 
 		public void OnDestroy()
