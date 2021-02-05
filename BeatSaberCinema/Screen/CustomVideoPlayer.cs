@@ -42,7 +42,7 @@ namespace BeatSaberCinema
 		private static readonly int Exposure = Shader.PropertyToID("_Exposure");
 		private static readonly int VignetteRadius = Shader.PropertyToID("_VignetteRadius");
 		private static readonly int VignetteSoftness = Shader.PropertyToID("_VignetteSoftness");
-		private static readonly int VignetteOval = Shader.PropertyToID("_VignetteOval");
+		private static readonly int VignetteElliptical = Shader.PropertyToID("_VignetteOval");
 		private bool _waitForFirstFrame;
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
@@ -279,7 +279,7 @@ namespace BeatSaberCinema
 			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, 1f);
 			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, 0.005f);
 
-			_screenRenderer.material.SetInt(VignetteOval, vignette?.type == "oval" ? 1 : 0);
+			_screenRenderer.material.SetInt(VignetteElliptical, vignette?.type == "oval" || vignette?.type == "elliptical" || vignette?.type == "ellipse" ? 1 : 0);
 		}
 
 		private void SetShaderFloat(int nameID, float? value, float min, float max, float defaultValue)

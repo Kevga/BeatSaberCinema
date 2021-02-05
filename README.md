@@ -129,14 +129,14 @@ Using the vignette effect you can change the shape of the video player or soften
 
 | Property                   		| Data Type | Default       	    				| Description |
 | ----------------------------------|:---------:|:------------------------------------:	| ----------- |
-| `type`					 		| string	| "rectangular"		 					| Either "oval" or "rectangular". Changes how the radius and softness parameters behave. |
-| `radius`					 		| float		| 1.0				 					| Valid range: 0 to 1. If the type is "oval", the optimal value is 0.5 or below, since you will still see edges on the left and right on higher values. |
+| `type`					 		| string	| "rectangular"		 					| Either "elliptical" or "rectangular". Changes how the radius and softness parameters behave. |
+| `radius`					 		| float		| 1.0				 					| Valid range: 0 to 1. If the type is "elliptical", the optimal value is 0.5 or below, since you will still see edges on the left and right on higher values. |
 | `softness`				 		| float		| 0.005				 					| Valid range: 0 to 1. Defines the sharpness of the cutout. If you only want to soften the edges, leave the radius at 1 and only slightly increase the softness. By default, videos have a very slight vignette which basically serves as antialiasing for the screen borders. |
 
 Example:
 ```
 "vignette": {
-  "type": "oval",
+  "type": "elliptical",
   "radius": 0.5,
   "softness": 0.1
 }
