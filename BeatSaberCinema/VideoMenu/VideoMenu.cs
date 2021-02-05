@@ -56,6 +56,7 @@ namespace BeatSaberCinema
 
 				_currentVideo.userSettings ??= new VideoConfig.UserSettings();
 				_currentVideo.userSettings.customOffset = true;
+				_currentVideo.userSettings.originalOffset = _currentVideo.offset;
 				_currentVideo.NeedsToSave = true;
 				_customizeOffsetToggle.SetActive(false);
 				_offsetControls.SetActive(true);

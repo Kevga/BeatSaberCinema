@@ -177,6 +177,7 @@ namespace BeatSaberCinema
 		public class UserSettings
 		{
 			public bool? customOffset;
+			public int? originalOffset;
 		}
 	}
 }
