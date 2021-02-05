@@ -327,10 +327,13 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			VideoPlayer.SetPlacement(VideoConfig?.screenPosition, VideoConfig?.screenRotation, null, VideoConfig?.screenHeight, VideoConfig?.screenCurvature);
 			if (IsPreviewPlaying)
 			{
 				StopPreview(true);
+			}
+			else
+			{
+				VideoPlayer.SetPlacement(VideoConfig?.screenPosition, VideoConfig?.screenRotation, null, VideoConfig?.screenHeight, VideoConfig?.screenCurvature);
 			}
 
 			if (previousVideoPath != config.VideoPath)
