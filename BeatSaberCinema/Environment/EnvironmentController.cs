@@ -28,7 +28,7 @@ namespace BeatSaberCinema
 			}
 
 			_environmentModified = true;
-			Plugin.Logger.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName);
+			Log.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName);
 
 			PlaybackController.Instance.PrepareVideo(videoConfig);
 
@@ -43,10 +43,10 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error(e);
+				Log.Error(e);
 			}
 
-			Plugin.Logger.Debug("Modified environment");
+			Log.Debug("Modified environment");
 		}
 
 		public static void Reset()
@@ -82,7 +82,7 @@ namespace BeatSaberCinema
 						var match = Regex.Match(laserName, "^DoubleColorLaser \\(([0-9])\\)$");
 						if (!match.Success)
 						{
-							Plugin.Logger.Debug($"Could not find index of: {laserName}");
+							Log.Debug($"Could not find index of: {laserName}");
 							continue;
 						}
 						var i = int.Parse(match.Groups[1].Value);
@@ -126,7 +126,7 @@ namespace BeatSaberCinema
 						var match = Regex.Match(pillarPairName, "PillarPair \\(([0-9])\\)$");
 						if (!match.Success)
 						{
-							Plugin.Logger.Debug($"Could not find index of: {pillarPairName}");
+							Log.Debug($"Could not find index of: {pillarPairName}");
 							continue;
 						}
 						var i = int.Parse(match.Groups[1].Value);
@@ -396,7 +396,7 @@ namespace BeatSaberCinema
 					selectedObjectsList = SelectObjectsFromScene(environmentModification.name, environmentModification.parentName, environmentModification.cloneFrom != null, sceneObjectList);
 					if (selectedObjectsList == null || !selectedObjectsList.Any())
 					{
-						Plugin.Logger.Error($"Failed to find object: name={environmentModification.name}, parentName={environmentModification.parentName}");
+						Log.Error($"Failed to find object: name={environmentModification.name}, parentName={environmentModification.parentName}");
 						continue;
 					}
 				}
@@ -442,7 +442,7 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Warn(e);
+				Log.Warn(e);
 			}
 
 			return environmentObjects?.ToList();
@@ -455,11 +455,11 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			Plugin.Logger.Debug("Cloning objects");
+			Log.Debug("Cloning objects");
 			var lm = Resources.FindObjectsOfTypeAll<LightWithIdManager>().LastOrDefault();
 			if (lm == null)
 			{
-				Plugin.Logger.Error("Failed to find LightWithIdManager. Cannot clone lights.");
+				Log.Error("Failed to find LightWithIdManager. Cannot clone lights.");
 				return;
 			}
 
@@ -476,7 +476,7 @@ namespace BeatSaberCinema
 				var environmentObjectList = SelectObjectsFromScene(objectToBeCloned.cloneFrom!, objectToBeCloned.parentName, false, sceneObjectList);
 				if (environmentObjectList == null || !environmentObjectList.Any())
 				{
-					Plugin.Logger.Error($"Failed to find object while cloning: name={objectToBeCloned.name}, parentName={objectToBeCloned.parentName}");
+					Log.Error($"Failed to find object while cloning: name={objectToBeCloned.name}, parentName={objectToBeCloned.parentName}");
 					continue;
 				}
 
@@ -504,7 +504,7 @@ namespace BeatSaberCinema
 
 				cloneCounter++;
 			}
-			Plugin.Logger.Debug("Cloned "+cloneCounter+" objects");
+			Log.Debug("Cloned "+cloneCounter+" objects");
 		}
 
 		private static void RegisterLight(LightWithIdMonoBehaviour? newLight, LightWithIdManager lightWithIdManager)

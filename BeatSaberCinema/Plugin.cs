@@ -16,16 +16,15 @@ namespace BeatSaberCinema
 		private const string CAPABILITY = "Cinema";
 		private Harmony _harmonyInstance = null!;
 		public static bool Enabled;
-		internal static Logger Logger = null!;
 
 		[Init]
 		[UsedImplicitly]
 		public void Init(IPA.Logging.Logger ipaLogger, Config config)
 		{
-			Logger = new Logger(ipaLogger);
+			Log.IpaLogger = ipaLogger;
 			SettingsStore.Instance = config.Generated<SettingsStore>();
 			VideoMenu.instance.AddTab();
-			Logger.Debug("Plugin initialized");
+			Log.Debug("Plugin initialized");
 		}
 
 		[OnStart]
@@ -53,7 +52,7 @@ namespace BeatSaberCinema
 			SettingsUI.CreateMenu();
 			VideoMenu.instance.AddTab();
 			SongCore.Collections.RegisterCapability(CAPABILITY);
-			Logger.Info($"{nameof(BeatSaberCinema)} enabled");
+			Log.Info($"{nameof(BeatSaberCinema)} enabled");
 		}
 
 		[OnDisable]
@@ -71,20 +70,20 @@ namespace BeatSaberCinema
 			VideoMenu.instance.RemoveTab();
 			VideoLoader.StopFileSystemWatcher();
 			SongCore.Collections.DeregisterizeCapability(CAPABILITY);
-			Logger.Info($"{nameof(BeatSaberCinema)} disabled");
+			Log.Info($"{nameof(BeatSaberCinema)} disabled");
 		}
 
 		private void ApplyHarmonyPatches()
 		{
 			try
 			{
-				Logger.Debug("Applying Harmony patches");
+				Log.Debug("Applying Harmony patches");
 				_harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 			}
 			catch (Exception ex)
 			{
-				Logger.Error("Error applying Harmony patches: " + ex.Message);
-				Logger.Debug(ex);
+				Log.Error("Error applying Harmony patches: " + ex.Message);
+				Log.Debug(ex);
 			}
 		}
 
@@ -92,13 +91,13 @@ namespace BeatSaberCinema
 		{
 			try
 			{
-				Logger.Debug("Removing Harmony patches");
+				Log.Debug("Removing Harmony patches");
 				_harmonyInstance.UnpatchAll(HARMONY_ID);
 			}
 			catch (Exception ex)
 			{
-				Logger.Error("Error removing Harmony patches: " + ex.Message);
-				Logger.Debug(ex);
+				Log.Error("Error removing Harmony patches: " + ex.Message);
+				Log.Debug(ex);
 			}
 		}
 	}

@@ -119,7 +119,7 @@ namespace BeatSaberCinema
             }
             catch (Exception e)
             {
-	            Plugin.Logger.Debug(e);
+	            BeatSaberCinema.Log.Debug(e);
             }
         }
     }

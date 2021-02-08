@@ -73,7 +73,7 @@ namespace BeatSaberCinema
 			var success = CachedConfigs.TryAdd(level.levelID, config);
 			if (success)
 			{
-				Plugin.Logger.Debug($"Adding config for {level.levelID} to cache");
+				Log.Debug($"Adding config for {level.levelID} to cache");
 			}
 		}
 
@@ -82,7 +82,7 @@ namespace BeatSaberCinema
 			var success = CachedConfigs.TryRemove(level.levelID, out _);
 			if (success)
 			{
-				Plugin.Logger.Debug($"Removing config for {level.levelID} from cache");
+				Log.Debug($"Removing config for {level.levelID} from cache");
 			}
 		}
 
@@ -91,7 +91,7 @@ namespace BeatSaberCinema
 			var success = CachedConfigs.TryGetValue(level.levelID, out var config);
 			if (success)
 			{
-				Plugin.Logger.Debug($"Loading config for {level.levelID} from cache");
+				Log.Debug($"Loading config for {level.levelID} from cache");
 			}
 			return config;
 		}
@@ -104,7 +104,7 @@ namespace BeatSaberCinema
 
 		public static void StopFileSystemWatcher()
 		{
-			Plugin.Logger.Debug("Disposing FileSystemWatcher");
+			Log.Debug("Disposing FileSystemWatcher");
 			_fileSystemWatcher?.Dispose();
 		}
 
@@ -132,10 +132,10 @@ namespace BeatSaberCinema
 
 		private static void OnConfigChanged(object _, FileSystemEventArgs e)
 		{
-			Plugin.Logger.Debug("Config "+e.ChangeType+" detected: "+e.FullPath);
+			Log.Debug("Config "+e.ChangeType+" detected: "+e.FullPath);
 			if (_ignoreNextEventForPath == e.FullPath)
 			{
-				Plugin.Logger.Debug("Ignoring event after saving");
+				Log.Debug("Ignoring event after saving");
 				_ignoreNextEventForPath = null;
 				return;
 			}
@@ -171,7 +171,7 @@ namespace BeatSaberCinema
 				return await level.GetPreviewAudioClipAsync(new CancellationToken());
 			}
 
-			Plugin.Logger.Debug("Getting audio clip from async cache");
+			Log.Debug("Getting audio clip from async cache");
 			var levelData = await BeatmapLevelAsyncCache[level.levelID];
 			if (levelData != null)
 			{
@@ -206,7 +206,7 @@ namespace BeatSaberCinema
 			var levelPath = GetLevelPath(level);
 			if (!Directory.Exists(levelPath))
 			{
-				Plugin.Logger.Debug($"Path does not exist: {levelPath}");
+				Log.Debug($"Path does not exist: {levelPath}");
 				return null;
 			}
 
@@ -232,7 +232,7 @@ namespace BeatSaberCinema
 
 				videoConfig.LevelDir = GetLevelPath(level);
 				videoConfig.NeedsToSave = true;
-				Plugin.Logger.Debug("Loaded from bundled configs");
+				Log.Debug("Loaded from bundled configs");
 			}
 
 			return videoConfig;
@@ -254,7 +254,7 @@ namespace BeatSaberCinema
 		{
 			if (videoConfig.LevelDir == null || !Directory.Exists(videoConfig.LevelDir))
 			{
-				Plugin.Logger.Warn("Failed to save video. Path "+videoConfig.LevelDir+" does not exist.");
+				Log.Warn("Failed to save video. Path "+videoConfig.LevelDir+" does not exist.");
 				return;
 			}
 
@@ -265,7 +265,7 @@ namespace BeatSaberCinema
 
 			var videoJsonPath = Path.Combine(videoConfig.LevelDir, CONFIG_FILENAME);
 			_ignoreNextEventForPath = videoJsonPath;
-			Plugin.Logger.Info($"Saving video config to {videoJsonPath}");
+			Log.Info($"Saving video config to {videoJsonPath}");
 
 			try
 			{
@@ -273,8 +273,8 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error("Failed to save level data: ");
-				Plugin.Logger.Error(e);
+				Log.Error("Failed to save level data: ");
+				Log.Error(e);
 			}
 		}
 
@@ -282,21 +282,21 @@ namespace BeatSaberCinema
 		{
 			if (videoConfig.VideoPath == null)
 			{
-				Plugin.Logger.Warn("Tried to delete video, but its path was null");
+				Log.Warn("Tried to delete video, but its path was null");
 				return;
 			}
 
 			try
 			{
 				File.Delete(videoConfig.VideoPath);
-				Plugin.Logger.Info("Deleted video at "+videoConfig.VideoPath);
+				Log.Info("Deleted video at "+videoConfig.VideoPath);
 				videoConfig.DownloadState = DownloadState.NotDownloaded;
 				videoConfig.videoFile = null;
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error("Failed to delete video at "+videoConfig.VideoPath);
-				Plugin.Logger.Error(e);
+				Log.Error("Failed to delete video at "+videoConfig.VideoPath);
+				Log.Error(e);
 			}
 		}
 
@@ -304,7 +304,7 @@ namespace BeatSaberCinema
 		{
 			if (videoConfig.LevelDir == null)
 			{
-				Plugin.Logger.Error("LevelDir was null when trying to delete config");
+				Log.Error("LevelDir was null when trying to delete config");
 				return false;
 			}
 
@@ -324,12 +324,12 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error("Failed to delete video config:");
-				Plugin.Logger.Error(e);
+				Log.Error("Failed to delete video config:");
+				Log.Error(e);
 			}
 
 			RemoveConfigFromCache(level);
-			Plugin.Logger.Info("Deleted video config");
+			Log.Info("Deleted video config");
 
 			return true;
 		}
@@ -338,7 +338,7 @@ namespace BeatSaberCinema
 		{
 			if (!File.Exists(configPath))
 			{
-				Plugin.Logger.Warn("Config file "+configPath+" does not exist");
+				Log.Warn("Config file "+configPath+" does not exist");
 				return null;
 			}
 
@@ -349,7 +349,7 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error(e);
+				Log.Error(e);
 				return null;
 			}
 
@@ -367,14 +367,14 @@ namespace BeatSaberCinema
 				}
 				else
 				{
-					Plugin.Logger.Error($"jsonPath {configPath} did not match Cinema or MVP formats");
+					Log.Error($"jsonPath {configPath} did not match Cinema or MVP formats");
 					return null;
 				}
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error($"Error parsing video json {configPath}:");
-				Plugin.Logger.Error(e);
+				Log.Error($"Error parsing video json {configPath}:");
+				Log.Error(e);
 				return null;
 			}
 

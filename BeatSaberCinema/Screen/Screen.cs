@@ -50,13 +50,13 @@ namespace BeatSaberCinema
 
 		public void ShowBody()
 		{
-			Plugin.Logger.Debug("Showing body");
+			Log.Debug("Showing body");
 			_screenBodyGameObject.SetActive(true);
 		}
 
 		public void HideBody()
 		{
-			Plugin.Logger.Debug("Hiding body");
+			Log.Debug("Hiding body");
 			_screenBodyGameObject.SetActive(false);
 		}
 

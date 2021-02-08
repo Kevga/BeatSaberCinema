@@ -133,7 +133,7 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error(e);
+				Log.Error(e);
 				var result = _bloomPrePassDict.TryGetValue(camera, out var bloomPrePass);
 				if (result == false)
 				{
@@ -161,7 +161,7 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error(e);
+				Log.Error(e);
 				_bloomPrePassDict.Add(camera, null);
 			}
 

@@ -102,19 +102,19 @@ namespace BeatSaberCinema
 
 			if (!_downloadController.LibrariesAvailable())
 			{
-				Plugin.Logger.Warn("One or more of the libraries are missing. Downloading videos will not work.");
+				Log.Warn("One or more of the libraries are missing. Downloading videos will not work.");
 			}
 		}
 
 		public void AddTab()
 		{
-			Plugin.Logger.Debug("Adding tab");
+			Log.Debug("Adding tab");
 			GameplaySetup.instance.AddTab("Cinema", "BeatSaberCinema.VideoMenu.Views.video-menu.bsml", this, MenuType.Solo);
 		}
 
 		public void RemoveTab()
 		{
-			Plugin.Logger.Debug("Removing tab");
+			Log.Debug("Removing tab");
 			GameplaySetup.instance.RemoveTab("Cinema");
 		}
 
@@ -305,7 +305,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			Plugin.Logger.Debug($"Setting level to {level.levelID}");
+			Log.Debug($"Setting level to {level.levelID}");
 			HandleDidSelectLevel(null, level);
 		}
 
@@ -366,7 +366,7 @@ namespace BeatSaberCinema
 			catch (Exception exception)
 			{
 				//This can happen when closing the game
-				Plugin.Logger.Debug(exception);
+				Log.Debug(exception);
 			}
 		}
 
@@ -388,7 +388,7 @@ namespace BeatSaberCinema
 		{
 			if (_currentLevel == null)
 			{
-				Plugin.Logger.Warn("Selected level was null on search action");
+				Log.Warn("Selected level was null on search action");
 				return;
 			}
 			OnQueryAction(_searchText);
@@ -408,7 +408,7 @@ namespace BeatSaberCinema
 			}
 			else
 			{
-				Plugin.Logger.Debug(request.error);
+				Log.Debug(request.error);
 			}
 
 			_customListTableData.data.Add(item);
@@ -456,7 +456,7 @@ namespace BeatSaberCinema
 		{
 			if (_currentVideo == null)
 			{
-				Plugin.Logger.Warn("Current video was null on delete action");
+				Log.Warn("Current video was null on delete action");
 				return;
 			}
 
@@ -488,7 +488,7 @@ namespace BeatSaberCinema
 		{
 			if (_currentVideo == null || _currentLevel == null)
 			{
-				Plugin.Logger.Warn("Failed to delete config: Either currentVideo or currentLevel is null");
+				Log.Warn("Failed to delete config: Either currentVideo or currentLevel is null");
 				return;
 			}
 
@@ -611,7 +611,7 @@ namespace BeatSaberCinema
 			{
 				_selectedCell = selection;
 				_downloadButton.interactable = true;
-				Plugin.Logger.Debug($"Selected cell: [{_selectedCell}] {_downloadController.SearchResults[selection].ToString()}");
+				Log.Debug($"Selected cell: [{_selectedCell}] {_downloadController.SearchResults[selection].ToString()}");
 			}
 			else
 			{
@@ -624,10 +624,10 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		private void OnDownloadAction()
 		{
-			Plugin.Logger.Debug("Download pressed");
+			Log.Debug("Download pressed");
 			if (_selectedCell < 0 || _currentLevel == null)
 			{
-				Plugin.Logger.Error("No cell or level selected on download action");
+				Log.Error("No cell or level selected on download action");
 				return;
 			}
 

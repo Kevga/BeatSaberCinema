@@ -31,7 +31,7 @@ namespace BeatSaberCinema
             }
             catch (Exception ex)
             {
-                Plugin.Logger.Error(ex);
+                Log.Error(ex);
             }
         }
 

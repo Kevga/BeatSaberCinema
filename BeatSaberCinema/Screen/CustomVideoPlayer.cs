@@ -147,14 +147,14 @@ namespace BeatSaberCinema
 				var bundle = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.bscinema.bundle");
 				if (bundle == null || bundle.Length == 0)
 				{
-					Plugin.Logger.Error("GetResource failed");
+					Log.Error("GetResource failed");
 					return Shader.Find("Hidden/BlitAdd");
 				}
 
 				myLoadedAssetBundle = AssetBundle.LoadFromMemory(bundle);
 				if (myLoadedAssetBundle == null)
 				{
-					Plugin.Logger.Error("LoadFromMemory failed");
+					Log.Error("LoadFromMemory failed");
 					return Shader.Find("Hidden/BlitAdd");
 				}
 			}
@@ -203,7 +203,7 @@ namespace BeatSaberCinema
 
 			_waitForFirstFrame = false;
 			_firstFrameStopwatch.Stop();
-			Plugin.Logger.Debug("Delay from Play() to first frame: "+_firstFrameStopwatch.ElapsedMilliseconds+" ms");
+			Log.Debug("Delay from Play() to first frame: "+_firstFrameStopwatch.ElapsedMilliseconds+" ms");
 			_firstFrameStopwatch.Reset();
 			SetScreenColor(_screenColorOn);
 			_screen.SetAspectRatio(GetVideoAspectRatio());
@@ -317,14 +317,14 @@ namespace BeatSaberCinema
 
 		private static void VideoPlayerPrepareComplete(VideoPlayer source)
 		{
-			Plugin.Logger.Debug("Video player prepare complete");
+			Log.Debug("Video player prepare complete");
 			var texture = source.texture;
-			Plugin.Logger.Debug($"Video resolution: {texture.width}x{texture.height}");
+			Log.Debug($"Video resolution: {texture.width}x{texture.height}");
 		}
 
 		private static void VideoPlayerStarted(VideoPlayer source)
 		{
-			Plugin.Logger.Debug("Video player started event");
+			Log.Debug("Video player started event");
 		}
 
 		private static void VideoPlayerErrorReceived(VideoPlayer source, string message)
@@ -334,7 +334,7 @@ namespace BeatSaberCinema
 				//Expected when preparing null source
 				return;
 			}
-			Plugin.Logger.Error("Video player error: " + message);
+			Log.Error("Video player error: " + message);
 		}
 
 		private float GetVideoAspectRatio()
@@ -346,7 +346,7 @@ namespace BeatSaberCinema
 				return aspectRatio;
 			}
 
-			Plugin.Logger.Debug("Using default aspect ratio (texture missing)");
+			Log.Debug("Using default aspect ratio (texture missing)");
 			return 16f / 9f;
 		}
 

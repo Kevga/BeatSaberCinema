@@ -32,7 +32,7 @@ namespace BeatSaberCinema
 				{
 					if (!e.Message.Contains("No process is associated with this object."))
 					{
-						Plugin.Logger.Warn(e);
+						Log.Warn(e);
 					}
 				}
 
@@ -50,7 +50,7 @@ namespace BeatSaberCinema
 				}
 				catch (Exception e)
 				{
-					Plugin.Logger.Debug(e);
+					Log.Debug(e);
 				}
 
 				return false;
@@ -92,7 +92,7 @@ namespace BeatSaberCinema
 			}
 
 			SearchResults.Clear();
-			Plugin.Logger.Debug($"Starting search with query {query}");
+			Log.Debug($"Starting search with query {query}");
 
 			_searchProcess = new Process
 			{
@@ -113,7 +113,7 @@ namespace BeatSaberCinema
 			_searchProcess.ErrorDataReceived += SearchProcessErrorDataReceived;
 			_searchProcess.Exited += SearchProcessExited;
 
-			Plugin.Logger.Info($"Starting youtube-dl process with arguments: \"{_searchProcess.StartInfo.FileName}\" {_searchProcess.StartInfo.Arguments}");
+			Log.Info($"Starting youtube-dl process with arguments: \"{_searchProcess.StartInfo.FileName}\" {_searchProcess.StartInfo.Arguments}");
 			yield return _searchProcess.Start();
 
 			var timeout = new Timeout(15);
@@ -133,8 +133,8 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			Plugin.Logger.Error("youtube-dl process error:");
-			Plugin.Logger.Error(e.Data);
+			Log.Error("youtube-dl process error:");
+			Log.Error(e.Data);
 		}
 
 		private void SearchProcessDataReceived(object sender, DataReceivedEventArgs e)
@@ -147,13 +147,13 @@ namespace BeatSaberCinema
 
 			if (output.Contains("yt command exited"))
 			{
-				Plugin.Logger.Debug("Done with Youtube Search, Processing...");
+				Log.Debug("Done with Youtube Search, Processing...");
 				return;
 			}
 
 			if (output.Contains("yt command"))
 			{
-				Plugin.Logger.Debug($"Running with {output}");
+				Log.Debug($"Running with {output}");
 				return;
 			}
 
@@ -172,13 +172,13 @@ namespace BeatSaberCinema
 		{
 			if (!(JsonConvert.DeserializeObject(searchResultJson) is JObject result))
 			{
-				Plugin.Logger.Error("Failed to deserialize "+searchResultJson);
+				Log.Error("Failed to deserialize "+searchResultJson);
 				return null;
 			}
 
 			if (result["id"] == null)
 			{
-				Plugin.Logger.Warn("YT search result had no ID, skipping");
+				Log.Warn("YT search result had no ID, skipping");
 				return null;
 			}
 
@@ -195,7 +195,7 @@ namespace BeatSaberCinema
 
 		private void SearchProcessExited(object sender, EventArgs e)
 		{
-			Plugin.Logger.Info($"Search process exited with exitcode {((Process) sender).ExitCode}");
+			Log.Info($"Search process exited with exitcode {((Process) sender).ExitCode}");
 			SearchFinished?.Invoke();
 			DisposeProcess(_searchProcess);
 			_searchProcess = null;
@@ -208,7 +208,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			Plugin.Logger.Debug("Cleaning up process");
+			Log.Debug("Cleaning up process");
 
 			try
 			{
@@ -222,7 +222,7 @@ namespace BeatSaberCinema
 				if (!exception.Message.Contains("The operation completed successfully") &&
 				    !exception.Message.Contains("No process is associated with this object."))
 				{
-					Plugin.Logger.Warn(exception);
+					Log.Warn(exception);
 				}
 			}
 			try
@@ -231,7 +231,7 @@ namespace BeatSaberCinema
 			}
 			catch (Exception exception)
 			{
-				Plugin.Logger.Warn(exception);
+				Log.Warn(exception);
 			}
 		}
 
@@ -243,14 +243,14 @@ namespace BeatSaberCinema
 
 		private IEnumerator DownloadVideoCoroutine(VideoConfig video)
 		{
-			Plugin.Logger.Info($"Starting download of {video.title}");
+			Log.Info($"Starting download of {video.title}");
 
 			video.DownloadState = DownloadState.Downloading;
 			DownloadProgress?.Invoke(video);
 
 			Process downloadProcess = StartDownloadProcess(video);
 
-			Plugin.Logger.Info(
+			Log.Info(
 				$"youtube-dl command: \"{downloadProcess.StartInfo.FileName}\" {downloadProcess.StartInfo.Arguments}");
 
 			var timeout = new Timeout(5 * 60);
@@ -268,7 +268,7 @@ namespace BeatSaberCinema
 			yield return new WaitUntil(() => !DownloadInProgress || timeout.HasTimedOut);
 			if (timeout.HasTimedOut)
 			{
-				Plugin.Logger.Warn("Timeout reached, disposing download process");
+				Log.Warn("Timeout reached, disposing download process");
 			}
 			timeout.Stop();
 
@@ -281,17 +281,17 @@ namespace BeatSaberCinema
 			{
 				DisposeProcess((Process) sender);
 				_downloadProcess = null;
-				Plugin.Logger.Info("Download cancelled");
+				Log.Info("Download cancelled");
 				VideoLoader.DeleteVideo(video);
 			}
 
-			Plugin.Logger.Debug(eventArgs.Data);
+			Log.Debug(eventArgs.Data);
 			ParseDownloadProgress(video, eventArgs);
 		}
 
 		private void DownloadErrorDataReceived(object sender, DataReceivedEventArgs eventArgs, VideoConfig video)
 		{
-			Plugin.Logger.Error(eventArgs.Data);
+			Log.Error(eventArgs.Data);
 			video.DownloadState = DownloadState.Cancelled;
 			DownloadProgress?.Invoke(video);
 			if (video.DownloadState == DownloadState.Cancelled || eventArgs.Data.Contains("Unable to extract video data"))
@@ -305,11 +305,11 @@ namespace BeatSaberCinema
 			timer.Stop();
 			timer.Close();
 
-			Plugin.Logger.Info("Download process exited with code "+((Process) sender).ExitCode);
+			Log.Info("Download process exited with code "+((Process) sender).ExitCode);
 
 			if (video.DownloadState == DownloadState.Cancelled)
 			{
-				Plugin.Logger.Info("Cancelled download");
+				Log.Info("Cancelled download");
 				VideoLoader.DeleteVideo(video);
 			}
 			else
@@ -317,7 +317,7 @@ namespace BeatSaberCinema
 				video.DownloadState = DownloadState.Downloaded;
 				video.NeedsToSave = true;
 				SharedCoroutineStarter.instance.StartCoroutine(WaitForDownloadToFinishCoroutine(video));
-				Plugin.Logger.Info("Download finished");
+				Log.Info("Download finished");
 			}
 
 			DisposeProcess(_downloadProcess);
@@ -397,7 +397,7 @@ namespace BeatSaberCinema
 
 		public void CancelDownload(VideoConfig video)
 		{
-			Plugin.Logger.Debug("Cancelling download");
+			Log.Debug("Cancelling download");
 			DisposeProcess(_downloadProcess);
 			video.DownloadState = DownloadState.Cancelled;
 			DownloadProgress?.Invoke(video);

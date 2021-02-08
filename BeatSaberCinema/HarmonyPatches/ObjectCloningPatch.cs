@@ -15,7 +15,7 @@ namespace BeatSaberCinema
 			//Why we clone here: The ATSC starts after all the lights have been registered and before Chroma grabs a list of all the lights.
 			//This ensures the newly cloned objects/lights don't change the lightIDs of existing lights and also that the cloned lights are registered before Chroma indexes them
 			EnvironmentController.CloneObjects(PlaybackController.Instance.VideoConfig);
-			Plugin.Logger.Debug("Started "+__instance.name);
+			Log.Debug("Started "+__instance.name);
 		}
 	}
 }

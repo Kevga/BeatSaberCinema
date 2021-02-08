@@ -122,7 +122,7 @@ namespace BeatSaberCinema
 			_activeAudioSource.Pause();
 
 			ResyncVideo();
-			Plugin.Logger.Debug("Applying offset: "+offset);
+			Log.Debug("Applying offset: "+offset);
 		}
 
 		public void ResyncVideo()
@@ -146,7 +146,7 @@ namespace BeatSaberCinema
 			}
 
 			VideoPlayer.Player.time = newTime;
-			Plugin.Logger.Debug("Set time to: " + newTime);
+			Log.Debug("Set time to: " + newTime);
 		}
 
 		public void FrameReady(VideoPlayer videoPlayer, long frame)
@@ -167,7 +167,7 @@ namespace BeatSaberCinema
 
 			if (audioSourceTime == 0 && !_activeAudioSource.isPlaying && IsPreviewPlaying && !VideoPlayer.IsSyncing)
 			{
-				Plugin.Logger.Debug("Preview AudioSource detected to have stopped playing");
+				Log.Debug("Preview AudioSource detected to have stopped playing");
 				StopPreview(false);
 				VideoMenu.instance.SetupVideoDetails();
 				PrepareVideo(VideoConfig);
@@ -180,7 +180,7 @@ namespace BeatSaberCinema
 
 			if (frame % 120 == 0)
 			{
-				Plugin.Logger.Debug("Frame: " + frame + " - Player: " + Util.FormatFloat((float) playerTime) + " - AudioSource: " +
+				Log.Debug("Frame: " + frame + " - Player: " + Util.FormatFloat((float) playerTime) + " - AudioSource: " +
 				                    Util.FormatFloat(audioSourceTime) + " - Error (ms): " + Math.Round(error * 1000));
 			}
 
@@ -188,21 +188,21 @@ namespace BeatSaberCinema
 			{
 				if (referenceTime >= VideoConfig.endVideoAt)
 				{
-					Plugin.Logger.Debug("Reached video endpoint as configured at "+referenceTime);
+					Log.Debug("Reached video endpoint as configured at "+referenceTime);
 					VideoPlayer.Pause();
 				}
 			}
 
 			if (Math.Abs(audioSourceTime - _lastKnownAudioSourceTime) > 0.3f && VideoPlayer.IsPlaying)
 			{
-				Plugin.Logger.Debug("Detected AudioSource seek, resyncing...");
+				Log.Debug("Detected AudioSource seek, resyncing...");
 				ResyncVideo();
 			}
 
 			//Sync if the error exceeds a threshold, but not if the video is close to the looping point
 			if (Math.Abs(error) > 0.3f && Math.Abs(VideoPlayer.VideoDuration - playerTime) > 0.5f && VideoPlayer.IsPlaying)
 			{
-				Plugin.Logger.Debug($"Detected desync (reference {referenceTime}, actual {playerTime}), resyncing...");
+				Log.Debug($"Detected desync (reference {referenceTime}, actual {playerTime}), resyncing...");
 				ResyncVideo();
 			}
 
@@ -229,12 +229,12 @@ namespace BeatSaberCinema
 		{
 			if (VideoConfig == null || _currentLevel == null)
 			{
-				Plugin.Logger.Warn("No video or level selected in OnPreviewAction");
+				Log.Warn("No video or level selected in OnPreviewAction");
 				yield break;
 			}
 			if (IsPreviewPlaying)
 			{
-				Plugin.Logger.Debug("Stopping preview");
+				Log.Debug("Stopping preview");
 				StopPreview(true);
 			}
 			else
@@ -242,14 +242,14 @@ namespace BeatSaberCinema
 				IsPreviewPlaying = true;
 				if (!VideoPlayer.IsPrepared)
 				{
-					Plugin.Logger.Info("Not Prepped yet");
+					Log.Info("Not Prepped yet");
 				}
 
 				//Start the preview at the point the video kicks in
 				var startTime = 0f;
 				if (VideoConfig.offset < 0)
 				{
-					Plugin.Logger.Debug("Set preview start time to "+startTime);
+					Log.Debug("Set preview start time to "+startTime);
 					startTime = -VideoConfig.GetOffsetInSec();
 				}
 
@@ -282,7 +282,7 @@ namespace BeatSaberCinema
 
 		private void OnMenuSceneLoaded()
 		{
-			Plugin.Logger.Debug("MenuSceneLoaded");
+			Log.Debug("MenuSceneLoaded");
 			_activeScene = Scene.Menu;
 			EnvironmentController.Reset();
 			VideoPlayer.Stop();
@@ -301,8 +301,8 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Debug("SongPreviewPlayer or AudioSources not found: ");
-				Plugin.Logger.Warn(e);
+				Log.Debug("SongPreviewPlayer or AudioSources not found: ");
+				Log.Warn(e);
 			}
 		}
 
@@ -368,14 +368,14 @@ namespace BeatSaberCinema
 			VideoPlayer.Stop();
 			_currentLevel = level;
 			VideoConfig = config;
-			Plugin.Logger.Debug($"Selected Level: {level.levelID}");
+			Log.Debug($"Selected Level: {level.levelID}");
 
 			if (VideoConfig == null)
 			{
 				return;
 			}
 
-			Plugin.Logger.Debug("Preparing video...");
+			Log.Debug("Preparing video...");
 			PrepareVideo(VideoConfig);
 		}
 
@@ -403,33 +403,33 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Error(e);
+				Log.Error(e);
 			}
 		}
 
 		private void GameSceneLoaded()
 		{
 			StopAllCoroutines();
-			Plugin.Logger.Debug("GameSceneLoaded");
+			Log.Debug("GameSceneLoaded");
 			_activeScene = Scene.Gameplay;
 
 			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || BS_Utils.Plugin.LevelData.Mode == Mode.Multiplayer)
 			{
 				//TODO add screen positioning for MP
-				Plugin.Logger.Debug("Plugin disabled");
+				Log.Debug("Plugin disabled");
 				VideoPlayer.Hide();
 				return;
 			}
 
 			if (BS_Utils.Plugin.LevelData.Mode == Mode.None)
 			{
-				Plugin.Logger.Debug("Level mode is None");
+				Log.Debug("Level mode is None");
 				return;
 			}
 
 			if (VideoConfig == null || !VideoConfig.IsPlayable)
 			{
-				Plugin.Logger.Debug("No video configured or video is not playable");
+				Log.Debug("No video configured or video is not playable");
 
 				if (SettingsStore.Instance.CoverEnabled && (VideoConfig?.forceEnvironmentModifications == null || VideoConfig.forceEnvironmentModifications == false))
 				{
@@ -468,7 +468,7 @@ namespace BeatSaberCinema
 			}
 			else
 			{
-				Plugin.Logger.Warn("Active AudioSource was null, cannot wait for it to start");
+				Log.Warn("Active AudioSource was null, cannot wait for it to start");
 			}
 
 			PlayVideo(startTime);
@@ -504,7 +504,7 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Warn(e);
+				Log.Warn(e);
 			}
 		}
 
@@ -550,7 +550,7 @@ namespace BeatSaberCinema
 			if (songSpeed < 1f && totalOffset > 0f)
 			{
 				//Unity crashes if the playback speed is less than 1 and the video time at the start of playback is greater than 0
-				Plugin.Logger.Warn("Video playback disabled to prevent Unity crash");
+				Log.Warn("Video playback disabled to prevent Unity crash");
 				VideoPlayer.Hide();
 				StopPlayback();
 				return;
@@ -573,7 +573,7 @@ namespace BeatSaberCinema
 				totalOffset %= VideoPlayer.VideoDuration;
 			}
 
-			Plugin.Logger.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {VideoPlayer.Player.time}");
+			Log.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {VideoPlayer.Player.time}");
 
 			StopAllCoroutines();
 
@@ -604,14 +604,14 @@ namespace BeatSaberCinema
 
 		private IEnumerator PlayVideoDelayedCoroutine(float delayStartTime)
 		{
-			Plugin.Logger.Debug("Waiting for "+delayStartTime+" seconds before playing video");
+			Log.Debug("Waiting for "+delayStartTime+" seconds before playing video");
 			Stopwatch stopwatch = new Stopwatch();
 			stopwatch.Start();
 			VideoPlayer.Pause();
 			VideoPlayer.Player.time = 0;
 			var ticksUntilStart = (delayStartTime) * TimeSpan.TicksPerSecond;
 			yield return new WaitUntil(() => stopwatch.ElapsedTicks >= ticksUntilStart);
-			Plugin.Logger.Debug("Elapsed ms: "+stopwatch.ElapsedMilliseconds);
+			Log.Debug("Elapsed ms: "+stopwatch.ElapsedMilliseconds);
 
 			if (_activeAudioSource != null)
 			{
@@ -642,7 +642,7 @@ namespace BeatSaberCinema
 			VideoPlayer.Pause();
 			if (!video.IsPlayable)
 			{
-				Plugin.Logger.Debug("Video is not downloaded, stopping prepare");
+				Log.Debug("Video is not downloaded, stopping prepare");
 				yield break;
 			}
 
@@ -652,11 +652,11 @@ namespace BeatSaberCinema
 
 			if (video.VideoPath == null)
 			{
-				Plugin.Logger.Debug("Video path was null, stopping prepare");
+				Log.Debug("Video path was null, stopping prepare");
 				yield break;
 			}
 			var videoPath = video.VideoPath;
-			Plugin.Logger.Info($"Loading video: {videoPath}");
+			Log.Info($"Loading video: {videoPath}");
 
 			if (VideoConfig.IsLocal)
 			{
@@ -672,7 +672,7 @@ namespace BeatSaberCinema
 				if (timeout.HasTimedOut && Util.IsFileLocked(videoFileInfo))
 				{
 					var exception = new Exception("File locked");
-					Plugin.Logger.Error(exception);
+					Log.Error(exception);
 					throw exception;
 				}
 			}

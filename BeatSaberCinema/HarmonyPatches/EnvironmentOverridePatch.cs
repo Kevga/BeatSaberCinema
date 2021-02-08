@@ -33,42 +33,42 @@ namespace BeatSaberCinema
 				var environmentWhitelist = new[] {"BigMirrorEnvironment", "OriginsEnvironment", "BTSEnvironment", "KDAEnvironment", "RocketEnvironment", "DragonsEnvironment", "LinkinParkEnvironment"};
 				if (environmentWhitelist.Contains(environmentInfoSo.serializedName))
 				{
-					Plugin.Logger.Debug("Environment in whitelist");
+					Log.Debug("Environment in whitelist");
 					overrideEnvironmentEnabled = false;
 				}
 
 				var video = PlaybackController.Instance.VideoConfig;
 				if (video == null || !video.IsPlayable)
 				{
-					Plugin.Logger.Debug($"No video or not playable, DownloadState: {video?.DownloadState}");
+					Log.Debug($"No video or not playable, DownloadState: {video?.DownloadState}");
 					overrideEnvironmentEnabled = false;
 				} else if (video.disableBigMirrorOverride != null && video.disableBigMirrorOverride == true)
 				{
-					Plugin.Logger.Debug("Override disabled via config");
+					Log.Debug("Override disabled via config");
 					overrideEnvironmentEnabled = false;
 				}
 
 				if (!overrideEnvironmentEnabled)
 				{
-					Plugin.Logger.Debug("Skipping environment override");
+					Log.Debug("Skipping environment override");
 					return;
 				}
 
 				var bigMirrorEnvInfo = Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().First(x => x.serializedName == "BigMirrorEnvironment");
 				if (bigMirrorEnvInfo == null)
 				{
-					Plugin.Logger.Warn("Did not find big mirror env");
+					Log.Warn("Did not find big mirror env");
 					return;
 				}
 
 				var bigMirrorOverrideSettings = new OverrideEnvironmentSettings {overrideEnvironments = true};
 				bigMirrorOverrideSettings.SetEnvironmentInfoForType(bigMirrorEnvInfo.environmentType, bigMirrorEnvInfo);
 				overrideEnvironmentSettings = bigMirrorOverrideSettings;
-				Plugin.Logger.Info("Overwriting environment to Big Mirror");
+				Log.Info("Overwriting environment to Big Mirror");
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Warn(e);
+				Log.Warn(e);
 			}
 		}
 	}
@@ -91,7 +91,7 @@ namespace BeatSaberCinema
 			}
 			catch (Exception e)
 			{
-				Plugin.Logger.Warn(e);
+				Log.Warn(e);
 			}
 		}
 	}
