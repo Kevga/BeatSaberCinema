@@ -76,18 +76,15 @@ namespace BeatSaberCinema
 
 		public void Init()
 		{
-			//This needs to be reinitialized every time a fresh menu scene load happens
-			_menuStatus = _root.AddComponent<VideoMenuStatus>();
-			_menuStatus.DidEnable += StatusViewerDidEnable;
-			_menuStatus.DidDisable += StatusViewerDidDisable;
-
-			_deleteButton.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+			CreateStatusListener();
+			_deleteButton.transform.localScale *= 0.5f;
 			_searchKeyboard.clearOnOpen = false;
 
 			if (_videoMenuInitialized)
 			{
 				return;
 			}
+
 			_videoMenuInitialized = true;
 			_videoDetailsViewRect.gameObject.SetActive(false);
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
@@ -104,6 +101,21 @@ namespace BeatSaberCinema
 			{
 				Log.Warn("One or more of the libraries are missing. Downloading videos will not work.");
 			}
+		}
+
+		public void CreateStatusListener()
+		{
+			//This needs to be reinitialized every time a fresh menu scene load happens
+			if (_menuStatus != null)
+			{
+				_menuStatus.DidEnable -= StatusViewerDidEnable;
+				_menuStatus.DidDisable -= StatusViewerDidDisable;
+				Destroy(_menuStatus);
+			}
+
+			_menuStatus = _root.AddComponent<VideoMenuStatus>();
+			_menuStatus.DidEnable += StatusViewerDidEnable;
+			_menuStatus.DidDisable += StatusViewerDidDisable;
 		}
 
 		public void AddTab()
