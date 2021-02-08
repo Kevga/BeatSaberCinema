@@ -66,6 +66,7 @@ namespace BeatSaberCinema
 		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
 		[JsonIgnore] public bool IsPlayable => DownloadState == DownloadState.Downloaded || IsStreamable;
 		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains("WIPLevels");
+		[JsonIgnore] public bool IsOfficialConfig => configByMapper != null && configByMapper == true;
 
 
 		private static Regex _regexParseID = new Regex(@"\/watch\?v=([a-z0-9_-]*)",

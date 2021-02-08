@@ -76,7 +76,11 @@ namespace BeatSaberCinema
 
 		public void Search(string query)
 		{
-			SharedCoroutineStarter.instance.StopCoroutine(_searchCoroutine);
+			if (_searchCoroutine != null)
+			{
+				SharedCoroutineStarter.instance.StopCoroutine(_searchCoroutine);
+			}
+
 			_searchCoroutine = SharedCoroutineStarter.instance.StartCoroutine(SearchCoroutine(query));
 		}
 

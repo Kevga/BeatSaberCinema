@@ -46,7 +46,7 @@ namespace BeatSaberCinema
 		[UIValue("customize-offset")]
 		public bool CustomizeOffset
 		{
-			get => _currentVideo != null && (_currentVideo.configByMapper == false || _currentVideo.userSettings?.customOffset == true || _currentVideo.IsWIPLevel);
+			get => _currentVideo != null && (!_currentVideo.IsOfficialConfig || _currentVideo.userSettings?.customOffset == true || _currentVideo.IsWIPLevel);
 			set
 			{
 				if (_currentVideo == null || !value)

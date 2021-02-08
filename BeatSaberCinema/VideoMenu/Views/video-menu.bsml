@@ -38,7 +38,7 @@
 						<button id='offset-increase-button-high' font-size='3' pref-width='10' hover-hint='Starts video earlier (+1000 ms)' text='+++' on-click='on-offset-increase-action-high'/>
 					</horizontal>
 				</vertical>
-				<horizontal id="customize-offset-toggle">
+				<horizontal id="customize-offset-toggle" preferred-width="45">
 					<bool-setting apply-on-change="true" text='Customize offset' value='customize-offset' bind-value="true" get-event="update-customize-offset"
 								  hover-hint="Change the offset that was configured by the mapper.&#xD;&#xA;&#xD;&#xA;Only check this if the video is out of sync for you."></bool-setting>
 				</horizontal>
