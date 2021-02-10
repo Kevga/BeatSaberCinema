@@ -175,7 +175,7 @@ namespace BeatSaberCinema
 
 			if (_currentLevel != null && VideoLoader.IsDlcSong(_currentLevel) && _downloadController.LibrariesAvailable())
 			{
-				CheckEntitlement(_currentLevel);
+				CheckEntitlementAndEnableSearch(_currentLevel);
 			}
 
 			if (_currentVideo == null)
@@ -211,10 +211,10 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private async void CheckEntitlement(IPreviewBeatmapLevel level)
+		private async void CheckEntitlementAndEnableSearch(IPreviewBeatmapLevel level)
 		{
 			var entitlement = await VideoLoader.GetEntitlementForLevel(level);
-			if (entitlement == AdditionalContentModel.EntitlementStatus.Owned)
+			if (entitlement == AdditionalContentModel.EntitlementStatus.Owned && _currentLevel == level)
 			{
 				_searchButton.gameObject.SetActive(true);
 			}
