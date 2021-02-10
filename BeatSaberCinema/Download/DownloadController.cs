@@ -352,7 +352,6 @@ namespace BeatSaberCinema
 			yield return new WaitUntil(() => timeout.HasTimedOut || File.Exists(video.VideoPath));
 
 			DownloadFinished?.Invoke(video);
-			VideoMenu.instance.SetupVideoDetails();
 		}
 
 		private Process StartDownloadProcess(VideoConfig video)

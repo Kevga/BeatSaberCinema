@@ -64,6 +64,7 @@ namespace BeatSaberCinema
 		}
 
 		private VideoMenuStatus _menuStatus = null!;
+		private LevelDetailViewController _levelDetailViewController = null!;
 		private bool _videoMenuInitialized;
 
 		private IPreviewBeatmapLevel? _currentLevel;
@@ -76,6 +77,8 @@ namespace BeatSaberCinema
 
 		public void Init()
 		{
+			_levelDetailViewController = new LevelDetailViewController();
+			_levelDetailViewController.buttonPressed += OnDeleteVideoAction;
 			CreateStatusListener();
 			_deleteButton.transform.localScale *= 0.5f;
 			_searchKeyboard.clearOnOpen = false;
@@ -156,6 +159,7 @@ namespace BeatSaberCinema
 		private void OnDownloadProgress(VideoConfig videoConfig)
 		{
 			UpdateStatusText(videoConfig);
+			SetupLevelDetailView(videoConfig);
 			if (videoConfig.DownloadState == DownloadState.Cancelled)
 			{
 				SetButtonState(true);
@@ -223,8 +227,18 @@ namespace BeatSaberCinema
 		public void SetupVideoDetails()
 		{
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
+			_levelDetailViewController.SetActive(false);
 
-			if (_currentVideo == null || !_videoMenuActive || !_downloadController.LibrariesAvailable())
+			if (_currentVideo == null || !_downloadController.LibrariesAvailable())
+			{
+				ResetVideoMenu();
+				return;
+			}
+
+			SetupLevelDetailView(_currentVideo);
+
+			//Skip setting up the video menu if it's not showing. Prevents an unnecessary web request for the thumbnail.
+			if (!_videoMenuActive)
 			{
 				ResetVideoMenu();
 				return;
@@ -272,6 +286,33 @@ namespace BeatSaberCinema
 			_bsmlParserParams.EmitEvent("update-customize-offset");
 		}
 
+		public void SetupLevelDetailView(VideoConfig videoConfig)
+		{
+			switch (videoConfig.DownloadState)
+			{
+				case DownloadState.Downloaded:
+					_levelDetailViewController.SetText("Video ready!", null, Color.green);
+					break;
+				case DownloadState.Downloading:
+					_levelDetailViewController.SetActive(true);
+					var text = $"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress*100).ToString()}%)";
+					_levelDetailViewController.SetText(text, "Cancel", Color.yellow, Color.red);
+					break;
+				case DownloadState.NotDownloaded when videoConfig.IsStreamable:
+					break;
+				case DownloadState.NotDownloaded:
+					_levelDetailViewController.SetActive(true);
+					_levelDetailViewController.SetText("Video available", "Download Video", null, Color.green);
+					break;
+				case DownloadState.Cancelled:
+					_levelDetailViewController.SetActive(true);
+					_levelDetailViewController.SetText("Download cancelled", "Download Video", Color.red,Color.green);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
 		public void UpdateStatusText(VideoConfig videoConfig)
 		{
 			if (videoConfig != _currentVideo || !_videoMenuActive)
@@ -290,7 +331,7 @@ namespace BeatSaberCinema
 					_videoStatusText.color = Color.yellow;
 					_previewButton.interactable = false;
 					break;
-				case DownloadState.NotDownloaded when _currentVideo.IsStreamable:
+				case DownloadState.NotDownloaded when videoConfig.IsStreamable:
 					_videoStatusText.text = "Streaming";
 					_videoStatusText.color = Color.yellow;
 					_previewButton.interactable = true;
@@ -446,7 +487,9 @@ namespace BeatSaberCinema
 					VideoLoader.RemoveConfigFromCache(_currentLevel);
 				}
 			}
-			UpdateStatusText(video);
+
+			SetupVideoDetails();
+			_levelDetailViewController.SetActive(true);
 		}
 
 		public void ShowKeyboard()
@@ -481,12 +524,14 @@ namespace BeatSaberCinema
 					break;
 				case DownloadState.NotDownloaded:
 				case DownloadState.Cancelled:
+					_currentVideo.DownloadProgress = 0;
 					_downloadController.StartDownload(_currentVideo);
 					_currentVideo.NeedsToSave = true;
 					VideoLoader.AddConfigToCache(_currentVideo, _currentLevel!);
 					break;
 				default:
 					VideoLoader.DeleteVideo(_currentVideo);
+					SetupLevelDetailView(_currentVideo);
 					break;
 			}
 

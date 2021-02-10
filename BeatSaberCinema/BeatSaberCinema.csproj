@@ -190,6 +190,7 @@
         <Compile Include="Util\SerializableVector3.cs" />
         <Compile Include="Util\Timeout.cs" />
         <Compile Include="Util\Util.cs" />
+        <Compile Include="VideoMenu\LevelDetailViewController.cs" />
         <Compile Include="VideoMenu\VideoMenu.cs" />
         <Compile Include="Video\VideoConfig.cs" />
         <Compile Include="Video\VideoConfigBackCompat.cs" />
@@ -203,6 +204,7 @@
 		<EmbeddedResource Include="Resources\configs.json" />
 		<EmbeddedResource Include="Resources\bscinema.bundle" />
 		<EmbeddedResource Include="VideoMenu\Views\video-menu.bsml" />
+		<EmbeddedResource Include="VideoMenu\Views\level-detail.bsml" />
 	</ItemGroup>
 
 	<ItemGroup>
