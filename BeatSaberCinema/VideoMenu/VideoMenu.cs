@@ -292,6 +292,11 @@ namespace BeatSaberCinema
 
 		public void SetupLevelDetailView(VideoConfig videoConfig)
 		{
+			if (videoConfig != _currentVideo)
+			{
+				return;
+			}
+
 			switch (videoConfig.DownloadState)
 			{
 				case DownloadState.Downloaded:
