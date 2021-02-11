@@ -187,6 +187,10 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			//Hide delete config button for mapper-made configs
+			var officialConfig = _currentVideo.configByMapper == true && !_currentVideo.IsWIPLevel;
+			_deleteButton.gameObject.SetActive(!officialConfig);
+
 			switch (_currentVideo.DownloadState)
 			{
 				case DownloadState.Downloading:
