@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Timers;
+using IPA.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -14,8 +15,8 @@ namespace BeatSaberCinema
 {
 	public class DownloadController
 	{
-		private readonly string _youtubeDLFilepath = Environment.CurrentDirectory + "\\Libs\\youtube-dl.exe";
-		private readonly string _ffmpegFilepath = Environment.CurrentDirectory + "\\Libs\\ffmpeg.exe";
+		private readonly string _youtubeDLFilepath = Path.Combine(UnityGame.LibraryPath, "youtube-dl.exe");
+		private readonly string _ffmpegFilepath = Path.Combine(UnityGame.LibraryPath, "ffmpeg.exe");
 		public readonly List<YTResult> SearchResults = new List<YTResult>();
 		private Coroutine? _searchCoroutine;
 		private Process? _searchProcess;
@@ -369,7 +370,7 @@ namespace BeatSaberCinema
 			{
 				StartInfo =
 				{
-					FileName = Environment.CurrentDirectory + "\\Libs\\youtube-dl.exe",
+					FileName = _youtubeDLFilepath,
 					Arguments = "https://www.youtube.com/watch?v=" + video.videoID +
 					            $" -f \"{VideoQuality.ToYoutubeDLFormat(SettingsStore.Instance.QualityMode)}\"" + // Formats
 					            " --no-cache-dir" + // Don't use temp storage
