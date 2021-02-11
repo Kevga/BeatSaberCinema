@@ -1,6 +1,6 @@
 ﻿<!--suppress CheckTagEmptyBody -->
 <bg id='level-detail-root' anchor-min-x='0' anchor-min-y='1' child-expand-width="true" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-    <horizontal horizontal-fit='PreferredSize' align='Center' child-expand-width="true" spacing="8">
+    <horizontal horizontal-fit='PreferredSize' align='Center' child-expand-width="true" spacing="6">
         <text id='level-detail-text' font-size='3' align='Left' italics="true" text='Video available'></text>
         <button id='level-detail-button' font-size='3' text='Download Video' on-click='level-detail-button-action'/>
     </horizontal>

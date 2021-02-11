@@ -533,6 +533,7 @@ namespace BeatSaberCinema
 				default:
 					VideoLoader.DeleteVideo(_currentVideo);
 					SetupLevelDetailView(_currentVideo);
+					LevelDetailMenu.RefreshContent();
 					break;
 			}
 
