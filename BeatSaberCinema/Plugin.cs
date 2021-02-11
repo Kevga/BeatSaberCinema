@@ -13,7 +13,7 @@ namespace BeatSaberCinema
 	public class Plugin
 	{
 		private const string HARMONY_ID = "com.github.kevga.cinema";
-		private const string CAPABILITY = "Cinema";
+		internal const string CAPABILITY = "Cinema";
 		private Harmony _harmonyInstance = null!;
 		public static bool Enabled;
 

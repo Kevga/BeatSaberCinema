@@ -64,7 +64,7 @@ namespace BeatSaberCinema
 		}
 
 		private VideoMenuStatus _menuStatus = null!;
-		private LevelDetailViewController _levelDetailViewController = null!;
+		public LevelDetailViewController LevelDetailMenu = null!;
 		private bool _videoMenuInitialized;
 
 		private IPreviewBeatmapLevel? _currentLevel;
@@ -77,8 +77,8 @@ namespace BeatSaberCinema
 
 		public void Init()
 		{
-			_levelDetailViewController = new LevelDetailViewController();
-			_levelDetailViewController.buttonPressed += OnDeleteVideoAction;
+			LevelDetailMenu = new LevelDetailViewController();
+			LevelDetailMenu.ButtonPressedAction += OnDeleteVideoAction;
 			CreateStatusListener();
 			_deleteButton.transform.localScale *= 0.5f;
 			_searchKeyboard.clearOnOpen = false;
@@ -227,7 +227,7 @@ namespace BeatSaberCinema
 		public void SetupVideoDetails()
 		{
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
-			_levelDetailViewController.SetActive(false);
+			LevelDetailMenu.SetActive(false);
 
 			if (_currentVideo == null || !_downloadController.LibrariesAvailable())
 			{
@@ -291,22 +291,22 @@ namespace BeatSaberCinema
 			switch (videoConfig.DownloadState)
 			{
 				case DownloadState.Downloaded:
-					_levelDetailViewController.SetText("Video ready!", null, Color.green);
+					LevelDetailMenu.SetText("Video ready!", null, Color.green);
 					break;
 				case DownloadState.Downloading:
-					_levelDetailViewController.SetActive(true);
+					LevelDetailMenu.SetActive(true);
 					var text = $"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress*100).ToString()}%)";
-					_levelDetailViewController.SetText(text, "Cancel", Color.yellow, Color.red);
+					LevelDetailMenu.SetText(text, "Cancel", Color.yellow, Color.red);
 					break;
 				case DownloadState.NotDownloaded when videoConfig.IsStreamable:
 					break;
 				case DownloadState.NotDownloaded:
-					_levelDetailViewController.SetActive(true);
-					_levelDetailViewController.SetText("Video available", "Download Video", null, Color.green);
+					LevelDetailMenu.SetActive(true);
+					LevelDetailMenu.SetText("Video available", "Download Video", null, Color.green);
 					break;
 				case DownloadState.Cancelled:
-					_levelDetailViewController.SetActive(true);
-					_levelDetailViewController.SetText("Download cancelled", "Download Video", Color.red,Color.green);
+					LevelDetailMenu.SetActive(true);
+					LevelDetailMenu.SetText("Download cancelled", "Download Video", Color.red,Color.green);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -489,7 +489,8 @@ namespace BeatSaberCinema
 			}
 
 			SetupVideoDetails();
-			_levelDetailViewController.SetActive(true);
+			LevelDetailMenu.SetActive(true);
+			LevelDetailMenu.RefreshContent();
 		}
 
 		public void ShowKeyboard()

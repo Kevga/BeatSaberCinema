@@ -12,20 +12,21 @@ using Object = UnityEngine.Object;
 namespace BeatSaberCinema
 {
 	[UsedImplicitly]
-	internal class LevelDetailViewController
+	public class LevelDetailViewController
 	{
 		[UIObject("level-detail-root")] private readonly GameObject _root = null!;
 		[UIComponent("level-detail-button")] private readonly Button _button = null!;
 		[UIComponent("level-detail-button")] private readonly TextMeshProUGUI _buttonText = null!;
 		[UIComponent("level-detail-text")] private readonly TextMeshProUGUI _label = null!;
 		private readonly Image _buttonUnderline;
+		private readonly StandardLevelDetailViewController _standardLevelDetailViewController;
 
-		internal Action? buttonPressed;
+		internal Action? ButtonPressedAction;
 
 		internal LevelDetailViewController()
 		{
-			var standardLevelDetailViewController = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().Last();
-			BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCinema.VideoMenu.Views.level-detail.bsml"), standardLevelDetailViewController.transform.Find("LevelDetail").gameObject, this);
+			_standardLevelDetailViewController = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().Last();
+			BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCinema.VideoMenu.Views.level-detail.bsml"), _standardLevelDetailViewController.transform.Find("LevelDetail").gameObject, this);
 			var rectTransform = _root.GetComponent<RectTransform>();
 			rectTransform.offsetMin = new Vector2(0.8f, -46.6f);
 			rectTransform.offsetMax = new Vector2(-2.9f, -41.2f);
@@ -33,7 +34,7 @@ namespace BeatSaberCinema
 			_buttonUnderline = _button.transform.Find("Underline").gameObject.GetComponent<Image>();
 
 			//Clone background from level difficulty selection
-			var bg = standardLevelDetailViewController.transform.Find("LevelDetail").Find("BeatmapDifficulty").Find("BG");
+			var bg = _standardLevelDetailViewController.transform.Find("LevelDetail").Find("BeatmapDifficulty").Find("BG");
 			Object.Instantiate(bg, _root.transform);
 		}
 
@@ -53,9 +54,14 @@ namespace BeatSaberCinema
 
 		[UIAction("level-detail-button-action")]
 		[UsedImplicitly]
-		private void ButtonPressed()
+		private void OnButtonPress()
 		{
-			buttonPressed?.Invoke();
+			ButtonPressedAction?.Invoke();
+		}
+
+		public void RefreshContent()
+		{
+			_standardLevelDetailViewController.RefreshContentLevelDetailView();
 		}
 	}
 }
