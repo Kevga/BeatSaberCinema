@@ -296,7 +296,7 @@ namespace BeatSaberCinema
 					var trackLaneRings = sceneObjectList.Where(x => x.name.Contains("PanelsTrackLaneRing") && x.activeInHierarchy);
 					foreach (var ring in trackLaneRings)
 					{
-						ring.transform.localScale = new Vector3(3.5f, 3.5f, 1f);
+						ring.transform.localScale = new Vector3(5f, 5f, 1f);
 					}
 					break;
 				}
