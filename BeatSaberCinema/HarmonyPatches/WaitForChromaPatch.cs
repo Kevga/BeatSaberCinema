@@ -6,8 +6,7 @@ using UnityEngine;
 
 namespace BeatSaberCinema
 {
-	[HarmonyPatch(typeof(LightSwitchEventEffect))]
-	[HarmonyPatch("Start")]
+	[HarmonyPatch(typeof(LightSwitchEventEffect), nameof(LightSwitchEventEffect.Start))]
 	[UsedImplicitly]
 	internal static class LightSwitchEventEffectStart
 	{

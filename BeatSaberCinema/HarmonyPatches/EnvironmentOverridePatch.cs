@@ -7,7 +7,7 @@ using UnityEngine;
 namespace BeatSaberCinema
 {
 	[HarmonyBefore("com.kyle1413.BeatSaber.BS-Utils")]
-	[HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), "Init")]
+	[HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init))]
 	[UsedImplicitly]
 	// ReSharper disable once InconsistentNaming
 	internal static class StandardLevelScenesTransitionSetupDataSOInit

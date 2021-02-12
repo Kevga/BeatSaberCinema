@@ -9,8 +9,7 @@ using UnityEngine;
 namespace BeatSaberCinema
 {
 	[HarmonyAfter("com.kyle1413.BeatSaber.SongCore")]
-	[HarmonyPatch(typeof(StandardLevelDetailView))]
-	[HarmonyPatch("RefreshContent", MethodType.Normal)]
+	[HarmonyPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.RefreshContent))]
 	[UsedImplicitly]
 	public class StandardLevelDetailViewRefreshContent
 	{

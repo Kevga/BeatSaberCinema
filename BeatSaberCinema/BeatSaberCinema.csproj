@@ -67,6 +67,9 @@
 		<Reference Include="BGNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll</HintPath>
 		</Reference>
+		<Reference Include="Colors, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
+		</Reference>
 		<Reference Include="CustomJSONData">
 			<HintPath>$(BeatSaberDir)\Plugins\CustomJSONData.dll</HintPath>
 		</Reference>

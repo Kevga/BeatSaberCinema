@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 // ReSharper disable once InconsistentNaming
 namespace BeatSaberCinema
 {
-	[HarmonyPatch(typeof(AudioTimeSyncController), "Start")]
+	[HarmonyPatch(typeof(AudioTimeSyncController), nameof(AudioTimeSyncController.Start))]
 	[UsedImplicitly]
 
 	internal static class AudioTimeSyncControllerStart
