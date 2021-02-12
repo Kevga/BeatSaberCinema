@@ -102,9 +102,10 @@ namespace BeatSaberCinema
 			{
 				bloomPrePass = Resources.FindObjectsOfTypeAll<BloomPrePass>().First(x => x.name == camera.name);
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
 				_bloomPrePassDict.Add(camera, null);
+				Log.Debug(e);
 				return;
 			}
 
@@ -229,7 +230,7 @@ namespace BeatSaberCinema
 			UpdateMesh();
 		}
 
-		private void OnEnable() {
+		private void OnWillRenderObject() {
 			CameraRenderCallbacksManager.RegisterForCameraCallbacks(Camera.current, this);
 		}
 
