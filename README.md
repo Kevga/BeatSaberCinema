@@ -12,11 +12,12 @@ Additionally, the following plugins are **required** for Cinema to work:
 - BSIPA
 - BeatSaberMarkupLanguage
 - BS Utils
+- SongCore
 
 You can find all of these in ModAssistant.
 
 ### 2. Download Pre-Configured Maps (*optional*)
-The plugin includes more than 70 video configurations for you to try. Here are a few examples:
+The plugin includes more than 90 video configurations for custom maps for you to try, as well as a few configs for DLC and OST songs. Here are some examples:
 
 - [Madeon - The Prince \[Bearly & dgrj4life\]](https://beatsaver.com/beatmap/110ac)
 - [2WEI feat. Edda Hayes - Warriors \[halcyon12\]](https://beatsaver.com/beatmap/8e98)
@@ -27,7 +28,7 @@ The plugin includes more than 70 video configurations for you to try. Here are a
 - [K/DA - MORE \[DACK\]](https://beatsaver.com/beatmap/1059c)
 - [BLACKPINK - Kill This Love \[aggrogahu\]](https://beatsaver.com/beatmap/46be)
 
-A playlist file (.bplist) with all pre-configured maps can be found [here](https://raw.githubusercontent.com/Kevga/BeatSaberCinema/master/Resources/cinema.bplist). Right-click the link and click `Save link as...` to download the file and save it in `Beat Saber\Playlists`. You can then use a mod like PlaylistManager to access it in game.
+A playlist file (.bplist) with all pre-configured maps is included in the release of the mod and can additionally also be found [here](https://raw.githubusercontent.com/Kevga/BeatSaberCinema/master/Resources/cinema.bplist). Right-click the link and click `Save link as...` to download the file and save it in `Beat Saber\Playlists`. You can then use a mod like PlaylistManager to access it in game.
 
 A readable full list of maps with videos (without download links) can be found [here](Resources/bundled-configs.txt).
 
@@ -50,6 +51,8 @@ Cinema is also compatible with video configs created with MusicVideoPlayer. Howe
 *This section is intended for mappers*
 
 If you want to add a video to your map, you can simply set it up in the game from the WIP maps section. Refer to the section [Downloading Videos](https://github.com/Kevga/BeatSaberCinema#3-downloading-videos) for details on how to do that. The video configuration will be stored in the same folder as the map itself, in a file called **cinema-video.json**. You can include the json file in the zip file you upload to BeatSaver. **Please do not include the actual video file, the users will download that themselves from YouTube.**
+
+If you add a video config, please consider adding "Cinema" as a suggestion in your map editor to let people know they can improve their experience by installing the mod. If your Cinema integration is an essential part of your map, you can also add "Cinema" as a requirement, in which case the map will only be playable if Cinema is installed and the video is downloaded.
 
 You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments (Big Mirror, Origins, KDA, Rocket, BTS, Dragons, Linkin Park) to make the video screen fit in seamlessly. If your chosen environment is not yet supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
 
