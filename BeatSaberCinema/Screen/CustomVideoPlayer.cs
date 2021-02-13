@@ -103,13 +103,13 @@ namespace BeatSaberCinema
 			Player.started += VideoPlayerStarted;
 
 			//TODO PanStereo does not work as expected with this AudioSource. Panning fully to one side is still slightly audible in the other.
-			_videoPlayerAudioSource = gameObject.AddComponent<AudioSource>();
-			_videoPlayerAudioSource.reverbZoneMix = 0;
-			_videoPlayerAudioSource.spatialize = false;
-			_videoPlayerAudioSource.spatialBlend = 0.0f;
-			_videoPlayerAudioSource.playOnAwake = false;
+			_videoPlayerAudioSource = PlaybackController.Instance.InstantiateAudioSourceFromPrefab();
 			Player.audioOutputMode = VideoAudioOutputMode.AudioSource;
 			Player.SetTargetAudioSource(0, _videoPlayerAudioSource);
+
+			_videoPlayerAudioSource.reverbZoneMix = 0f;
+			_videoPlayerAudioSource.playOnAwake = false;
+			_videoPlayerAudioSource.spatialize = false;
 
 			BSEvents.menuSceneLoaded += SetDefaultMenuPlacement;
 			SetDefaultMenuPlacement();
@@ -357,7 +357,7 @@ namespace BeatSaberCinema
 
 		public void Unmute()
 		{
-			Volume = 0.50f;
+			Volume = 0.45f;
 		}
 
 		public void SetScreenDistance(float value)

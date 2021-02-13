@@ -712,7 +712,7 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		private void OnPreviewAction()
 		{
-			StartCoroutine(PlaybackController.Instance.StartPreviewCoroutine());
+			PlaybackController.Instance.StartPreview();
 			SetButtonState(true);
 		}
 

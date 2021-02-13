@@ -6,9 +6,9 @@ using System.Linq;
 using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
+using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.Video;
-using ReflectionUtil = IPA.Utilities.ReflectionUtil;
 
 namespace BeatSaberCinema
 {
@@ -17,7 +17,7 @@ namespace BeatSaberCinema
 		private enum Scene { Gameplay, Menu, Other }
 
 		public static PlaybackController Instance { get; private set; } = null!;
-		private static GameObject PlaybackControllerGameObject = null!;
+		private static GameObject _playbackControllerGameObject = null!;
 		private IPreviewBeatmapLevel? _currentLevel;
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
@@ -30,9 +30,61 @@ namespace BeatSaberCinema
 		public VideoConfig? VideoConfig { get; private set; }
 
 		public bool IsPreviewPlaying { get; private set; }
-		public float PanStereo
+
+		private SongPreviewPlayer? PreviewPlayer
 		{
-			set => VideoPlayer.PanStereo = value;
+			get
+			{
+				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+				if (_songPreviewPlayer != null && _songPreviewAudioSources != null)
+				{
+					return _songPreviewPlayer;
+				}
+
+				try
+				{
+					_songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().Last();
+					_songPreviewAudioSources = _songPreviewPlayer.GetField<AudioSource[], SongPreviewPlayer>("_audioSources");
+					return _songPreviewPlayer;
+				}
+				catch (Exception e)
+				{
+					Log.Debug("SongPreviewPlayer or AudioSources not found: ");
+					Log.Warn(e);
+				}
+
+				return null;
+			}
+		}
+
+		private AudioSource? ActivePreviewAudioSource
+		{
+			get
+			{
+				if (PreviewPlayer == null)
+				{
+					Log.Debug("PreviewPlayer is null");
+					return null;
+				}
+
+				try
+				{
+					var activeChannel = PreviewPlayer.GetField<int, SongPreviewPlayer>("_activeChannel");
+					if (activeChannel == -1)
+					{
+						return null;
+					}
+
+					_activeAudioSource = _songPreviewAudioSources![activeChannel];
+					return _activeAudioSource;
+				}
+				catch (Exception e)
+				{
+					Log.Warn(e);
+				}
+
+				return null;
+			}
 		}
 
 		public static void Create()
@@ -42,8 +94,8 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			PlaybackControllerGameObject = new GameObject("CinemaPlaybackController");
-			PlaybackControllerGameObject.AddComponent<PlaybackController>();
+			_playbackControllerGameObject = new GameObject("CinemaPlaybackController");
+			_playbackControllerGameObject.AddComponent<PlaybackController>();
 		}
 
 		public static void Destroy()
@@ -55,7 +107,7 @@ namespace BeatSaberCinema
 			Instance.StopPreview(true);
 
 			Destroy(Instance);
-			Destroy(PlaybackControllerGameObject);
+			Destroy(_playbackControllerGameObject);
 		}
 
 		private void Start()
@@ -220,17 +272,12 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private async void CrossfadePreviewPlayer(IPreviewBeatmapLevel level, float startTime)
-		{
-			_songPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(level), startTime, level.songDuration, 0.65f);
-		}
-
-		public IEnumerator StartPreviewCoroutine()
+		public async void StartPreview()
 		{
 			if (VideoConfig == null || _currentLevel == null)
 			{
 				Log.Warn("No video or level selected in OnPreviewAction");
-				yield break;
+				return;
 			}
 			if (IsPreviewPlaying)
 			{
@@ -253,12 +300,19 @@ namespace BeatSaberCinema
 					startTime = -VideoConfig.GetOffsetInSec();
 				}
 
-				CrossfadePreviewPlayer(_currentLevel, startTime);
+				if (PreviewPlayer == null)
+				{
+					Log.Error("Failed to get reference to SongPreviewPlayer during preview");
+					return;
+				}
+
+				const float previewPlayerVolume = 0.8f;
+				PreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), startTime, _currentLevel.songDuration, previewPlayerVolume);
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
 				SetAudioSourcePanning(0.85f);
 				StartCoroutine(PlayVideoAfterAudioSourceCoroutine(true));
-				PanStereo = -1f; // -1 is hard left
+				VideoPlayer.PanStereo = -1f; // -1 is hard left
 				VideoPlayer.Unmute();
 			}
 		}
@@ -269,9 +323,9 @@ namespace BeatSaberCinema
 			VideoPlayer.Hide();
 			StopAllCoroutines();
 
-			if (stopPreviewMusic && IsPreviewPlaying)
+			if (stopPreviewMusic && IsPreviewPlaying && PreviewPlayer != null)
 			{
-				_songPreviewPlayer.FadeOut();
+				PreviewPlayer.FadeOut();
 			}
 
 			IsPreviewPlaying = false;
@@ -288,22 +342,18 @@ namespace BeatSaberCinema
 			VideoPlayer.Stop();
 			VideoPlayer.Hide();
 			StopAllCoroutines();
+			_songPreviewPlayer = null!;
 
 			if (VideoConfig != null)
 			{
 				PrepareVideo(VideoConfig);
 			}
+		}
 
-			try
-			{
-				_songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First();
-				_songPreviewAudioSources = ReflectionUtil.GetField<AudioSource[], SongPreviewPlayer>(_songPreviewPlayer,"_audioSources");
-			}
-			catch (Exception e)
-			{
-				Log.Debug("SongPreviewPlayer or AudioSources not found: ");
-				Log.Warn(e);
-			}
+		public AudioSource InstantiateAudioSourceFromPrefab()
+		{
+			var prefab = PreviewPlayer!.GetField<AudioSource, SongPreviewPlayer>("_audioSourcePrefab");
+			return Instantiate(prefab, transform);
 		}
 
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)
@@ -452,13 +502,18 @@ namespace BeatSaberCinema
 
 		private IEnumerator PlayVideoAfterAudioSourceCoroutine(bool preview)
 		{
-			var startTime = 0f;
+			float startTime;
 
 			if (!preview)
 			{
 				yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
 				var syncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
 				_activeAudioSource = syncController.audioSource;
+			}
+
+			if (_activeAudioSource == null)
+			{
+				_activeAudioSource = ActivePreviewAudioSource;
 			}
 
 			if (_activeAudioSource != null)
@@ -469,6 +524,8 @@ namespace BeatSaberCinema
 			else
 			{
 				Log.Warn("Active AudioSource was null, cannot wait for it to start");
+				StopPreview(true);
+				yield break;
 			}
 
 			PlayVideo(startTime);
@@ -478,10 +535,16 @@ namespace BeatSaberCinema
 		{
 			try
 			{
+				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+				if (_songPreviewAudioSources == null)
+				{
+					return;
+				}
+				var activeAudioSource = ActivePreviewAudioSource;
+
 				// If resetting the panning back to neutral (0f), set all audio sources.
 				// Otherwise only change the active channel.
-				var activeChannel = ReflectionUtil.GetField<int, SongPreviewPlayer>(_songPreviewPlayer, "_activeChannel");
-				if (pan == 0f || activeChannel > _songPreviewAudioSources.Length - 1)
+				if (pan == 0f || activeAudioSource == null)
 				{
 					foreach (var source in _songPreviewAudioSources)
 					{
@@ -493,13 +556,7 @@ namespace BeatSaberCinema
 				}
 				else
 				{
-					if (_songPreviewAudioSources[activeChannel] == null)
-					{
-						return;
-					}
-
-					_activeAudioSource = _songPreviewAudioSources[activeChannel];
-					_activeAudioSource.panStereo = pan;
+					activeAudioSource.panStereo = pan;
 				}
 			}
 			catch (Exception e)
