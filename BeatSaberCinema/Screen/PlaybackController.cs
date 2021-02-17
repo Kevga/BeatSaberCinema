@@ -24,6 +24,8 @@ namespace BeatSaberCinema
 		private SongPreviewPlayer _songPreviewPlayer = null!;
 		private AudioSource[] _songPreviewAudioSources = null!;
 		private AudioSource? _activeAudioSource;
+		private AudioTimeSyncController? _timeSyncController;
+		private float _initialPlaybackSpeed = 1.0f;
 		private float _lastKnownAudioSourceTime;
 		private Scene _activeScene = Scene.Other;
 
@@ -254,8 +256,12 @@ namespace BeatSaberCinema
 			//Sync if the error exceeds a threshold, but not if the video is close to the looping point
 			if (Math.Abs(error) > 0.3f && Math.Abs(VideoPlayer.VideoDuration - playerTime) > 0.5f && VideoPlayer.IsPlaying)
 			{
-				Log.Debug($"Detected desync (reference {referenceTime}, actual {playerTime}), resyncing...");
-				ResyncVideo();
+				//Audio can intentionally go out of sync when the level fails for example. Don't resync the video in that case.
+				if (_timeSyncController != null && !_timeSyncController.forcedNoAudioSync)
+				{
+					Log.Debug($"Detected desync (reference {referenceTime}, actual {playerTime}), resyncing...");
+					ResyncVideo();
+				}
 			}
 
 			_lastKnownAudioSourceTime = audioSourceTime;
@@ -269,6 +275,21 @@ namespace BeatSaberCinema
 			if (!_activeAudioSource.isPlaying)
 			{
 				_activeAudioSource.Play();
+			}
+		}
+
+		private void Update()
+		{
+			//This is triggered when the level failed
+			if (VideoPlayer.IsPlaying && _timeSyncController != null && _activeAudioSource != null && _timeSyncController.forcedNoAudioSync)
+			{
+				//Slow down video playback in-line with audio playback
+				var pitch = _activeAudioSource.pitch;
+				VideoPlayer.PlaybackSpeed = pitch;
+
+				//Slowly fade out video player
+				var pitchPercentage = pitch / _initialPlaybackSpeed;
+				VideoPlayer.ScreenColor = Color.white.ColorWithAlpha(0f) * CustomVideoPlayer.SCREEN_BRIGHTNESS * pitchPercentage;
 			}
 		}
 
@@ -507,8 +528,8 @@ namespace BeatSaberCinema
 			if (!preview)
 			{
 				yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
-				var syncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
-				_activeAudioSource = syncController.audioSource;
+				_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
+				_activeAudioSource = _timeSyncController.audioSource;
 			}
 
 			if (_activeAudioSource == null)
@@ -601,7 +622,7 @@ namespace BeatSaberCinema
 				}
 			}
 
-			VideoPlayer.Player.playbackSpeed = songSpeed;
+			VideoPlayer.PlaybackSpeed = _initialPlaybackSpeed = songSpeed;
 			totalOffset += startTime; //This must happen after song speed adjustment
 
 			if (songSpeed < 1f && totalOffset > 0f)

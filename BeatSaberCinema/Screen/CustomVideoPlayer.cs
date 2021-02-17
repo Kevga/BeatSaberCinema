@@ -30,7 +30,7 @@ namespace BeatSaberCinema
 
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
 
-		private const float SCREEN_BRIGHTNESS = 0.92f;
+		public const float SCREEN_BRIGHTNESS = 0.92f;
 		private readonly Color _screenColorOn = Color.white.ColorWithAlpha(0f) * SCREEN_BRIGHTNESS;
 		private readonly Color _screenColorOff = Color.clear;
 		private static readonly int MainTex = Shader.PropertyToID(MAIN_TEXTURE_NAME);
@@ -47,6 +47,12 @@ namespace BeatSaberCinema
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
 		private float _correctPlaybackSpeed = 1.0f;
+
+		public Color ScreenColor
+		{
+			get => _screenRenderer.material.color;
+			set => _screenRenderer.material.color = value;
+		}
 
 		public float PlaybackSpeed
 		{
@@ -205,7 +211,7 @@ namespace BeatSaberCinema
 			_firstFrameStopwatch.Stop();
 			Log.Debug("Delay from Play() to first frame: "+_firstFrameStopwatch.ElapsedMilliseconds+" ms");
 			_firstFrameStopwatch.Reset();
-			SetScreenColor(_screenColorOn);
+			ScreenColor = _screenColorOn;
 			_screen.SetAspectRatio(GetVideoAspectRatio());
 			Player.frameReady -= FrameReady;
 		}
@@ -251,18 +257,13 @@ namespace BeatSaberCinema
 		public void Stop()
 		{
 			Player.Stop();
-			SetScreenColor(_screenColorOff);
+			ScreenColor = _screenColorOff;
 			SetStaticTexture(null);
 		}
 
 		public void Prepare()
 		{
 			Player.Prepare();
-		}
-
-		public void SetScreenColor(Color color)
-		{
-			_screenRenderer.material.color = color;
 		}
 
 		public void SetShaderParameters(VideoConfig config)
@@ -312,7 +313,7 @@ namespace BeatSaberCinema
 			var width = ((float) texture.width / texture.height) * _defaultCoverHeight;
 			SetTexture(texture);
 			SetPlacement(_defaultCoverPosition, _defaultCoverRotation, width, _defaultCoverHeight);
-			SetScreenColor(_screenColorOn);
+			ScreenColor = _screenColorOn;
 		}
 
 		private static void VideoPlayerPrepareComplete(VideoPlayer source)
