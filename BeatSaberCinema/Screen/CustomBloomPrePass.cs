@@ -105,6 +105,7 @@ namespace BeatSaberCinema
 			catch (Exception e)
 			{
 				_bloomPrePassDict.Add(camera, null);
+				Log.Info($"Failed to find BloomPrePass for camera {camera.name}");
 				Log.Debug(e);
 				return;
 			}
@@ -150,8 +151,9 @@ namespace BeatSaberCinema
 
 		private void ApplyBloomEffect(Camera camera)
 		{
-			//TODO Fix this instead of skipping. Current workaround is to use CameraPlus instead. Investigate what BloomPrePassRendererSO does differently
-			if (camera.name == "SmoothCamera")
+			//TODO Fix SmoothCamera instead of skipping. Current workaround is to use CameraPlus instead. Investigate what BloomPrePassRendererSO does differently
+			//Mirror cam has no BloomPrePass
+			if (camera.name == "SmoothCamera" || camera.name.StartsWith("MirrorCam"))
 			{
 				return;
 			}
