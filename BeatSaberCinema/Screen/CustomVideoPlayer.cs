@@ -33,6 +33,7 @@ namespace BeatSaberCinema
 		public const float SCREEN_BRIGHTNESS = 0.92f;
 		private readonly Color _screenColorOn = Color.white.ColorWithAlpha(0f) * SCREEN_BRIGHTNESS;
 		private readonly Color _screenColorOff = Color.clear;
+		private readonly MaterialPropertyBlock _materialPropertyBlock;
 		private static readonly int MainTex = Shader.PropertyToID(MAIN_TEXTURE_NAME);
 		private static readonly int Brightness = Shader.PropertyToID("_Brightness");
 		private static readonly int Contrast = Shader.PropertyToID("_Contrast");
@@ -94,6 +95,7 @@ namespace BeatSaberCinema
 			CreateScreen();
 			_screenRenderer = _screen.GetRenderer();
 			_screenRenderer.material = new Material(GetShader()) {color = _screenColorOff};
+			_materialPropertyBlock = new MaterialPropertyBlock();
 
 			Player = gameObject.AddComponent<VideoPlayer>();
 			Player.source = VideoSource.Url;
@@ -271,6 +273,8 @@ namespace BeatSaberCinema
 			var colorCorrection = config.colorCorrection;
 			var vignette = config.vignette;
 
+			_screenRenderer.GetPropertyBlock(_materialPropertyBlock);
+
 			SetShaderFloat(Brightness, colorCorrection?.brightness, 0f,   2f, 1f);
 			SetShaderFloat(Contrast,   colorCorrection?.contrast,   0f,   5f, 1f);
 			SetShaderFloat(Saturation, colorCorrection?.saturation, 0f,   5f, 1f);
@@ -281,12 +285,14 @@ namespace BeatSaberCinema
 			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, 1f);
 			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, 0.005f);
 
-			_screenRenderer.material.SetInt(VignetteElliptical, vignette?.type == "oval" || vignette?.type == "elliptical" || vignette?.type == "ellipse" ? 1 : 0);
+			_materialPropertyBlock.SetInt(VignetteElliptical, vignette?.type == "oval" || vignette?.type == "elliptical" || vignette?.type == "ellipse" ? 1 : 0);
+
+			_screenRenderer.SetPropertyBlock(_materialPropertyBlock);
 		}
 
 		private void SetShaderFloat(int nameID, float? value, float min, float max, float defaultValue)
 		{
-			_screenRenderer.material.SetFloat(nameID, Math.Min(max, Math.Max(min, value ?? defaultValue)));
+			_materialPropertyBlock.SetFloat(nameID, Math.Min(max, Math.Max(min, value ?? defaultValue)));
 		}
 
 		public void Update()
