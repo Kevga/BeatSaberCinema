@@ -268,10 +268,10 @@ namespace BeatSaberCinema
 			Player.Prepare();
 		}
 
-		public void SetShaderParameters(VideoConfig config)
+		public void SetShaderParameters(VideoConfig? config)
 		{
-			var colorCorrection = config.colorCorrection;
-			var vignette = config.vignette;
+			var colorCorrection = config?.colorCorrection;
+			var vignette = config?.vignette;
 
 			_screenRenderer.GetPropertyBlock(_materialPropertyBlock);
 
@@ -318,6 +318,7 @@ namespace BeatSaberCinema
 
 			var width = ((float) texture.width / texture.height) * _defaultCoverHeight;
 			SetTexture(texture);
+			SetShaderParameters(null);
 			SetPlacement(_defaultCoverPosition, _defaultCoverRotation, width, _defaultCoverHeight);
 			ScreenColor = _screenColorOn;
 		}
