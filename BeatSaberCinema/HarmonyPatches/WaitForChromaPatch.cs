@@ -23,6 +23,11 @@ namespace BeatSaberCinema
 			//If we run before Chroma, the prop groups will get different IDs than usual due to the changed z-positions.
 			yield return new WaitForEndOfFrame();
 			yield return new WaitForEndOfFrame();
+
+			//Turns out CustomPlatforms runs even later and undoes some of the scene modifications Cinema does. Waiting for a specific duration is more of a temporary fix.
+			//TODO Find a better way to implement this. The problematic coroutine in CustomPlatforms is CustomFloorPlugin.EnvironmentHider+<InternalHideObjectsForPlatform>
+			yield return new WaitForSeconds(0.3f);
+
 			EnvironmentController.ModifyGameScene(PlaybackController.Instance.VideoConfig);
 		}
 	}
