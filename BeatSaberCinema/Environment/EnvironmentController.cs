@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using IPA.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -502,6 +503,18 @@ namespace BeatSaberCinema
 				foreach (Transform child in clone.transform)
 				{
 					RegisterLight(child.GetComponent<LightWithIdMonoBehaviour>(), lm);
+				}
+
+				var mirror = clone.GetComponent<Mirror>();
+				if (mirror != null)
+				{
+					Log.Debug("Cloned a mirror surface");
+					var originalMirrorRenderer = mirror.GetField<MirrorRendererSO, Mirror>("_mirrorRenderer");
+					var originalMaterial = mirror.GetField<Material, Mirror>("_mirrorMaterial");
+					var clonedMirrorRenderer = Object.Instantiate(originalMirrorRenderer);
+					var clonedMaterial = Object.Instantiate(originalMaterial);
+					mirror.SetField("_mirrorRenderer", clonedMirrorRenderer);
+					mirror.SetField("_mirrorMaterial", clonedMaterial);
 				}
 
 				cloneCounter++;
