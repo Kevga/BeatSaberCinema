@@ -297,6 +297,12 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			//This is the case if the map only uses environment modifications
+			if (_currentVideo.videoID == null)
+			{
+				return;
+			}
+
 			switch (videoConfig.DownloadState)
 			{
 				case DownloadState.Downloaded:
