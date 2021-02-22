@@ -493,8 +493,10 @@ namespace BeatSaberCinema
 				//If the object has no position specified, add a position that reverts the z-offset
 				objectToBeCloned.position ??= position;
 
-				clone.name = objectToBeCloned.name + CLONED_OBJECT_NAME_SUFFIX;
-				objectToBeCloned.name = clone.name;
+				if (!clone.name.EndsWith(CLONED_OBJECT_NAME_SUFFIX))
+				{
+					clone.name = objectToBeCloned.name + CLONED_OBJECT_NAME_SUFFIX;
+				}
 
 				RegisterLight(clone.GetComponent<LightWithIdMonoBehaviour>(), lm);
 				foreach (Transform child in clone.transform)
