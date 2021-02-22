@@ -31,7 +31,10 @@ namespace BeatSaberCinema
 			_environmentModified = true;
 			Log.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName);
 
-			PlaybackController.Instance.PrepareVideo(videoConfig);
+			if (!PlaybackController.Instance.VideoPlayer.IsPlaying)
+			{
+				PlaybackController.Instance.PrepareVideo(videoConfig);
+			}
 
 			try
 			{
