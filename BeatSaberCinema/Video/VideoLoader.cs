@@ -20,6 +20,7 @@ namespace BeatSaberCinema
 		private const string WIP_DIRECTORY_NAME = "CustomWIPLevels";
 		private const string CONFIG_FILENAME = "cinema-video.json";
 		private const string CONFIG_FILENAME_MVP = "video.json";
+		private const string MOD_ID_MVP = "Music Video Player";
 
 		private static FileSystemWatcher? _fileSystemWatcher;
 		public static event Action<VideoConfig?>? ConfigChanged;
@@ -212,9 +213,9 @@ namespace BeatSaberCinema
 
 			VideoConfig? videoConfig;
 			var results = Directory.GetFiles(levelPath, CONFIG_FILENAME, SearchOption.AllDirectories);
-			if (results.Length == 0)
+			if (results.Length == 0 && !Util.IsModInstalled(MOD_ID_MVP))
 			{
-				//Back compatiblity with MVP configs
+				//Back compatiblity with MVP configs, but only if MVP is not installed
 				results = Directory.GetFiles(levelPath, CONFIG_FILENAME_MVP, SearchOption.AllDirectories);
 			}
 
