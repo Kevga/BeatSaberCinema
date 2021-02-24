@@ -1,7 +1,6 @@
 ﻿using System;
-// These events are primarily for other mods to use, so they have no usages in this code base and need to be public
-// ReSharper disable UnassignedField.Global
-// ReSharper disable MemberCanBePrivate.Global
+// These events are primarily for other mods to use, so they have no usages in this code base
+// ReSharper disable EventNeverSubscribedTo.Global
 
 namespace BeatSaberCinema
 {
@@ -11,13 +10,13 @@ namespace BeatSaberCinema
 		/// Indicates if Cinema will be doing something on the upcoming song (either play a video or modify the scene).
 		/// Will be invoked as soon as the scene transition to the gameplay scene is initiated.
 		/// </summary>
-		public static Action<bool>? CinemaActivated;
+		public static event Action<bool>? CinemaActivated;
 
 		/// <summary>
 		/// Used by CustomPlatforms to detect whether or not a custom platform should be loaded.
 		/// Will be invoked as soon as the scene transition to the gameplay scene is initiated.
 		/// </summary>
-		public static Action<bool>? AllowCustomPlatform;
+		public static event Action<bool>? AllowCustomPlatform;
 
 		internal static void InvokeSceneTransitionEvents(VideoConfig? videoConfig)
 		{
