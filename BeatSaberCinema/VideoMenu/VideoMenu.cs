@@ -429,7 +429,6 @@ namespace BeatSaberCinema
 			try
 			{
 				PlaybackController.Instance.StopPreview(true);
-				PlaybackController.Instance.VideoPlayer.Hide();
 			}
 			catch (Exception exception)
 			{

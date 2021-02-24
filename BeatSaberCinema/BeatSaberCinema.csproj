@@ -189,6 +189,7 @@
         <Compile Include="Settings\SettingsUI.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="Settings\VideoQuality.cs" />
+        <Compile Include="Util\EasingController.cs" />
         <Compile Include="Util\Events.cs" />
         <Compile Include="Util\Log.cs" />
         <Compile Include="Util\SerializableVector3.cs" />

@@ -15,6 +15,7 @@ namespace BeatSaberCinema
 		private readonly AudioSource _videoPlayerAudioSource;
 		private Screen _screen = null!;
 		private readonly Renderer _screenRenderer;
+		private readonly EasingController _fadeController;
 
 		private readonly Vector3 _defaultGameplayPosition = new Vector3(0, 12.4f, 67.8f);
 		private readonly Vector3 _defaultGameplayRotation = new Vector3(-8, 0, 0);
@@ -30,8 +31,8 @@ namespace BeatSaberCinema
 
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
 
-		public const float SCREEN_BRIGHTNESS = 0.92f;
-		private readonly Color _screenColorOn = Color.white.ColorWithAlpha(0f) * SCREEN_BRIGHTNESS;
+		private const float MAX_BRIGHTNESS = 0.92f;
+		public readonly Color ScreenColorOn = Color.white.ColorWithAlpha(0f) * MAX_BRIGHTNESS;
 		private readonly Color _screenColorOff = Color.clear;
 		private readonly MaterialPropertyBlock _materialPropertyBlock;
 		private static readonly int MainTex = Shader.PropertyToID(MAIN_TEXTURE_NAME);
@@ -48,6 +49,9 @@ namespace BeatSaberCinema
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
 		private float _correctPlaybackSpeed = 1.0f;
+		private const float MAX_VOLUME = 0.45f;
+		private bool _muted = true;
+		private bool _bodyVisible;
 
 		public Color ScreenColor
 		{
@@ -87,6 +91,7 @@ namespace BeatSaberCinema
 		}
 
 		public bool IsPlaying => Player.isPlaying;
+		public bool IsFading => _fadeController.IsFading;
 		public bool IsPrepared => Player.isPrepared;
 		[NonSerialized] public bool IsSyncing;
 
@@ -119,6 +124,9 @@ namespace BeatSaberCinema
 			_videoPlayerAudioSource.playOnAwake = false;
 			_videoPlayerAudioSource.spatialize = false;
 
+			_fadeController = new EasingController();
+			_fadeController.EasingUpdate += FadeControllerUpdate;
+
 			BSEvents.menuSceneLoaded += SetDefaultMenuPlacement;
 			SetDefaultMenuPlacement();
 		}
@@ -126,6 +134,7 @@ namespace BeatSaberCinema
 		public void OnDestroy()
 		{
 			BSEvents.menuSceneLoaded -= SetDefaultMenuPlacement;
+			_fadeController.EasingUpdate -= FadeControllerUpdate;
 		}
 
 		private IEnumerator ReloadShaderCoroutine(string path)
@@ -183,6 +192,29 @@ namespace BeatSaberCinema
 			IsSyncing = false;
 		}
 
+		public void FadeControllerUpdate(float value)
+		{
+			ScreenColor = ScreenColorOn * value;
+			if (!_muted)
+			{
+				Volume = MAX_VOLUME * value;
+			}
+
+			if (value >= 1 && _bodyVisible)
+			{
+				_screen.ShowBody();
+			}
+			else
+			{
+				_screen.HideBody();
+			}
+
+			if (value == 0)
+			{
+				Stop();
+			}
+		}
+
 		public void SetDefaultMenuPlacement()
 		{
 			SetPlacement(_menuPosition, _menuRotation, _menuHeight * (21f/9f), _menuHeight);
@@ -198,7 +230,7 @@ namespace BeatSaberCinema
 				curvatureDegrees);
 		}
 
-		private void FrameReady(VideoPlayer player, long frame)
+		private void FirstFrameReady(VideoPlayer player, long frame)
 		{
 			//This is done because the video screen material needs to be set to white, otherwise no video would be visible.
 			//When no video is playing, we want it to be black though to not blind the user.
@@ -210,12 +242,12 @@ namespace BeatSaberCinema
 			}
 
 			_waitForFirstFrame = false;
+			FadeIn();
 			_firstFrameStopwatch.Stop();
 			Log.Debug("Delay from Play() to first frame: "+_firstFrameStopwatch.ElapsedMilliseconds+" ms");
 			_firstFrameStopwatch.Reset();
-			ScreenColor = _screenColorOn;
 			_screen.SetAspectRatio(GetVideoAspectRatio());
-			Player.frameReady -= FrameReady;
+			Player.frameReady -= FirstFrameReady;
 		}
 
 		public void SetBloomIntensity(float? bloomIntensity)
@@ -225,29 +257,41 @@ namespace BeatSaberCinema
 
 		public void Show()
 		{
+			FadeIn(0);
+		}
+
+		public void FadeIn(float duration = 0.4f)
+		{
 			_screen.Show();
+			_fadeController.EaseIn(duration);
 		}
 
 		public void Hide()
 		{
-			_screen.Hide();
+			FadeOut(0);
+		}
+
+		public void FadeOut(float duration = 0.4f)
+		{
+			_fadeController.EaseOut(duration);
 		}
 
 		public void ShowScreenBody()
 		{
-			_screen.ShowBody();
+			_bodyVisible = true;
 		}
 
 		public void HideScreenBody()
 		{
-			_screen.HideBody();
+			_bodyVisible = false;
 		}
 
 		public void Play()
 		{
+			Log.Debug("Starting playback, waiting for first frame...");
 			_waitForFirstFrame = true;
 			_firstFrameStopwatch.Start();
-			Player.frameReady += FrameReady;
+			Player.frameReady += FirstFrameReady;
 			Player.Play();
 		}
 
@@ -256,10 +300,9 @@ namespace BeatSaberCinema
 			Player.Pause();
 		}
 
-		public void Stop()
+		private void Stop()
 		{
 			Player.Stop();
-			ScreenColor = _screenColorOff;
 			SetStaticTexture(null);
 		}
 
@@ -320,7 +363,7 @@ namespace BeatSaberCinema
 			SetTexture(texture);
 			SetShaderParameters(null);
 			SetPlacement(_defaultCoverPosition, _defaultCoverRotation, width, _defaultCoverHeight);
-			ScreenColor = _screenColorOn;
+			FadeIn();
 		}
 
 		private static void VideoPlayerPrepareComplete(VideoPlayer source)
@@ -360,12 +403,13 @@ namespace BeatSaberCinema
 
 		public void Mute()
 		{
-			Volume = 0;
+			_muted = true;
+			Volume = 0f;
 		}
 
 		public void Unmute()
 		{
-			Volume = 0.45f;
+			_muted = false;
 		}
 
 		public void SetScreenDistance(float value)

@@ -22,10 +22,9 @@ namespace BeatSaberCinema
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
 		private SongPreviewPlayer _songPreviewPlayer = null!;
-		private AudioSource[] _songPreviewAudioSources = null!;
+		private AudioSource[]? _songPreviewAudioSources;
 		private AudioSource? _activeAudioSource;
 		private AudioTimeSyncController? _timeSyncController;
-		private float _initialPlaybackSpeed = 1.0f;
 		private float _lastKnownAudioSourceTime;
 		private Scene _activeScene = Scene.Other;
 
@@ -37,7 +36,6 @@ namespace BeatSaberCinema
 		{
 			get
 			{
-				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
 				if (_songPreviewPlayer != null && _songPreviewAudioSources != null)
 				{
 					return _songPreviewPlayer;
@@ -205,7 +203,7 @@ namespace BeatSaberCinema
 
 		public void FrameReady(VideoPlayer videoPlayer, long frame)
 		{
-			if (_activeAudioSource == null)
+			if (_activeAudioSource == null || VideoPlayer.IsFading)
 			{
 				return;
 			}
@@ -235,7 +233,7 @@ namespace BeatSaberCinema
 			if (frame % 120 == 0)
 			{
 				Log.Debug("Frame: " + frame + " - Player: " + Util.FormatFloat((float) playerTime) + " - AudioSource: " +
-				                    Util.FormatFloat(audioSourceTime) + " - Error (ms): " + Math.Round(error * 1000));
+				          Util.FormatFloat(audioSourceTime) + " - Error (ms): " + Math.Round(error * 1000));
 			}
 
 			if (VideoConfig.endVideoAt != null)
@@ -288,8 +286,7 @@ namespace BeatSaberCinema
 				VideoPlayer.PlaybackSpeed = pitch;
 
 				//Slowly fade out video player
-				var pitchPercentage = pitch / _initialPlaybackSpeed;
-				VideoPlayer.ScreenColor = Color.white.ColorWithAlpha(0f) * CustomVideoPlayer.SCREEN_BRIGHTNESS * pitchPercentage;
+				VideoPlayer.FadeOut(1f);
 			}
 		}
 
@@ -340,8 +337,13 @@ namespace BeatSaberCinema
 
 		public void StopPreview(bool stopPreviewMusic)
 		{
+			if (!IsPreviewPlaying)
+			{
+				return;
+			}
+
 			StopPlayback();
-			VideoPlayer.Hide();
+			VideoPlayer.FadeOut();
 			StopAllCoroutines();
 
 			if (stopPreviewMusic && IsPreviewPlaying && PreviewPlayer != null)
@@ -360,7 +362,6 @@ namespace BeatSaberCinema
 			Log.Debug("MenuSceneLoaded");
 			_activeScene = Scene.Menu;
 			EnvironmentController.Reset();
-			VideoPlayer.Stop();
 			VideoPlayer.Hide();
 			StopAllCoroutines();
 			_songPreviewPlayer = null!;
@@ -389,7 +390,7 @@ namespace BeatSaberCinema
 
 			if (config == null)
 			{
-				VideoPlayer.Stop();
+				VideoPlayer.Hide();
 				return;
 			}
 
@@ -436,7 +437,7 @@ namespace BeatSaberCinema
 
 		public void SetSelectedLevel(IPreviewBeatmapLevel level, VideoConfig? config)
 		{
-			VideoPlayer.Stop();
+			VideoPlayer.FadeOut();
 			_currentLevel = level;
 			VideoConfig = config;
 			Log.Debug($"Selected Level: {level.levelID}");
@@ -556,7 +557,6 @@ namespace BeatSaberCinema
 		{
 			try
 			{
-				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
 				if (_songPreviewAudioSources == null)
 				{
 					return;
@@ -593,7 +593,6 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			VideoPlayer.Show();
 			VideoPlayer.IsSyncing = false;
 
 			if ((VideoConfig.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
@@ -622,7 +621,7 @@ namespace BeatSaberCinema
 				}
 			}
 
-			VideoPlayer.PlaybackSpeed = _initialPlaybackSpeed = songSpeed;
+			VideoPlayer.PlaybackSpeed = songSpeed;
 			totalOffset += startTime; //This must happen after song speed adjustment
 
 			if (songSpeed < 1f && totalOffset > 0f)
@@ -696,7 +695,6 @@ namespace BeatSaberCinema
 				_lastKnownAudioSourceTime = _activeAudioSource.time;
 			}
 
-			VideoPlayer.Show();
 			VideoPlayer.Play();
 		}
 
@@ -761,7 +759,7 @@ namespace BeatSaberCinema
 
 		public void StopPlayback()
 		{
-			VideoPlayer.Stop();
+			VideoPlayer.FadeOut();
 		}
 
 		public void SetScreenDistance(float value)
