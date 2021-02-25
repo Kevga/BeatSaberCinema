@@ -100,7 +100,7 @@ namespace BeatSaberCinema
 			BloomPrePass bloomPrePass;
 			try
 			{
-				bloomPrePass = Resources.FindObjectsOfTypeAll<BloomPrePass>().First(x => x.name == camera.name);
+				bloomPrePass = camera.GetComponent<BloomPrePass>();
 			}
 			catch (Exception e)
 			{
