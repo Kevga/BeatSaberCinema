@@ -92,7 +92,7 @@ namespace BeatSaberCinema
 			_videoDetailsViewRect.gameObject.SetActive(false);
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
 
-			BSEvents.levelSelected += HandleDidSelectLevel;
+			Events.LevelSelected += HandleDidSelectLevel;
 
 			_downloadController.SearchProgress += SearchProgress;
 			_downloadController.SearchFinished += SearchFinished;
@@ -374,10 +374,10 @@ namespace BeatSaberCinema
 			}
 
 			Log.Debug($"Setting level to {level.levelID}");
-			HandleDidSelectLevel(null, level);
+			HandleDidSelectLevel(level);
 		}
 
-		public void HandleDidSelectLevel(LevelCollectionViewController? sender, IPreviewBeatmapLevel level)
+		public void HandleDidSelectLevel(IPreviewBeatmapLevel level)
 		{
 			if (!Plugin.Enabled)
 			{

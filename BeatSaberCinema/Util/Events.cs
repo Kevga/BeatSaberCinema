@@ -18,6 +18,11 @@ namespace BeatSaberCinema
 		/// </summary>
 		public static event Action<bool>? AllowCustomPlatform;
 
+		/// <summary>
+		/// Informs about the selected level in Solo or Party mode. Is fired a bit earlier than the BSEvents event.
+		/// </summary>
+		public static Action<IPreviewBeatmapLevel>? LevelSelected;
+
 		internal static void InvokeSceneTransitionEvents(VideoConfig? videoConfig)
 		{
 			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || videoConfig == null)
