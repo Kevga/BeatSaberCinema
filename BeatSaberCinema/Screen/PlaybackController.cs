@@ -650,6 +650,13 @@ namespace BeatSaberCinema
 				totalOffset %= VideoPlayer.VideoDuration;
 			}
 
+			//This fixes an issue where the Unity video player sometimes ignores a change in the .time property if the time is very small and the player is currently playing
+			if (totalOffset < 0.01f)
+			{
+				totalOffset = 0;
+				Log.Debug("Set very small offset to 0");
+			}
+
 			Log.Debug($"Total offset: {totalOffset}, startTime: {startTime}, songSpeed: {songSpeed}, player time: {VideoPlayer.Player.time}");
 
 			StopAllCoroutines();
