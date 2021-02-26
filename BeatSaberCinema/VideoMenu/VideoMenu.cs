@@ -167,7 +167,7 @@ namespace BeatSaberCinema
 
 		}
 
-		private void SetButtonState(bool state)
+		public void SetButtonState(bool state)
 		{
 			_previewButton.interactable = state;
 			_deleteButton.interactable = state;

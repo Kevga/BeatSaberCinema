@@ -27,6 +27,13 @@ namespace BeatSaberCinema
 		private AudioTimeSyncController? _timeSyncController;
 		private float _lastKnownAudioSourceTime;
 		private Scene _activeScene = Scene.Other;
+		private Coroutine? _previewFadeOutCoroutine;
+		private float _previewStartTime;
+		private float _previewTimeRemaining;
+		private bool _previewWaitingForVideoPlayer = true;
+		private bool _previewWaitingForPreviewPlayer = true;
+		private DateTime _previewSyncStartTime;
+		private bool _previewIgnoreNextUpdate;
 
 		public VideoConfig? VideoConfig { get; private set; }
 
@@ -50,36 +57,6 @@ namespace BeatSaberCinema
 				catch (Exception e)
 				{
 					Log.Debug("SongPreviewPlayer or AudioSources not found: ");
-					Log.Warn(e);
-				}
-
-				return null;
-			}
-		}
-
-		private AudioSource? ActivePreviewAudioSource
-		{
-			get
-			{
-				if (PreviewPlayer == null)
-				{
-					Log.Debug("PreviewPlayer is null");
-					return null;
-				}
-
-				try
-				{
-					var activeChannel = PreviewPlayer.GetField<int, SongPreviewPlayer>("_activeChannel");
-					if (activeChannel == -1)
-					{
-						return null;
-					}
-
-					_activeAudioSource = _songPreviewAudioSources![activeChannel];
-					return _activeAudioSource;
-				}
-				catch (Exception e)
-				{
 					Log.Warn(e);
 				}
 
@@ -128,6 +105,7 @@ namespace BeatSaberCinema
 			BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
 			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
 			VideoLoader.ConfigChanged += OnConfigChanged;
+			VideoPlayer.Player.prepareCompleted += OnPrepareComplete;
 			DontDestroyOnLoad(gameObject);
 
 			//The event handler is registered after the event is first fired, so we'll have to call the handler ourselves
@@ -174,7 +152,24 @@ namespace BeatSaberCinema
 			_activeAudioSource.Pause();
 
 			ResyncVideo();
+			VideoPlayer.Player.frameReady += PlayerStartedAfterResync;
 			Log.Debug("Applying offset: "+offset);
+		}
+
+		private void PlayerStartedAfterResync(VideoPlayer player, long frame)
+		{
+			VideoPlayer.Player.frameReady -= PlayerStartedAfterResync;
+			if (_activeAudioSource == null)
+			{
+				Log.Warn("Active audio source was null in frame ready after resync");
+				return;
+			}
+
+			VideoPlayer.IsSyncing = false;
+			if (!_activeAudioSource.isPlaying)
+			{
+				_activeAudioSource.Play();
+			}
 		}
 
 		public void ResyncVideo()
@@ -203,12 +198,19 @@ namespace BeatSaberCinema
 
 		public void FrameReady(VideoPlayer videoPlayer, long frame)
 		{
-			if (_activeAudioSource == null || VideoPlayer.IsFading)
+			if (_activeAudioSource == null)
 			{
 				return;
 			}
 
 			var audioSourceTime = _activeAudioSource.time;
+			_lastKnownAudioSourceTime = audioSourceTime;
+
+			if (VideoPlayer.IsFading)
+			{
+				return;
+			}
+
 			var playerTime = VideoPlayer.Player.time;
 			var referenceTime = audioSourceTime + (VideoConfig!.offset / 1000f);
 			if (VideoPlayer.VideoDuration > 0)
@@ -217,15 +219,7 @@ namespace BeatSaberCinema
 			}
 			var error = referenceTime - playerTime;
 
-			if (audioSourceTime == 0 && !_activeAudioSource.isPlaying && IsPreviewPlaying && !VideoPlayer.IsSyncing)
-			{
-				Log.Debug("Preview AudioSource detected to have stopped playing");
-				StopPreview(false);
-				VideoMenu.instance.SetupVideoDetails();
-				PrepareVideo(VideoConfig);
-			}
-
-			if (!_activeAudioSource.isPlaying && !VideoPlayer.IsSyncing)
+			if (!_activeAudioSource.isPlaying)
 			{
 				return;
 			}
@@ -261,19 +255,6 @@ namespace BeatSaberCinema
 					ResyncVideo();
 				}
 			}
-
-			_lastKnownAudioSourceTime = audioSourceTime;
-
-			if (!VideoPlayer.IsSyncing)
-			{
-				return;
-			}
-
-			VideoPlayer.IsSyncing = false;
-			if (!_activeAudioSource.isPlaying)
-			{
-				_activeAudioSource.Play();
-			}
 		}
 
 		private void Update()
@@ -304,10 +285,17 @@ namespace BeatSaberCinema
 			}
 			else
 			{
+				Log.Debug("Starting preview");
 				IsPreviewPlaying = true;
+
+				if (VideoPlayer.IsPlaying)
+				{
+					StopPlayback();
+				}
+
 				if (!VideoPlayer.IsPrepared)
 				{
-					Log.Info("Not Prepped yet");
+					Log.Info("Video not prepared yet");
 				}
 
 				//Start the preview at the point the video kicks in
@@ -325,6 +313,7 @@ namespace BeatSaberCinema
 				}
 
 				const float previewPlayerVolume = 0.8f;
+				_previewIgnoreNextUpdate = true;
 				PreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), startTime, _currentLevel.songDuration, previewPlayerVolume);
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
@@ -341,20 +330,24 @@ namespace BeatSaberCinema
 			{
 				return;
 			}
+			Log.Debug($"Stopping preview (stop audio source: {stopPreviewMusic}");
 
 			StopPlayback();
 			VideoPlayer.FadeOut();
 			StopAllCoroutines();
 
-			if (stopPreviewMusic && IsPreviewPlaying && PreviewPlayer != null)
+			if (stopPreviewMusic && PreviewPlayer != null)
 			{
-				PreviewPlayer.FadeOut();
+				PreviewPlayer.CrossfadeToDefault();
+				VideoPlayer.Mute();
 			}
 
 			IsPreviewPlaying = false;
 
 			SetAudioSourcePanning(0f); //0f is neutral
 			VideoPlayer.Mute();
+
+			VideoMenu.instance.SetButtonState(true);
 		}
 
 		private void OnMenuSceneLoaded()
@@ -365,6 +358,8 @@ namespace BeatSaberCinema
 			VideoPlayer.Hide();
 			StopAllCoroutines();
 			_songPreviewPlayer = null!;
+			_previewWaitingForPreviewPlayer = true;
+			_previewWaitingForVideoPlayer = true;
 
 			if (VideoConfig != null)
 			{
@@ -437,13 +432,16 @@ namespace BeatSaberCinema
 
 		public void SetSelectedLevel(IPreviewBeatmapLevel level, VideoConfig? config)
 		{
-			VideoPlayer.FadeOut();
+			_previewWaitingForPreviewPlayer = true;
+			_previewWaitingForVideoPlayer = true;
+
 			_currentLevel = level;
 			VideoConfig = config;
 			Log.Debug($"Selected Level: {level.levelID}");
 
 			if (VideoConfig == null)
 			{
+				VideoPlayer.FadeOut();
 				return;
 			}
 
@@ -533,11 +531,6 @@ namespace BeatSaberCinema
 				_activeAudioSource = _timeSyncController.audioSource;
 			}
 
-			if (_activeAudioSource == null)
-			{
-				_activeAudioSource = ActivePreviewAudioSource;
-			}
-
 			if (_activeAudioSource != null)
 			{
 				yield return new WaitUntil(() => _activeAudioSource.isPlaying);
@@ -561,11 +554,10 @@ namespace BeatSaberCinema
 				{
 					return;
 				}
-				var activeAudioSource = ActivePreviewAudioSource;
 
 				// If resetting the panning back to neutral (0f), set all audio sources.
 				// Otherwise only change the active channel.
-				if (pan == 0f || activeAudioSource == null)
+				if (pan == 0f || _activeAudioSource == null)
 				{
 					foreach (var source in _songPreviewAudioSources)
 					{
@@ -577,7 +569,7 @@ namespace BeatSaberCinema
 				}
 				else
 				{
-					activeAudioSource.panStereo = pan;
+					_activeAudioSource.panStereo = pan;
 				}
 			}
 			catch (Exception e)
@@ -651,7 +643,7 @@ namespace BeatSaberCinema
 			}
 
 			//This fixes an issue where the Unity video player sometimes ignores a change in the .time property if the time is very small and the player is currently playing
-			if (totalOffset < 0.01f)
+			if (Math.Abs(totalOffset) < 0.001f)
 			{
 				totalOffset = 0;
 				Log.Debug("Set very small offset to 0");
@@ -675,7 +667,7 @@ namespace BeatSaberCinema
 				}
 				else
 				{
-					//In previews we start at the point where the video kicks in
+					//In menus we don't need to wait, instead the preview player starts earlier
 					VideoPlayer.Play();
 				}
 			}
@@ -708,7 +700,7 @@ namespace BeatSaberCinema
 		private IEnumerator? _prepareVideoCoroutine;
 		public void PrepareVideo(VideoConfig video)
 		{
-			if(_prepareVideoCoroutine != null)
+			if (_prepareVideoCoroutine != null)
 			{
 				StopCoroutine(_prepareVideoCoroutine);
 			}
@@ -764,6 +756,41 @@ namespace BeatSaberCinema
 			VideoPlayer.Prepare();
 		}
 
+		private void OnPrepareComplete(VideoPlayer player)
+		{
+			if (_activeScene == Scene.Menu)
+			{
+				_previewWaitingForVideoPlayer = false;
+				StartSongPreview();
+			}
+		}
+
+		private void StartPreviewFadeOutCoroutine(float timeRemaining)
+		{
+			StopPreviewFadeOutCoroutine();
+			_previewTimeRemaining = timeRemaining;
+			_previewFadeOutCoroutine = StartCoroutine(PreviewFadeOutCoroutine());
+		}
+
+		private void StopPreviewFadeOutCoroutine()
+		{
+			if (_previewFadeOutCoroutine != null)
+			{
+				StopCoroutine(_previewFadeOutCoroutine);
+			}
+		}
+
+		private IEnumerator PreviewFadeOutCoroutine()
+		{
+			while (_previewTimeRemaining > 0)
+			{
+				_previewTimeRemaining -= Time.deltaTime;
+				yield return null;
+			}
+
+			VideoPlayer.FadeOut(1.0f);
+		}
+
 		public void StopPlayback()
 		{
 			VideoPlayer.FadeOut();
@@ -777,6 +804,79 @@ namespace BeatSaberCinema
 		public void SceneTransitionInitCalled()
 		{
 			Events.InvokeSceneTransitionEvents(VideoConfig);
+		}
+
+		public void UpdateSongPreviewPlayer(AudioSource activeAudioSource, float startTime, float timeRemaining)
+		{
+			_activeAudioSource = activeAudioSource;
+
+			if (_previewIgnoreNextUpdate)
+			{
+				Log.Debug("Ignoring SongPreviewPlayer update");
+				_previewIgnoreNextUpdate = false;
+				return;
+			}
+
+			if (_activeScene == Scene.Gameplay)
+			{
+				return;
+			}
+
+			if (timeRemaining <= 0 || VideoConfig == null || !VideoConfig.IsPlayable)
+			{
+				VideoPlayer.FadeOut(1f);
+				if (IsPreviewPlaying)
+				{
+					StopPreview(false);
+					Log.Debug("Detected end of SongPreviewPlayer during preview");
+				}
+
+				return;
+			}
+
+
+			_previewStartTime = startTime;
+			_previewTimeRemaining = timeRemaining;
+			_previewSyncStartTime = DateTime.Now;
+			_previewWaitingForPreviewPlayer = false;
+			StartSongPreview();
+		}
+
+		private void StartSongPreview()
+		{
+			if (VideoConfig == null || !VideoConfig.IsPlayable)
+			{
+				return;
+			}
+
+			//This allows the short 3-second-preview for the practice offset to play
+			if ((_previewWaitingForPreviewPlayer || _previewWaitingForVideoPlayer) && Math.Abs(_previewTimeRemaining - 3) > 0.001f)
+			{
+				return;
+			}
+
+			if (_currentLevel != null && VideoLoader.IsDlcSong(_currentLevel))
+			{
+				return;
+			}
+
+			StopPreviewFadeOutCoroutine();
+
+			var delayMS = (DateTime.Now - _previewSyncStartTime).Milliseconds;
+
+			//This is the case if the video preparation took longer than the SongPreviewPlayer.
+			//If the player is instructed to play immediately after preparing, the playback start seems to be delayed by about 2 frames, so we add 67 ms in that case
+			if (delayMS > 1)
+			{
+				delayMS += 67;
+				Log.Debug("Adjusting for SongPreview delay (in ms): "+delayMS);
+			}
+			var delaySeconds = delayMS / 1000f;
+
+			PlayVideo(_previewStartTime + delaySeconds);
+			StartPreviewFadeOutCoroutine(_previewTimeRemaining - delaySeconds);
+			_previewWaitingForPreviewPlayer = true;
+			_previewWaitingForVideoPlayer = true;
 		}
 	}
 }

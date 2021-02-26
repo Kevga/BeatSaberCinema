@@ -46,12 +46,14 @@ namespace BeatSaberCinema
 		private static readonly int VignetteSoftness = Shader.PropertyToID("_VignetteSoftness");
 		private static readonly int VignetteElliptical = Shader.PropertyToID("_VignetteOval");
 		private bool _waitForFirstFrame;
+		private string _currentlyPlayingVideo = "";
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
 		private float _correctPlaybackSpeed = 1.0f;
 		private const float MAX_VOLUME = 0.45f;
 		private bool _muted = true;
 		private bool _bodyVisible;
+		private bool _waitingForFadeOut;
 
 		public Color ScreenColor
 		{
@@ -119,6 +121,7 @@ namespace BeatSaberCinema
 			_videoPlayerAudioSource = PlaybackController.Instance.InstantiateAudioSourceFromPrefab();
 			Player.audioOutputMode = VideoAudioOutputMode.AudioSource;
 			Player.SetTargetAudioSource(0, _videoPlayerAudioSource);
+			Mute();
 
 			_videoPlayerAudioSource.reverbZoneMix = 0f;
 			_videoPlayerAudioSource.playOnAwake = false;
@@ -209,7 +212,7 @@ namespace BeatSaberCinema
 				_screen.HideBody();
 			}
 
-			if (value == 0)
+			if (value == 0 && Player.url == _currentlyPlayingVideo && _waitingForFadeOut)
 			{
 				Stop();
 			}
@@ -260,9 +263,10 @@ namespace BeatSaberCinema
 			FadeIn(0);
 		}
 
-		public void FadeIn(float duration = 0.4f)
+		public void FadeIn(float duration = 0.6f)
 		{
 			_screen.Show();
+			_waitingForFadeOut = false;
 			_fadeController.EaseIn(duration);
 		}
 
@@ -271,8 +275,9 @@ namespace BeatSaberCinema
 			FadeOut(0);
 		}
 
-		public void FadeOut(float duration = 0.4f)
+		public void FadeOut(float duration = 0.6f)
 		{
+			_waitingForFadeOut = true;
 			_fadeController.EaseOut(duration);
 		}
 
@@ -289,6 +294,7 @@ namespace BeatSaberCinema
 		public void Play()
 		{
 			Log.Debug("Starting playback, waiting for first frame...");
+			_waitingForFadeOut = false;
 			_waitForFirstFrame = true;
 			_firstFrameStopwatch.Start();
 			Player.frameReady += FirstFrameReady;
@@ -302,12 +308,14 @@ namespace BeatSaberCinema
 
 		private void Stop()
 		{
+			Log.Debug("Stopping playback");
 			Player.Stop();
 			SetStaticTexture(null);
 		}
 
 		public void Prepare()
 		{
+			_waitingForFadeOut = false;
 			Player.Prepare();
 		}
 
@@ -373,9 +381,11 @@ namespace BeatSaberCinema
 			Log.Debug($"Video resolution: {texture.width}x{texture.height}");
 		}
 
-		private static void VideoPlayerStarted(VideoPlayer source)
+		private void VideoPlayerStarted(VideoPlayer source)
 		{
 			Log.Debug("Video player started event");
+			_currentlyPlayingVideo = source.url;
+			_waitingForFadeOut = false;
 		}
 
 		private static void VideoPlayerErrorReceived(VideoPlayer source, string message)
