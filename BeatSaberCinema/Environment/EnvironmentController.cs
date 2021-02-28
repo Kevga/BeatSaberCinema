@@ -17,7 +17,8 @@ namespace BeatSaberCinema
 
 		public static void ModifyGameScene(VideoConfig? videoConfig)
 		{
-			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || videoConfig == null || (!videoConfig.IsPlayable && videoConfig.forceEnvironmentModifications == false))
+			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || videoConfig == null ||
+			    (!videoConfig.IsPlayable && (videoConfig.forceEnvironmentModifications == null || videoConfig.forceEnvironmentModifications == false)))
 			{
 				return;
 			}
