@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using BS_Utils.Utilities;
+using UnityEngine;
 
 namespace BeatSaberCinema
 {
@@ -57,6 +60,18 @@ namespace BeatSaberCinema
 		public static bool IsModInstalled(string modName)
 		{
 			return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName);
+		}
+
+		public static Texture? LoadPNGFromResources(string resourcePath) {
+				byte[] fileData = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), resourcePath);
+				if (fileData.Length <= 0)
+				{
+					return null;
+				}
+
+				var tex = new Texture2D(2, 2);
+				tex.LoadImage(fileData);
+				return tex;
 		}
 	}
 }

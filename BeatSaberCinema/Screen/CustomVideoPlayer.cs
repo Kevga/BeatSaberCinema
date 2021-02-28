@@ -130,13 +130,13 @@ namespace BeatSaberCinema
 			_fadeController = new EasingController();
 			_fadeController.EasingUpdate += FadeControllerUpdate;
 
-			BSEvents.menuSceneLoaded += SetDefaultMenuPlacement;
+			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
 			SetDefaultMenuPlacement();
 		}
 
 		public void OnDestroy()
 		{
-			BSEvents.menuSceneLoaded -= SetDefaultMenuPlacement;
+			BSEvents.menuSceneLoaded -= OnMenuSceneLoaded;
 			_fadeController.EasingUpdate -= FadeControllerUpdate;
 		}
 
@@ -218,9 +218,14 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public void SetDefaultMenuPlacement()
+		public void OnMenuSceneLoaded()
 		{
-			SetPlacement(_menuPosition, _menuRotation, _menuHeight * (21f/9f), _menuHeight);
+			SetDefaultMenuPlacement();
+		}
+
+		public void SetDefaultMenuPlacement(float? width = null)
+		{
+			SetPlacement(_menuPosition, _menuRotation, width ?? _menuHeight * (21f/9f), _menuHeight);
 		}
 
 		public void SetPlacement(SerializableVector3? position, SerializableVector3? rotation, float? width = null, float? height = null, float? curvatureDegrees = null)
@@ -284,11 +289,19 @@ namespace BeatSaberCinema
 		public void ShowScreenBody()
 		{
 			_bodyVisible = true;
+			if (!_fadeController.IsFading && _fadeController.IsOne)
+			{
+				_screen.ShowBody();
+			}
 		}
 
 		public void HideScreenBody()
 		{
 			_bodyVisible = false;
+			if (!_fadeController.IsFading)
+			{
+				_screen.HideBody();
+			}
 		}
 
 		public void Play()
@@ -306,7 +319,7 @@ namespace BeatSaberCinema
 			Player.Pause();
 		}
 
-		private void Stop()
+		public void Stop()
 		{
 			Log.Debug("Stopping playback");
 			Player.Stop();
@@ -359,6 +372,20 @@ namespace BeatSaberCinema
 			_screen.GetRenderer().material.SetTexture(MainTex, texture);
 		}
 
+		public void SetCoverTexture(Texture? texture)
+		{
+			if (texture == null)
+			{
+				SetTexture(texture);
+				return;
+			}
+
+			SetStaticTexture(texture);
+
+			var width = ((float) texture.width / texture.height) * _defaultCoverHeight;
+			SetPlacement(_defaultCoverPosition, _defaultCoverRotation, width, _defaultCoverHeight);
+		}
+
 		public void SetStaticTexture(Texture? texture)
 		{
 			if (texture == null)
@@ -367,10 +394,10 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			var width = ((float) texture.width / texture.height) * _defaultCoverHeight;
 			SetTexture(texture);
+			var width = ((float) texture.width / texture.height) * _menuHeight;
+			SetDefaultMenuPlacement(width);
 			SetShaderParameters(null);
-			SetPlacement(_defaultCoverPosition, _defaultCoverRotation, width, _defaultCoverHeight);
 			FadeIn();
 		}
 

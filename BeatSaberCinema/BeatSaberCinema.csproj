@@ -210,6 +210,7 @@
 		<EmbeddedResource Include="Resources\trash.png" />
 		<EmbeddedResource Include="Resources\configs.json" />
 		<EmbeddedResource Include="Resources\bscinema.bundle" />
+		<EmbeddedResource Include="Resources\beat-saber-logo-landscape.png" />
 		<EmbeddedResource Include="VideoMenu\Views\video-menu.bsml" />
 		<EmbeddedResource Include="VideoMenu\Views\level-detail.bsml" />
 	</ItemGroup>

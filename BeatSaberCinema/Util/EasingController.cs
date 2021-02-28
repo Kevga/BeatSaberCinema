@@ -15,6 +15,9 @@ namespace BeatSaberCinema
 		public event Action<float>? EasingUpdate;
 
 		public bool IsFading => _isEasing;
+		public bool IsOne => Math.Abs(_easingValue - 1f) < 0.00001f;
+		public bool IsZero => _easingValue == 0;
+		public float Value => _easingValue;
 
 		public EasingController(float initialValue = 0f)
 		{

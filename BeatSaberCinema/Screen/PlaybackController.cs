@@ -332,7 +332,6 @@ namespace BeatSaberCinema
 			}
 			Log.Debug($"Stopping preview (stop audio source: {stopPreviewMusic}");
 
-			StopPlayback();
 			VideoPlayer.FadeOut();
 			StopAllCoroutines();
 
@@ -459,7 +458,7 @@ namespace BeatSaberCinema
 			try
 			{
 				var coverSprite = await _currentLevel.GetCoverImageAsync(new CancellationToken());
-				VideoPlayer.SetStaticTexture(coverSprite.texture);
+				VideoPlayer.SetCoverTexture(coverSprite.texture);
 				VideoPlayer.Show();
 
 				if (!SettingsStore.Instance.TransparencyEnabled)
@@ -490,6 +489,9 @@ namespace BeatSaberCinema
 				VideoPlayer.Hide();
 				return;
 			}
+
+			StopPlayback();
+			VideoPlayer.Hide();
 
 			if (BS_Utils.Plugin.LevelData.Mode == Mode.None)
 			{
@@ -705,7 +707,6 @@ namespace BeatSaberCinema
 				StopCoroutine(_prepareVideoCoroutine);
 			}
 
-			StopPlayback();
 			_prepareVideoCoroutine = PrepareVideoCoroutine(video);
 			StartCoroutine(_prepareVideoCoroutine);
 		}
@@ -793,7 +794,8 @@ namespace BeatSaberCinema
 
 		public void StopPlayback()
 		{
-			VideoPlayer.FadeOut();
+			VideoPlayer.Stop();
+			StopPreviewFadeOutCoroutine();
 		}
 
 		public void SetScreenDistance(float value)
@@ -825,6 +827,7 @@ namespace BeatSaberCinema
 			if (timeRemaining <= 0 || VideoConfig == null || !VideoConfig.IsPlayable)
 			{
 				VideoPlayer.FadeOut(1f);
+				StopPreviewFadeOutCoroutine();
 				if (IsPreviewPlaying)
 				{
 					StopPreview(false);
@@ -834,6 +837,11 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			if (_currentLevel != null && _currentLevel.songDuration < startTime)
+			{
+				Log.Debug("Song preview start time was greater than song duration. Resetting start time to 0");
+				startTime = 0;
+			}
 
 			_previewStartTime = startTime;
 			_previewTimeRemaining = timeRemaining;
