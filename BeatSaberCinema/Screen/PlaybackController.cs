@@ -844,7 +844,7 @@ namespace BeatSaberCinema
 
 		private void StartSongPreview()
 		{
-			if (VideoConfig == null || !VideoConfig.IsPlayable)
+			if (!SettingsStore.Instance.PluginEnabled || VideoConfig == null || !VideoConfig.IsPlayable)
 			{
 				return;
 			}
