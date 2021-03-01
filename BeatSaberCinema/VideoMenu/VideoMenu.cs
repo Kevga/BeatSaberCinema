@@ -566,6 +566,8 @@ namespace BeatSaberCinema
 			}
 
 			PlaybackController.Instance.StopPreview(true);
+			PlaybackController.Instance.StopPlayback();
+			PlaybackController.Instance.VideoPlayer.Hide();
 
 			if (_currentVideo.DownloadState == DownloadState.Downloading)
 			{
