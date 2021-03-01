@@ -6,7 +6,6 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.Parser;
-using BS_Utils.Utilities;
 using HMUI;
 using JetBrains.Annotations;
 using TMPro;
@@ -546,6 +545,7 @@ namespace BeatSaberCinema
 					break;
 				default:
 					VideoLoader.DeleteVideo(_currentVideo);
+					PlaybackController.Instance.VideoPlayer.FadeOut(0.3f);
 					SetupLevelDetailView(_currentVideo);
 					LevelDetailMenu.RefreshContent();
 					break;

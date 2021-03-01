@@ -12,7 +12,7 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		public static void Postfix(SongPreviewPlayer __instance, AudioClip audioClip, float startTime, float duration)
 		{
-			if (audioClip.name == "LevelCleared" || audioClip.name == "Menu")
+			if (audioClip.name == "LevelCleared")
 			{
 				Log.Debug($"Ignoring {audioClip.name} sound");
 				return;

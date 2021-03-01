@@ -719,6 +719,7 @@ namespace BeatSaberCinema
 			if (!video.IsPlayable)
 			{
 				Log.Debug("Video is not downloaded, stopping prepare");
+				VideoPlayer.FadeOut();
 				yield break;
 			}
 
@@ -824,7 +825,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (timeRemaining <= 0 || VideoConfig == null || !VideoConfig.IsPlayable)
+			if (timeRemaining <= 0 || VideoConfig == null)
 			{
 				VideoPlayer.FadeOut(1f);
 				StopPreviewFadeOutCoroutine();
@@ -870,19 +871,29 @@ namespace BeatSaberCinema
 
 			StopPreviewFadeOutCoroutine();
 
-			var delayMS = (DateTime.Now - _previewSyncStartTime).Milliseconds;
+			var delay = DateTime.Now.Subtract(_previewSyncStartTime);
+			var delaySeconds = (float) Math.Round(delay.TotalSeconds);
 
 			//This is the case if the video preparation took longer than the SongPreviewPlayer.
 			//If the player is instructed to play immediately after preparing, the playback start seems to be delayed by about 2 frames, so we add 67 ms in that case
-			if (delayMS > 1)
+			if (delaySeconds > 1/1000f)
 			{
-				delayMS += 67;
-				Log.Debug("Adjusting for SongPreview delay (in ms): "+delayMS);
+				delaySeconds += 67/1000f;
+				Log.Debug($"Adjusting for SongPreview delay: {delaySeconds}");
 			}
-			var delaySeconds = delayMS / 1000f;
 
-			PlayVideo(_previewStartTime + delaySeconds);
-			StartPreviewFadeOutCoroutine(_previewTimeRemaining - delaySeconds);
+			_previewStartTime += delaySeconds;
+
+			if (_previewTimeRemaining > 2)
+			{
+				PlayVideo(_previewStartTime);
+				StartPreviewFadeOutCoroutine(_previewTimeRemaining);
+			}
+			else
+			{
+				Log.Debug($"Not playing song preview, because delay was too long. Remaining preview time: {_previewTimeRemaining}");
+			}
+
 			_previewWaitingForPreviewPlayer = true;
 			_previewWaitingForVideoPlayer = true;
 		}
