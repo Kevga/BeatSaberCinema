@@ -21,12 +21,12 @@ namespace BeatSaberCinema
 	            SettingsStore.Instance.PluginEnabled = value;
 	            if (value)
 	            {
-		            PlaybackController.Instance.VideoPlayer.Show();
 		            SetSettingsTexture();
+		            PlaybackController.Instance.VideoPlayer.FadeIn(0.3f);
 	            }
 	            else
 	            {
-		            PlaybackController.Instance.VideoPlayer.Hide();
+		            PlaybackController.Instance.VideoPlayer.FadeOut(0.3f);
 	            }
             }
         }
@@ -59,7 +59,10 @@ namespace BeatSaberCinema
 	        set
 	        {
 		        SettingsStore.Instance.CurvedScreen = value;
-		        SetSettingsTexture();
+		        if (PluginEnabled)
+		        {
+			        SetSettingsTexture();
+		        }
 	        }
         }
 
@@ -109,7 +112,7 @@ namespace BeatSaberCinema
 	            return;
             }
 
-            PlaybackController.Instance.VideoPlayer.Show();
+            PlaybackController.Instance.VideoPlayer.FadeIn(0.3f);
             PlaybackController.Instance.StopPlayback();
             SetSettingsTexture();
         }
@@ -120,9 +123,8 @@ namespace BeatSaberCinema
             try
             {
 	            //Throws NRE if the settings menu is open while the plugin gets disabled (e.g. by closing the game)
-	            PlaybackController.Instance.VideoPlayer.Hide();
+	            PlaybackController.Instance.VideoPlayer.FadeOut(0.3f);
 	            PlaybackController.Instance.VideoPlayer.SetDefaultMenuPlacement();
-	            PlaybackController.Instance.VideoPlayer.SetStaticTexture(null);
             }
             catch (Exception e)
             {

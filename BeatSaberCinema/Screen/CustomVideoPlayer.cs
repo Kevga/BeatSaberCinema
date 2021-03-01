@@ -129,6 +129,7 @@ namespace BeatSaberCinema
 
 			_fadeController = new EasingController();
 			_fadeController.EasingUpdate += FadeControllerUpdate;
+			Hide();
 
 			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
 			SetDefaultMenuPlacement();

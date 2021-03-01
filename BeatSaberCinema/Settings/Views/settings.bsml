@@ -1,25 +1,37 @@
 <!--suppress CheckTagEmptyBody -->
-<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+<vertical child-control-height='false' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                     xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-    <bool-setting apply-on-change="true" text='Enable Cinema' value='show-video'
-                      hover-hint='Enable or disable video playback and other features'></bool-setting>
-	<dropdown-list-setting apply-on-change="true" text='Download Quality' value='quality' options='modes'></dropdown-list-setting>
-	<bool-setting apply-on-change="true" text='Force "Big Mirror" Environment' value='override-environment'
-				  hover-hint='Force the use of the Big Mirror environment for songs with videos.&#xD;&#xA;&#xD;&#xA;It is recommended to leave this checked for the best experience.'></bool-setting>
-	<bool-setting apply-on-change="true" text='Disable CustomPlatforms' value='disable-custom-platforms'
-				  hover-hint='Prevents custom platforms from loading when a video is playing.&#xD;&#xA;&#xD;&#xA;It is recommended to leave this checked for the best experience.'></bool-setting>
-	<bool-setting apply-on-change="true" text='Curved Screen' value='curved-screen'
-				  hover-hint='Curves the screen slightly towards you, based on the distance.'></bool-setting>
-	<bool-setting apply-on-change="true" text='Transparent Screen' value='transparency-enabled'
-				  hover-hint="Allows you to see through the screen.&#xD;&#xA;&#xD;&#xA;Turn off if you don't want lights behind the screen to shine through."></bool-setting>
-	<bool-setting apply-on-change="true" text='Show Cover (Beta)' value='cover-enabled'
-				  hover-hint="Shows the song's cover image on screen if the map doesn't have a video.&#xD;&#xA;&#xD;&#xA;This may currently not work well on some environments."></bool-setting>
-	<horizontal horizontal-fit="PreferredSize">
-		<horizontal horizontal-fit="PreferredSize">
-			<text text="Bloom Intensity" italics="true"></text>
-		</horizontal>
-		<horizontal horizontal-fit="PreferredSize">
-			<slider-setting apply-on-change="true" integer-only="true" value="bloom-intensity" text="" hover-hint="Change the amount of glow around the screen when the image is bright. Default is 100." min="0" max="150" increment="10"></slider-setting>
-		</horizontal>
-	</horizontal>
-</settings-container>
+
+	<tab-selector tab-tag='tabs' id='tabSelector'/>
+
+	<tab tags='tabs' tab-name='General'>
+		<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
+			<bool-setting apply-on-change="true" text='Enable Cinema' value='show-video'
+							  hover-hint='Enable or disable video playback and other features&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
+			<dropdown-list-setting apply-on-change="true" text='Download Quality' value='quality' options='modes'></dropdown-list-setting>
+			<bool-setting apply-on-change="true" text='Force "Big Mirror" Environment' value='override-environment'
+						  hover-hint='Force the use of the Big Mirror environment for songs with videos.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
+			<bool-setting apply-on-change="true" text='Disable CustomPlatforms' value='disable-custom-platforms'
+						  hover-hint='Prevents custom platforms from loading when a video is playing.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
+			<bool-setting apply-on-change="true" text='Show Cover (Beta)' value='cover-enabled'
+						  hover-hint="Shows the song's cover image on screen if the map doesn't have a video.&#xD;&#xA;&#xD;&#xA;This may currently not look great on some environments."></bool-setting>
+		</modifier-container>
+	</tab>
+
+	<tab tags="tabs" tab-name="Visuals">
+		<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
+			<bool-setting apply-on-change="true" text='Curved Screen' value='curved-screen'
+						  hover-hint='Curves the screen slightly towards you, which corrects for perspective distortion.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
+			<bool-setting apply-on-change="true" text='Transparent Screen' value='transparency-enabled'
+						  hover-hint="Allows you to see through the screen. Turning this off makes the video clearer, but some transparency effects look much worse.&#xD;&#xA;&#xD;&#xA;Recommended: On"></bool-setting>
+			<horizontal horizontal-fit="PreferredSize">
+				<horizontal horizontal-fit="PreferredSize">
+					<text text="Bloom Intensity" italics="true"></text>
+				</horizontal>
+				<horizontal horizontal-fit="PreferredSize">
+					<slider-setting apply-on-change="true" integer-only="true" value="bloom-intensity" text="" hover-hint="Change the amount of glow around the screen when the image is bright.&#xD;&#xA;&#xD;&#xA;Recommended: 100" min="0" max="150" increment="10"></slider-setting>
+				</horizontal>
+			</horizontal>
+		</modifier-container>
+	</tab>
+</vertical>
