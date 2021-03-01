@@ -2,6 +2,7 @@
 using IPA.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
+// ReSharper disable InconsistentNaming
 
 namespace BeatSaberCinema
 {
@@ -10,7 +11,8 @@ namespace BeatSaberCinema
 	public class SongPreviewPatch
 	{
 		[UsedImplicitly]
-		public static void Postfix(SongPreviewPlayer __instance, AudioClip audioClip, float startTime, float duration)
+		public static void Postfix(SongPreviewPlayer __instance, int ____activeChannel, float ____timeToDefaultAudioTransition, AudioSource[] ____audioSources,
+			AudioClip audioClip, float startTime, float duration)
 		{
 			if (audioClip.name == "LevelCleared")
 			{
@@ -18,13 +20,11 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			var activeChannel = __instance.GetField<int, SongPreviewPlayer>("_activeChannel");
-			var activeAudioSource = __instance.GetField<AudioSource[], SongPreviewPlayer>("_audioSources")[activeChannel];
-			var timeRemaining = __instance.GetField<float, SongPreviewPlayer>("_timeToDefaultAudioTransition");
-			Log.Debug($"SongPreviewPatch -- channel {activeChannel} -- startTime {startTime} -- timeRemaining {timeRemaining} -- audioclip {audioClip.name}");
+			var activeAudioSource = ____audioSources[____activeChannel];
+			Log.Debug($"SongPreviewPatch -- channel {____activeChannel} -- startTime {startTime} -- timeRemaining {____timeToDefaultAudioTransition} -- audioclip {audioClip.name}");
 			if (PlaybackController.Instance != null)
 			{
-				PlaybackController.Instance.UpdateSongPreviewPlayer(activeAudioSource, startTime, timeRemaining);
+				PlaybackController.Instance.UpdateSongPreviewPlayer(activeAudioSource, startTime, ____timeToDefaultAudioTransition);
 			}
 		}
 	}
