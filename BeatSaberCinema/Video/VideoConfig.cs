@@ -114,7 +114,7 @@ namespace BeatSaberCinema
 			videoID = match.Groups[1].Value;
 		}
 
-		public VideoConfig(DownloadController.YTResult searchResult, string levelPath)
+		public VideoConfig(YTResult searchResult, string levelPath)
 		{
 			videoID = searchResult.ID;
 			title = searchResult.Title;

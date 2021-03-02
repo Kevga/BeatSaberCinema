@@ -172,6 +172,8 @@
 
     <ItemGroup>
         <Compile Include="Download\DownloadController.cs" />
+        <Compile Include="Download\YTFormat.cs" />
+        <Compile Include="Download\YTResult.cs" />
         <Compile Include="Environment\EnvironmentController.cs" />
         <Compile Include="HarmonyPatches\EnvironmentOverridePatch.cs" />
         <Compile Include="HarmonyPatches\LevelSelectionPatch.cs" />

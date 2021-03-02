@@ -72,7 +72,7 @@ namespace BeatSaberCinema
 		private int _selectedCell;
 		private string _searchText = "";
 		private readonly DownloadController _downloadController = new DownloadController();
-		private readonly List<DownloadController.YTResult> _searchResults = new List<DownloadController.YTResult>();
+		private readonly List<YTResult> _searchResults = new List<YTResult>();
 
 		public void Init()
 		{
@@ -460,10 +460,34 @@ namespace BeatSaberCinema
 			OnQueryAction(_searchText);
 		}
 
-		private IEnumerator UpdateSearchResults(DownloadController.YTResult result)
+		private IEnumerator UpdateSearchResults(YTResult result)
 		{
 			var title = $"[{Util.SecondsToString(result.Duration)}] {Util.FilterEmoji(result.Title)}";
 			var description = $"{Util.FilterEmoji(result.Author)}";
+
+			try
+			{
+				var stillImage = result.IsStillImage();
+				var descriptionAddition = "";
+				if (stillImage)
+				{
+					descriptionAddition = "Likely a still image";
+				}
+				else
+				{
+					descriptionAddition = result.GetQualityString() ?? "";
+				}
+
+				if (descriptionAddition.Length > 0)
+				{
+					description += ("   |   " + descriptionAddition);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Warn(e);
+			}
+
 			var item = new CustomListTableData.CustomCellInfo(title, description);
 			var request = UnityWebRequestTexture.GetTexture($"https://i.ytimg.com/vi/{result.ID}/mqdefault.jpg");
 			yield return request.SendWebRequest();
@@ -608,7 +632,7 @@ namespace BeatSaberCinema
 			_searchText = query;
 		}
 
-		private void SearchProgress(DownloadController.YTResult result)
+		private void SearchProgress(YTResult result)
 		{
 			//Event is being invoked twice for whatever reason, so keep a list of what has been added before
 			if (_searchResults.Contains(result))

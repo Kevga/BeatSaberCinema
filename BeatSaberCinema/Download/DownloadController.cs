@@ -124,6 +124,7 @@ namespace BeatSaberCinema
 			yield return new WaitUntil(() => !SearchInProgress || timeout.HasTimedOut);
 			timeout.Stop();
 
+			SearchFinished?.Invoke();
 			DisposeProcess(_searchProcess);
 		}
 
@@ -183,14 +184,7 @@ namespace BeatSaberCinema
 				return null;
 			}
 
-			var duration = double.Parse(result["duration"]?.ToString() ?? "0");
-
-			YTResult ytResult = new YTResult(
-				result["id"]!.ToString(),
-				result["title"]?.ToString() ?? "Untitled Video",
-				result["uploader"]?.ToString() ?? "Unknown Author",
-				Convert.ToInt32(duration));
-
+			YTResult ytResult = new YTResult(result);
 			return ytResult;
 		}
 
@@ -402,29 +396,6 @@ namespace BeatSaberCinema
 			video.DownloadState = DownloadState.Cancelled;
 			DownloadProgress?.Invoke(video);
 			VideoLoader.DeleteVideo(video);
-
-		}
-
-		// ReSharper disable once InconsistentNaming (YtResult looks bad)
-		public class YTResult
-		{
-			public readonly string ID;
-			public readonly string Title;
-			public readonly string Author;
-			public readonly int Duration;
-
-			public YTResult(string id, string title, string author, int duration)
-			{
-				ID = id;
-				Title = title;
-				Author = author;
-				Duration = duration;
-			}
-
-			public new string ToString()
-			{
-				return $"[{ID}] {Title} by {Author} ({Duration})";
-			}
 		}
 	}
 }
