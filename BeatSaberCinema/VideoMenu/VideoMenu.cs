@@ -468,7 +468,7 @@ namespace BeatSaberCinema
 			try
 			{
 				var stillImage = result.IsStillImage();
-				var descriptionAddition = "";
+				string descriptionAddition;
 				if (stillImage)
 				{
 					descriptionAddition = "Likely a still image";
@@ -504,12 +504,14 @@ namespace BeatSaberCinema
 			_customListTableData.data.Add(item);
 			_customListTableData.tableView.ReloadData();
 
-			_downloadButton.interactable = true;
+			_downloadButton.interactable = (_selectedCell != -1);
 			_downloadButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.green;
 			if (_selectedCell == -1)
 			{
-				_selectedCell = 0;
+				_customListTableData.tableView.ScrollToCellWithIdx(0, TableViewScroller.ScrollPositionType.Beginning, false);
+				_customListTableData.tableView.ClearSelection();
 			}
+
 			_searchResultsLoadingText.gameObject.SetActive(false);
 		}
 
