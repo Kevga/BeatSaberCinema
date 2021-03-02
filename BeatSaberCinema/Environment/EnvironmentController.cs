@@ -456,11 +456,10 @@ namespace BeatSaberCinema
 			}
 
 			Log.Debug("Cloning objects");
-			var lm = Resources.FindObjectsOfTypeAll<LightWithIdManager>().LastOrDefault();
-			if (lm == null)
+			var lightManager = Resources.FindObjectsOfTypeAll<LightWithIdManager>().LastOrDefault();
+			if (lightManager == null)
 			{
 				Log.Error("Failed to find LightWithIdManager. Cannot clone lights.");
-				return;
 			}
 
 			var sceneObjectList = Resources.FindObjectsOfTypeAll<GameObject>();
@@ -498,27 +497,34 @@ namespace BeatSaberCinema
 					clone.name = objectToBeCloned.name + CLONED_OBJECT_NAME_SUFFIX;
 				}
 
-				RegisterLight(clone.GetComponent<LightWithIdMonoBehaviour>(), lm);
-				foreach (Transform child in clone.transform)
+				try
 				{
-					RegisterLight(child.GetComponent<LightWithIdMonoBehaviour>(), lm);
+					RegisterLights(clone, lightManager);
+					RegisterMirror(clone);
+					RegisterSpectrograms(clone);
 				}
-
-				var mirror = clone.GetComponent<Mirror>();
-				if (mirror != null)
+				catch (Exception e)
 				{
-					Log.Debug("Cloned a mirror surface");
-					var originalMirrorRenderer = mirror.GetField<MirrorRendererSO, Mirror>("_mirrorRenderer");
-					var originalMaterial = mirror.GetField<Material, Mirror>("_mirrorMaterial");
-					var clonedMirrorRenderer = Object.Instantiate(originalMirrorRenderer);
-					var clonedMaterial = Object.Instantiate(originalMaterial);
-					mirror.SetField("_mirrorRenderer", clonedMirrorRenderer);
-					mirror.SetField("_mirrorMaterial", clonedMaterial);
+					Log.Error(e);
 				}
 
 				cloneCounter++;
 			}
 			Log.Debug("Cloned "+cloneCounter+" objects");
+		}
+
+		private static void RegisterLights(GameObject clone, LightWithIdManager? lightWithIdManager)
+		{
+			if (lightWithIdManager == null)
+			{
+				return;
+			}
+
+			RegisterLight(clone.GetComponent<LightWithIdMonoBehaviour>(), lightWithIdManager);
+			foreach (Transform child in clone.transform)
+			{
+				RegisterLight(child.GetComponent<LightWithIdMonoBehaviour>(), lightWithIdManager);
+			}
 		}
 
 		private static void RegisterLight(LightWithIdMonoBehaviour? newLight, LightWithIdManager lightWithIdManager)
@@ -527,6 +533,44 @@ namespace BeatSaberCinema
 			{
 				lightWithIdManager.RegisterLight(newLight);
 			}
+		}
+
+		private static void RegisterMirror(GameObject clone)
+		{
+			var mirror = clone.GetComponent<Mirror>();
+			if (mirror == null)
+			{
+				return;
+			}
+
+			Log.Debug("Cloned a mirror surface");
+			var originalMirrorRenderer = mirror.GetField<MirrorRendererSO, Mirror>("_mirrorRenderer");
+			var originalMaterial = mirror.GetField<Material, Mirror>("_mirrorMaterial");
+			var clonedMirrorRenderer = Object.Instantiate(originalMirrorRenderer);
+			var clonedMaterial = Object.Instantiate(originalMaterial);
+			mirror.SetField("_mirrorRenderer", clonedMirrorRenderer);
+			mirror.SetField("_mirrorMaterial", clonedMaterial);
+		}
+
+		private static void RegisterSpectrograms(GameObject clone)
+		{
+			//Hierarchy looks like this:
+			//"Spectrograms" (one, this one has the Spectrogram component) --> "Spectrogram" (multiple, this is what we're cloning) -->
+			//"Spectrogram0" + "Spectrogram1" (contain the MeshRenderers that need to be registered in the Spectrogram component)
+			var parent = clone.transform.parent;
+			var component = parent.gameObject.GetComponent<Spectrogram>();
+			if (parent.name != "Spectrograms" || component == null)
+			{
+				return;
+			}
+
+			var spectrogramMeshRenderers = clone.GetComponentsInChildren<MeshRenderer>();
+			var meshRendererList = component.GetField<MeshRenderer[], Spectrogram>("_meshRenderers").ToList();
+			foreach (var renderer in spectrogramMeshRenderers)
+			{
+				meshRendererList.Add(renderer);
+			}
+			component.SetField("_meshRenderers", meshRendererList.ToArray());
 		}
 	}
 }
