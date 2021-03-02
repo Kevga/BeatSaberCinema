@@ -28,7 +28,7 @@ The plugin includes more than 90 video configurations for custom maps for you to
 - [K/DA - MORE \[DACK\]](https://beatsaver.com/beatmap/1059c)
 - [BLACKPINK - Kill This Love \[aggrogahu\]](https://beatsaver.com/beatmap/46be)
 
-A playlist file (.bplist) with all pre-configured maps is included in the release of the mod and can additionally also be found [here](https://raw.githubusercontent.com/Kevga/BeatSaberCinema/master/Resources/cinema.bplist). Right-click the link and click `Save link as...` to download the file and save it in `Beat Saber\Playlists`. You can then use a mod like PlaylistManager to access it in game.
+A playlist file (.bplist) with all pre-configured maps is included in the release of the mod and can additionally also be found [here](https://raw.githubusercontent.com/Kevga/BeatSaberCinema/master/Resources/cinema.bplist). You can use a mod like PlaylistManager to access it in game.
 
 A readable full list of maps with videos (without download links) can be found [here](Resources/bundled-configs.txt).
 
@@ -86,7 +86,7 @@ These basic settings get set automatically when you add a video to your map.
 
 ### Advanced settings
 
-Optional settings which you can set to fine tune function and form of the video player.
+Optional settings which you can set to fine tune the form and function of the video player.
 
 | Property                   		| Data Type | Default       	    				| Description |
 | ----------------------------------|:---------:|:------------------------------------:	| ----------- |
@@ -97,6 +97,7 @@ Optional settings which you can set to fine tune function and form of the video 
 | `screenHeight`             		| float     | 25.0             	 					| Determines the size of the screen. There is no setting for the width, since that is calculated automatically by the height and the aspect ratio of the video. If you change the height, you might want to also change the **y** positioning of the screen so it doesn't float above the ground. |
 | `screenCurvature`			 		| float     | *automatic*		 					| Use this setting to force a specific curvature of the screen. The allowed range of values is 0-180 (degrees). Setting this to 0 forces curvature to be disabled. If this parameter is not included and the user has curvature enabled, the curvature is calculated automatically based on the distance and the width of the screen.|
 | `disableBigMirrorOverride` 		| bool      | false              					| Set this to `true` if you want your map to use an environment that is currently not supported by Cinema. You'll likely need to modify the environment to make this work well. By default, the plugin would instead set the environment to Big Mirror. |
+| `allowCustomPlatform` 		    | bool      | false (user's choice) 				| When set to `false`, will prevent the CustomPlatforms mod from loading a custom platform for this map if the video is playing. Can be used to override the user setting if the user set it to `true` for all maps. |
 | `disableDefaultModifications`	    | bool      | false              					| If set to `true`, will disable any environment modifications Cinema does by default for the selected environment. Only use this if you plan on modifying the environment in a different way to make the video player fit in. |
 | `forceEnvironmentModifications`   | bool      | false              					| Set this to `true` to have your environment modifications applied even if no video is defined or downloaded by the user. |
 | `transparency`			 		| bool		| true (user's choice) 					| Include this in your config if you want to override the user's choice and force transparency to be enabled or disabled. This does not disable the color blending, it only prevents light sources behind the screen from shining through. |
