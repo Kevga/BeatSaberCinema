@@ -17,7 +17,7 @@ namespace BeatSaberCinema
 
 		public static void ModifyGameScene(VideoConfig? videoConfig)
 		{
-			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || videoConfig == null ||
+			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || videoConfig == null || Util.IsMultiplayer() ||
 			    (!videoConfig.IsPlayable && (videoConfig.forceEnvironmentModifications == null || videoConfig.forceEnvironmentModifications == false)))
 			{
 				return;
@@ -450,7 +450,7 @@ namespace BeatSaberCinema
 
 		public static void CloneObjects(VideoConfig? config)
 		{
-			if (config?.environment == null || config.environment.Length == 0)
+			if (config?.environment == null || config.environment.Length == 0 || Util.IsMultiplayer())
 			{
 				return;
 			}

@@ -482,9 +482,8 @@ namespace BeatSaberCinema
 			Log.Debug("GameSceneLoaded");
 			_activeScene = Scene.Gameplay;
 
-			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || BS_Utils.Plugin.LevelData.Mode == Mode.Multiplayer)
+			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled)
 			{
-				//TODO add screen positioning for MP
 				Log.Debug("Plugin disabled");
 				VideoPlayer.Hide();
 				return;
@@ -497,6 +496,13 @@ namespace BeatSaberCinema
 			{
 				Log.Debug("Level mode is None");
 				return;
+			}
+
+			var bsUtilsLevel = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level;
+			if (_currentLevel?.levelID != bsUtilsLevel.levelID)
+			{
+				var video = VideoLoader.GetConfigForLevel(bsUtilsLevel);
+				SetSelectedLevel(bsUtilsLevel, video);
 			}
 
 			if (VideoConfig == null || !VideoConfig.IsPlayable)
@@ -528,13 +534,18 @@ namespace BeatSaberCinema
 
 			if (!preview)
 			{
+				Log.Debug("Waiting for ATSC to be ready");
 				yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
-				_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
+				_timeSyncController = Util.IsMultiplayer() ?
+					Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First(atsc => atsc.transform.parent.parent.parent.name.Contains("(Clone)")) :
+					Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
+
 				_activeAudioSource = _timeSyncController.audioSource;
 			}
 
 			if (_activeAudioSource != null)
 			{
+				Log.Debug($"Waiting for AudioSource {_activeAudioSource.name} to start playing");
 				yield return new WaitUntil(() => _activeAudioSource.isPlaying);
 				startTime = _activeAudioSource.time;
 			}
@@ -584,6 +595,7 @@ namespace BeatSaberCinema
 		{
 			if (VideoConfig == null)
 			{
+				Log.Warn("VideoConfig null in PlayVideo");
 				return;
 			}
 

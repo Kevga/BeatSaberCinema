@@ -73,5 +73,10 @@ namespace BeatSaberCinema
 				tex.LoadImage(fileData);
 				return tex;
 		}
+
+		public static bool IsMultiplayer()
+		{
+			return BS_Utils.Plugin.LevelData.Mode == BS_Utils.Gameplay.Mode.Multiplayer;
+		}
 	}
 }
