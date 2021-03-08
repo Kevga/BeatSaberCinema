@@ -185,6 +185,7 @@
         <Compile Include="Screen\CurvedSurface.cs" />
         <Compile Include="Screen\CustomBloomPrePass.cs" />
         <Compile Include="Screen\CustomVideoPlayer.cs" />
+        <Compile Include="Screen\Placement.cs" />
         <Compile Include="Screen\Screen.cs" />
         <Compile Include="Screen\PlaybackController.cs" />
         <Compile Include="Settings\SettingsStore.cs" />

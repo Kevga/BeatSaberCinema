@@ -68,6 +68,11 @@ namespace BeatSaberCinema
 			_screenGameObject.transform.parent = parentTransform;
 		}
 
+		public void SetPlacement(Placement placement)
+		{
+			SetPlacement(placement.Position, placement.Rotation, placement.Width, placement.Height, placement.Curvature);
+		}
+
 		public void SetPlacement(Vector3 pos, Vector3 rot, float width, float height, float? curvatureDegrees = null)
 		{
 			_screenGameObject.transform.position = pos;

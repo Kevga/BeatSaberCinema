@@ -14,7 +14,8 @@ namespace BeatSaberCinema
 {
 	public class PlaybackController: MonoBehaviour
 	{
-		private enum Scene { Gameplay, Menu, Other }
+		public enum Scene { SoloGameplay, MultiplayerGameplay, Menu, Other }
+		private Scene _activeScene = Scene.Other;
 
 		public static PlaybackController Instance { get; private set; } = null!;
 		private static GameObject _playbackControllerGameObject = null!;
@@ -26,7 +27,6 @@ namespace BeatSaberCinema
 		private AudioSource? _activeAudioSource;
 		private AudioTimeSyncController? _timeSyncController;
 		private float _lastKnownAudioSourceTime;
-		private Scene _activeScene = Scene.Other;
 		private Coroutine? _previewFadeOutCoroutine;
 		private float _previewStartTime;
 		private float _previewTimeRemaining;
@@ -393,13 +393,13 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (IsPreviewPlaying)
+			if (_activeScene == Scene.Menu)
 			{
 				StopPreview(true);
 			}
 			else
 			{
-				VideoPlayer.SetPlacement(VideoConfig?.screenPosition, VideoConfig?.screenRotation, null, VideoConfig?.screenHeight, VideoConfig?.screenCurvature);
+				VideoPlayer.SetPlacement(new Placement(config, _activeScene));
 			}
 
 			if (previousVideoPath != config.VideoPath)
@@ -423,7 +423,7 @@ namespace BeatSaberCinema
 				VideoPlayer.HideScreenBody();
 			}
 
-			if (_activeScene == Scene.Gameplay)
+			if (_activeScene == Scene.SoloGameplay)
 			{
 				EnvironmentController.VideoConfigSceneModifications(VideoConfig);
 			}
@@ -459,16 +459,7 @@ namespace BeatSaberCinema
 			{
 				var coverSprite = await _currentLevel.GetCoverImageAsync(new CancellationToken());
 				VideoPlayer.SetCoverTexture(coverSprite.texture);
-				VideoPlayer.Show();
-
-				if (!SettingsStore.Instance.TransparencyEnabled)
-				{
-					VideoPlayer.ShowScreenBody();
-				}
-				else
-				{
-					VideoPlayer.HideScreenBody();
-				}
+				VideoPlayer.FadeIn(0.3f);
 			}
 			catch (Exception e)
 			{
@@ -480,7 +471,8 @@ namespace BeatSaberCinema
 		{
 			StopAllCoroutines();
 			Log.Debug("GameSceneLoaded");
-			_activeScene = Scene.Gameplay;
+
+			_activeScene = Util.IsMultiplayer() ? Scene.MultiplayerGameplay : Scene.SoloGameplay;
 
 			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled)
 			{
@@ -521,7 +513,7 @@ namespace BeatSaberCinema
 				VideoLoader.SaveVideoConfig(VideoConfig);
 			}
 
-			VideoPlayer.SetPlacement(VideoConfig?.screenPosition, VideoConfig?.screenRotation, null, VideoConfig?.screenHeight, VideoConfig?.screenCurvature);
+			VideoPlayer.SetPlacement(Util.IsMultiplayer() ? Placement.MultiplayerPlacement : new Placement(VideoConfig, _activeScene));
 
 			SetAudioSourcePanning(0);
 			VideoPlayer.Mute();
@@ -832,7 +824,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (_activeScene == Scene.Gameplay)
+			if (_activeScene != Scene.Menu)
 			{
 				return;
 			}

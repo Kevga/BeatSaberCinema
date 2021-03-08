@@ -17,18 +17,6 @@ namespace BeatSaberCinema
 		private readonly Renderer _screenRenderer;
 		private readonly EasingController _fadeController;
 
-		private readonly Vector3 _defaultGameplayPosition = new Vector3(0, 12.4f, 67.8f);
-		private readonly Vector3 _defaultGameplayRotation = new Vector3(-8, 0, 0);
-		private readonly float _defaultGameplayHeight = 25;
-
-		private readonly Vector3 _defaultCoverPosition = new Vector3(0, 5.9f, 75f);
-		private readonly Vector3 _defaultCoverRotation = new Vector3(-8, 0, 0);
-		private readonly float _defaultCoverHeight = 12;
-
-		private readonly Vector3 _menuPosition = new Vector3(0, 4f, 16);
-		private readonly Vector3 _menuRotation = new Vector3(0, 0, 0);
-		private readonly float _menuHeight = 8;
-
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
 
 		private const float MAX_BRIGHTNESS = 0.92f;
@@ -226,17 +214,14 @@ namespace BeatSaberCinema
 
 		public void SetDefaultMenuPlacement(float? width = null)
 		{
-			SetPlacement(_menuPosition, _menuRotation, width ?? _menuHeight * (21f/9f), _menuHeight);
+			var placement = Placement.MenuPlacement;
+			placement.Width = width ?? placement.Height * (21f/9f);
+			SetPlacement(placement);
 		}
 
-		public void SetPlacement(SerializableVector3? position, SerializableVector3? rotation, float? width = null, float? height = null, float? curvatureDegrees = null)
+		public void SetPlacement(Placement placement)
 		{
-			//Scale doesnt need to be a vector. Width is calculated based on height and aspect ratio. Depth is a constant value.
-			_screen.SetPlacement(position ?? _defaultGameplayPosition,
-				rotation ?? _defaultGameplayRotation,
-				width ?? height * GetVideoAspectRatio() ?? _defaultGameplayHeight * GetVideoAspectRatio(),
-				height ?? _defaultGameplayHeight,
-				curvatureDegrees);
+			_screen.SetPlacement(placement);
 		}
 
 		private void FirstFrameReady(VideoPlayer player, long frame)
@@ -383,8 +368,10 @@ namespace BeatSaberCinema
 
 			SetStaticTexture(texture);
 
-			var width = ((float) texture.width / texture.height) * _defaultCoverHeight;
-			SetPlacement(_defaultCoverPosition, _defaultCoverRotation, width, _defaultCoverHeight);
+			var placement = Placement.CoverPlacement;
+			var width = ((float) texture.width / texture.height) * placement.Height;
+			placement.Width = width;
+			SetPlacement(placement);
 		}
 
 		public void SetStaticTexture(Texture? texture)
@@ -396,7 +383,7 @@ namespace BeatSaberCinema
 			}
 
 			SetTexture(texture);
-			var width = ((float) texture.width / texture.height) * _menuHeight;
+			var width = ((float) texture.width / texture.height) * Placement.MenuPlacement.Height;
 			SetDefaultMenuPlacement(width);
 			SetShaderParameters(null);
 			FadeIn();
