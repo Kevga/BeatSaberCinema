@@ -21,7 +21,7 @@ namespace BeatSaberCinema
 		/// <summary>
 		/// Informs about the selected level in Solo or Party mode. Is fired a bit earlier than the BSEvents event.
 		/// </summary>
-		public static Action<IPreviewBeatmapLevel>? LevelSelected;
+		public static event Action<IPreviewBeatmapLevel>? LevelSelected;
 
 		internal static void InvokeSceneTransitionEvents(VideoConfig? videoConfig)
 		{
@@ -48,6 +48,11 @@ namespace BeatSaberCinema
 			}
 
 			AllowCustomPlatform?.Invoke(allowCustomPlatform);
+		}
+
+		internal static void SetSelectedLevel(IPreviewBeatmapLevel level)
+		{
+			LevelSelected?.Invoke(level);
 		}
 	}
 }

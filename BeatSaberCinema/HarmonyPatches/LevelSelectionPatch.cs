@@ -10,7 +10,7 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		public static void Prefix(IPreviewBeatmapLevel level)
 		{
-			Events.LevelSelected?.Invoke(level);
+			Events.SetSelectedLevel(level);
 		}
 	}
 }
