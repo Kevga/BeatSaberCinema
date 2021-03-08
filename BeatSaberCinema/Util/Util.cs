@@ -57,6 +57,21 @@ namespace BeatSaberCinema
 			return result;
 		}
 
+		public static string ShortenFilename(string path, string s)
+		{
+			//Max length is 260, the nul byte will take up one, file extension will take up four and ytdl file parts take up at least an additional five characters
+			//https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation
+			var allowedLength = 259 - path.Length - ".mp4".Length - ".fxxxx".Length;
+
+			if (allowedLength > 0)
+			{
+				return s.Substring(0, allowedLength);
+			}
+
+			Log.Warn("Video path length might be too long!");
+			return s;
+		}
+
 		public static bool IsModInstalled(string modName)
 		{
 			return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName);

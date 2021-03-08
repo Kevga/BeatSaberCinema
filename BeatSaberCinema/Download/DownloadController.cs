@@ -351,13 +351,20 @@ namespace BeatSaberCinema
 
 		private Process StartDownloadProcess(VideoConfig video)
 		{
+			if (video.LevelDir == null)
+			{
+				throw new Exception("LevelDir was null during download");
+			}
+
 			if (!Directory.Exists(video.LevelDir))
 			{
 				//Needed for OST videos
 				Directory.CreateDirectory(video.LevelDir);
 			}
 
-			string videoFileName = Util.ReplaceIllegalFilesystemChars(video.title ?? video.videoID ?? "video");
+			var videoFileName = Util.ReplaceIllegalFilesystemChars(video.title ?? video.videoID ?? "video");
+			videoFileName = Util.ShortenFilename(video.LevelDir, videoFileName);
+
 			video.videoFile = videoFileName + ".mp4";
 
 			var downloadProcess = new Process
