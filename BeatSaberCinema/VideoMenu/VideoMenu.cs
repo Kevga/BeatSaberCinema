@@ -606,6 +606,7 @@ namespace BeatSaberCinema
 			{
 				_currentVideo = null;
 			}
+			LevelDetailMenu.SetActive(false);
 			ResetVideoMenu();
 		}
 
