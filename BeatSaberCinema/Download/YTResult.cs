@@ -20,8 +20,8 @@ namespace BeatSaberCinema
 		public YTResult(JObject result)
 		{
 			ID = result["id"]!.ToString();
-			Title = result["title"]?.ToString() ?? "Untitled Video";
-			Author = result["uploader"]?.ToString() ?? "Unknown Author";
+			Title = Util.FilterEmoji(result["title"]?.ToString() ?? "Untitled Video");
+			Author = Util.FilterEmoji(result["uploader"]?.ToString() ?? "Unknown Author");
 			var duration = double.Parse(result["duration"]?.ToString() ?? "0");
 			Duration = Convert.ToInt32(duration);
 			Formats = ParseFormats(result["formats"]);
