@@ -63,6 +63,11 @@ namespace BeatSaberCinema
 			//https://docs.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation
 			var allowedLength = 259 - path.Length - ".mp4".Length - ".fxxxx".Length;
 
+			if (allowedLength >= s.Length)
+			{
+				return s;
+			}
+
 			if (allowedLength > 0)
 			{
 				return s.Substring(0, allowedLength);
