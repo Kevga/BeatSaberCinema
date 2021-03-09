@@ -22,8 +22,6 @@ namespace BeatSaberCinema
 		private IPreviewBeatmapLevel? _currentLevel;
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
-		private SongPreviewPlayer _songPreviewPlayer = null!;
-		private AudioSource[]? _songPreviewAudioSources;
 		private AudioSource? _activeAudioSource;
 		private AudioTimeSyncController? _timeSyncController;
 		private float _lastKnownAudioSourceTime;
@@ -38,31 +36,6 @@ namespace BeatSaberCinema
 		public VideoConfig? VideoConfig { get; private set; }
 
 		public bool IsPreviewPlaying { get; private set; }
-
-		private SongPreviewPlayer? PreviewPlayer
-		{
-			get
-			{
-				if (_songPreviewPlayer != null && _songPreviewAudioSources != null)
-				{
-					return _songPreviewPlayer;
-				}
-
-				try
-				{
-					_songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().Last();
-					_songPreviewAudioSources = _songPreviewPlayer.GetField<AudioSource[], SongPreviewPlayer>("_audioSources");
-					return _songPreviewPlayer;
-				}
-				catch (Exception e)
-				{
-					Log.Debug("SongPreviewPlayer or AudioSources not found: ");
-					Log.Warn(e);
-				}
-
-				return null;
-			}
-		}
 
 		public static void Create()
 		{
@@ -306,15 +279,17 @@ namespace BeatSaberCinema
 					startTime = -VideoConfig.GetOffsetInSec();
 				}
 
-				if (PreviewPlayer == null)
+				if (SongPreviewPlayerController.SongPreviewPlayer == null)
 				{
 					Log.Error("Failed to get reference to SongPreviewPlayer during preview");
 					return;
 				}
 
-				const float previewPlayerVolume = 0.8f;
+
 				_previewIgnoreNextUpdate = true;
-				PreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), startTime, _currentLevel.songDuration, previewPlayerVolume);
+				//TODO 1.13.4 preview player volume
+				//const float previewPlayerVolume = 0.8f;
+				SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), startTime, _currentLevel.songDuration);
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
 				SetAudioSourcePanning(0.85f);
@@ -335,9 +310,9 @@ namespace BeatSaberCinema
 			VideoPlayer.FadeOut();
 			StopAllCoroutines();
 
-			if (stopPreviewMusic && PreviewPlayer != null)
+			if (stopPreviewMusic && SongPreviewPlayerController.SongPreviewPlayer != null)
 			{
-				PreviewPlayer.CrossfadeToDefault();
+				SongPreviewPlayerController.SongPreviewPlayer.CrossfadeToDefault();
 				VideoPlayer.Mute();
 			}
 
@@ -356,7 +331,6 @@ namespace BeatSaberCinema
 			EnvironmentController.Reset();
 			VideoPlayer.Hide();
 			StopAllCoroutines();
-			_songPreviewPlayer = null!;
 			_previewWaitingForPreviewPlayer = true;
 			_previewWaitingForVideoPlayer = true;
 
@@ -364,12 +338,6 @@ namespace BeatSaberCinema
 			{
 				PrepareVideo(VideoConfig);
 			}
-		}
-
-		public AudioSource InstantiateAudioSourceFromPrefab()
-		{
-			var prefab = PreviewPlayer!.GetField<AudioSource, SongPreviewPlayer>("_audioSourcePrefab");
-			return Instantiate(prefab, transform);
 		}
 
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)
@@ -555,7 +523,7 @@ namespace BeatSaberCinema
 		{
 			try
 			{
-				if (_songPreviewAudioSources == null)
+				if (SongPreviewPlayerController.AudioSources == null)
 				{
 					return;
 				}
@@ -564,7 +532,7 @@ namespace BeatSaberCinema
 				// Otherwise only change the active channel.
 				if (pan == 0f || _activeAudioSource == null)
 				{
-					foreach (var source in _songPreviewAudioSources)
+					foreach (var source in SongPreviewPlayerController.AudioSources)
 					{
 						if (source != null)
 						{
@@ -813,9 +781,13 @@ namespace BeatSaberCinema
 			Events.InvokeSceneTransitionEvents(VideoConfig);
 		}
 
-		public void UpdateSongPreviewPlayer(AudioSource activeAudioSource, float startTime, float timeRemaining)
+		public void UpdateSongPreviewPlayer(AudioSource? activeAudioSource, float startTime, float timeRemaining)
 		{
 			_activeAudioSource = activeAudioSource;
+			if (_activeAudioSource == null)
+			{
+				Log.Debug("Active AudioSource null in SongPreviewPlayer update");
+			}
 
 			if (_previewIgnoreNextUpdate)
 			{
@@ -873,16 +845,18 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			Log.Debug("Starting song preview playback");
+
 			StopPreviewFadeOutCoroutine();
 
 			var delay = DateTime.Now.Subtract(_previewSyncStartTime);
 			var delaySeconds = (float) Math.Round(delay.TotalSeconds);
 
 			//This is the case if the video preparation took longer than the SongPreviewPlayer.
-			//If the player is instructed to play immediately after preparing, the playback start seems to be delayed by about 2 frames, so we add 67 ms in that case
+			//If the player is instructed to play immediately after preparing, the playback start seems to be delayed, so we offset the start a bit
 			if (delaySeconds > 1/1000f)
 			{
-				delaySeconds += 67/1000f;
+				delaySeconds += 250/1000f;
 				Log.Debug($"Adjusting for SongPreview delay: {delaySeconds}");
 			}
 

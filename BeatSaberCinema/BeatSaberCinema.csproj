@@ -15,7 +15,7 @@
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<ModVersion>1.4.0</ModVersion>
+		<ModVersion>1.4.1</ModVersion>
 		<ModName>BeatSaberCinema</ModName>
 		<OutDir>$(ProjectDir)bin\$(Configuration)</OutDir>
 		<AssemblyVersion>$(ModVersion)</AssemblyVersion>
@@ -198,6 +198,7 @@
         <Compile Include="Util\Events.cs" />
         <Compile Include="Util\Log.cs" />
         <Compile Include="Util\SerializableVector3.cs" />
+        <Compile Include="Util\SongPreviewPlayerController.cs" />
         <Compile Include="Util\Timeout.cs" />
         <Compile Include="Util\Util.cs" />
         <Compile Include="VideoMenu\LevelDetailViewController.cs" />

@@ -40,6 +40,7 @@ namespace BeatSaberCinema
 		{
 			PlaybackController.Create();
 			VideoMenu.instance.Init();
+			SongPreviewPlayerController.Init();
 		}
 
 		[OnEnable]

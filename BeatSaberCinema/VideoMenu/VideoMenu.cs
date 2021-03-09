@@ -80,7 +80,9 @@ namespace BeatSaberCinema
 			LevelDetailMenu.ButtonPressedAction += OnDeleteVideoAction;
 			CreateStatusListener();
 			_deleteButton.transform.localScale *= 0.5f;
-			_searchKeyboard.clearOnOpen = false;
+
+			//TODO 1.13.4 System.NullReferenceException
+			//_searchKeyboard.clearOnOpen = false;
 
 			if (_videoMenuInitialized)
 			{
@@ -508,7 +510,7 @@ namespace BeatSaberCinema
 			_downloadButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.green;
 			if (_selectedCell == -1)
 			{
-				_customListTableData.tableView.ScrollToCellWithIdx(0, TableViewScroller.ScrollPositionType.Beginning, false);
+				_customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
 				_customListTableData.tableView.ClearSelection();
 			}
 

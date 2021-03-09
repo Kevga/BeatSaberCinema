@@ -223,7 +223,7 @@ namespace BeatSaberCinema
 			RenderTexture.ReleaseTemporary(temporary);
 			RenderTexture.ReleaseTemporary(blur2);
 
-			BloomPrePassRendererSO.SetDataToShaders(stereoCameraEyeOffset, textureToScreenRatio, bloomPrePassRenderData.bloomPrePassRenderTexture);
+			BloomPrePassRendererSO.SetDataToShaders(stereoCameraEyeOffset, textureToScreenRatio, bloomPrePassRenderData.bloomPrePassRenderTexture, bloomPrePassRenderData.toneMapping);
 			GL.sRGBWrite = sRGBWrite;
 		}
 

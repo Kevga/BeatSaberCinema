@@ -28,7 +28,7 @@ namespace BeatSaberCinema
 			_standardLevelDetailViewController = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().Last();
 			BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCinema.VideoMenu.Views.level-detail.bsml"), _standardLevelDetailViewController.transform.Find("LevelDetail").gameObject, this);
 			var rectTransform = _root.GetComponent<RectTransform>();
-			rectTransform.offsetMin = new Vector2(0.8f, -46.6f);
+			rectTransform.offsetMin = new Vector2(0.8f, -45.8f);
 			rectTransform.offsetMax = new Vector2(-2.9f, -41.2f);
 
 			_buttonUnderline = _button.transform.Find("Underline").gameObject.GetComponent<Image>();

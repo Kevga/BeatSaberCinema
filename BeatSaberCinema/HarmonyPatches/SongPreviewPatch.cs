@@ -1,42 +1,26 @@
-﻿using HarmonyLib;
-using IPA.Utilities;
+﻿using System;
+using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 // ReSharper disable InconsistentNaming
 
 namespace BeatSaberCinema
 {
-	[HarmonyPatch(typeof(SongPreviewPlayer), nameof(SongPreviewPlayer.CrossfadeTo))]
+	[HarmonyPatch(typeof(SongPreviewPlayer), nameof(SongPreviewPlayer.CrossfadeTo), typeof(AudioClip), typeof(float), typeof(float), typeof(bool))]
 	[UsedImplicitly]
 	public class SongPreviewPatch
 	{
 		[UsedImplicitly]
-		public static void Postfix(SongPreviewPlayer __instance, int ____activeChannel, float ____timeToDefaultAudioTransition, AudioSource[] ____audioSources,
-			AudioClip audioClip, float startTime, float duration)
+		public static void Postfix(int ____activeChannel, float ____timeToDefaultAudioTransition,
+			object[] ____audioSourceControllers, int ____channelsCount, AudioClip audioClip, float startTime)
 		{
-			if (audioClip == null)
+			try
 			{
-				Log.Debug("SongPreviewPlayer AudioClip was null");
-				return;
+				SongPreviewPlayerController.SetFields(____audioSourceControllers, ____channelsCount, ____activeChannel, audioClip, startTime, ____timeToDefaultAudioTransition);
 			}
-
-			if (____activeChannel < 0 || ____activeChannel > (____audioSources.Length-1))
+			catch (Exception e)
 			{
-				Log.Debug($"No SongPreviewPlayer audio channel active ({____activeChannel})");
-				return;
-			}
-
-			if (audioClip.name == "LevelCleared")
-			{
-				Log.Debug($"Ignoring {audioClip.name} sound");
-				return;
-			}
-
-			var activeAudioSource = ____audioSources[____activeChannel];
-			Log.Debug($"SongPreviewPatch -- channel {____activeChannel} -- startTime {startTime} -- timeRemaining {____timeToDefaultAudioTransition} -- audioclip {audioClip.name}");
-			if (PlaybackController.Instance != null)
-			{
-				PlaybackController.Instance.UpdateSongPreviewPlayer(activeAudioSource, startTime, ____timeToDefaultAudioTransition);
+				Log.Error(e);
 			}
 		}
 	}
