@@ -6,8 +6,8 @@
 			<button id='search-button' text='Search' on-click='on-search-action'/>
         </vertical>
     </bg>
-    <bg id='video-details' pad-top="-6">
-        <vertical child-expand-height="false" spacing="0" vertical-fit="PreferredSize" pad-top="-3">
+    <bg id='video-details'>
+        <vertical child-expand-height="false" spacing="0" vertical-fit="PreferredSize" pad-top="-3" align="top">
             <horizontal preferred-width='100' horizontal-fit='PreferredSize' align="Center">
                 <text id='video-title' font-size='5' align='Center' overflow-mode='Ellipsis' preferred-width='90' text='Video Title'></text>
 				<button-with-icon id='delete-config-button' icon='BeatSaberCinema.Resources.trash.png' align='Right' text=' ' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' hover-hint='Delete video configuration&#xD;&#xA;&#xD;&#xA;(will also delete the video if downloaded)' on-click='on-delete-config-action'/>
@@ -30,8 +30,8 @@
 						<button id='offset-decrease-button-high' font-size='3' pref-width='10' hover-hint='Starts video later (-1000 ms)' text='---' on-click='on-offset-decrease-action-high'/>
 						<button id='offset-decrease-button-mid' font-size='3' pref-width='10' hover-hint='Starts video later (-100 ms)' text='--' on-click='on-offset-decrease-action-mid'/>
 						<button id='offset-decrease-button-low' font-size='3' pref-width='10' hover-hint='Starts video later (-20 ms)' text='-' on-click='on-offset-decrease-action-low'/>
-						<vertical pref-width='12'>
-							<text   id='video-offset' text="0" pad-left='4' pad-right='4' min-width='12' font-size='5' align='Center'></text>
+						<vertical pref-width='16'>
+							<text   id='video-offset' text="0" pad-left='5' pad-right='5' font-size='5' align='Center'></text>
 						</vertical>
 						<button id='offset-increase-button-low' font-size='3' pref-width='10' hover-hint='Starts video earlier (+20 ms)' text='+' on-click='on-offset-increase-action-low'/>
 						<button id='offset-increase-button-mid' font-size='3' pref-width='10' hover-hint='Starts video earlier (+100 ms)' text='++' on-click='on-offset-increase-action-mid'/>
@@ -48,11 +48,13 @@
     </bg>
 
     <bg id='video-search-results'>
-        <vertical pad-top='3' pad-bottom='8' preferred-width='100'>
-            <page-button click-event='video-list#PageUp' direction='Up' preferred-width='25' preferred-height='4'/>
-            <list pad-top='3' id='video-list' list-width='100' visible-cells='4' select-cell='on-select-cell'/>
-            <page-button click-event='video-list#PageDown' direction='Down' preferred-width='25' preferred-height='4'/>
-        </vertical>
+        <horizontal pad-top='-3' pad-bottom='8' pad-left="8">
+            <list pad-top='3' id='video-list' list-width='100' visible-cells='6' select-cell='on-select-cell'/>
+			<vertical pad-right="8">
+				<page-button click-event='video-list#PageUp' direction='Up' preferred-width='10' preferred-height='4'/>
+            	<page-button click-event='video-list#PageDown' direction='Down' preferred-width='10' preferred-height='4'/>
+			</vertical>
+        </horizontal>
         <text id='search-results-loading' active='false' font-size='3' text='Loading Results...' align='Center' anchor-pos-y='5'/>
         <modal-keyboard id='search-keyboard' on-enter='on-query' clear-on-open='false' show-event='show-keyboard'
                         hide-event='hide-keyboard' move-to-center='true' click-off-closes='true'/>

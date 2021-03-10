@@ -81,8 +81,7 @@ namespace BeatSaberCinema
 			CreateStatusListener();
 			_deleteButton.transform.localScale *= 0.5f;
 
-			//TODO 1.13.4 System.NullReferenceException
-			//_searchKeyboard.clearOnOpen = false;
+			_searchKeyboard.clearOnOpen = false;
 
 			if (_videoMenuInitialized)
 			{

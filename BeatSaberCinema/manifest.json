@@ -2,14 +2,14 @@
 	"$schema": "https://raw.githubusercontent.com/beat-saber-modding-group/BSIPA-MetadataFileSchema/master/Schema.json",
 	"id": "BeatSaberCinema",
 	"name": "Cinema",
-	"description": "Sync up videos to play alongside your beat maps",
+	"description": "Sync up videos to play in the background of your beatmaps",
 	"author": "Dakari",
-	"gameVersion": "1.13.2",
+	"gameVersion": "1.13.4",
 	"version": "1.4.1",
 	"dependsOn": {
 		"BSIPA": "^4.1.4",
-		"BeatSaberMarkupLanguage": "^1.4.5",
-		"BS Utils": "^1.7.0",
-		"SongCore": "^3.0.3"
+		"BeatSaberMarkupLanguage": "^1.5.1",
+		"BS Utils": "^1.8.0",
+		"SongCore": "^3.2.0"
 	}
 }

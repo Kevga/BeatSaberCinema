@@ -287,12 +287,15 @@ namespace BeatSaberCinema
 
 
 				_previewIgnoreNextUpdate = true;
-				//TODO 1.13.4 preview player volume
-				//const float previewPlayerVolume = 0.8f;
+				const float previewPlayerVolume = 0.9f;
 				SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), startTime, _currentLevel.songDuration);
+				if (_activeAudioSource != null)
+				{
+					_activeAudioSource.volume = previewPlayerVolume;
+				}
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
-				SetAudioSourcePanning(0.85f);
+				SetAudioSourcePanning(0.9f);
 				StartCoroutine(PlayVideoAfterAudioSourceCoroutine(true));
 				VideoPlayer.PanStereo = -1f; // -1 is hard left
 				VideoPlayer.Unmute();

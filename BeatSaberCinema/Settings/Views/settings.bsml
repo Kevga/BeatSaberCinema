@@ -13,7 +13,7 @@
 						  hover-hint='Force the use of the Big Mirror environment for songs with videos.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
 			<bool-setting apply-on-change="true" text='Disable CustomPlatforms' value='disable-custom-platforms'
 						  hover-hint='Prevents custom platforms from loading when a video is playing.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
-			<bool-setting apply-on-change="true" text='Show Cover (Beta)' value='cover-enabled'
+			<bool-setting apply-on-change="true" text='Show Song Cover on Screen' value='cover-enabled'
 						  hover-hint="Shows the song's cover image on screen if the map doesn't have a video.&#xD;&#xA;&#xD;&#xA;This may currently not look great on some environments."></bool-setting>
 		</modifier-container>
 	</tab>
