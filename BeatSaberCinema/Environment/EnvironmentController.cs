@@ -107,14 +107,8 @@ namespace BeatSaberCinema
 						centerLight.SetActive(false);
 					}
 
-					//Not optimal, but if we don't deactivate this, it will override the x position set further down
-					var movementEffect = sceneObjectList.LastOrDefault(x => x.name == "PillarsMovementEffect" && x.activeInHierarchy);
-					if (movementEffect != null)
-					{
-						movementEffect.SetActive(false);
-					}
-
 					var pillarPairs = sceneObjectList.Where(x => x.name.Contains("PillarPair") && x.activeInHierarchy);
+					var movementEffectStartPositions = new List<Vector3>();
 					foreach (var pillarPair in pillarPairs)
 					{
 						var pillarPairName = pillarPair.name;
@@ -144,19 +138,28 @@ namespace BeatSaberCinema
 						{
 							var childPos = child.transform.position;
 							var sign = 1;
-							var newX = 16f;
+
 							if (child.name == "PillarL")
 							{
 								sign *= -1;
 							}
-
+							var newX = 16f;
 							newX = (newX + (i * 2.3f)) * sign;
 							child.transform.position = new Vector3(newX, childPos.y, childPos.z);
+							if (pillarPairName.Contains("SmallPillarPair"))
+							{
+								movementEffectStartPositions.Add(new Vector3(newX, 0, 0));
+							}
 						}
 
 						var pairPos = pillarPair.transform.position;
-						pillarPair.transform.position = new Vector3(pairPos.x, pairPos.y - 2f, pairPos.z);
+						var newPos = new Vector3(pairPos.x, pairPos.y - 2f, pairPos.z);
+						pillarPair.transform.position = newPos;
 					}
+
+					var movementEffect = Resources.FindObjectsOfTypeAll<MovementBeatmapEventEffect>().LastOrDefault(x => x.name == "PillarsMovementEffect");
+					movementEffectStartPositions.Reverse();
+					movementEffect.SetField("_startLocalPositions", movementEffectStartPositions.ToArray());
 
 					if (videoConfig!.screenPosition == null)
 					{
