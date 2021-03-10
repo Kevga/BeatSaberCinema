@@ -377,7 +377,7 @@ namespace BeatSaberCinema
 			HandleDidSelectLevel(level);
 		}
 
-		public void HandleDidSelectLevel(IPreviewBeatmapLevel level)
+		public void HandleDidSelectLevel(IPreviewBeatmapLevel? level)
 		{
 			if (!Plugin.Enabled)
 			{
@@ -389,6 +389,14 @@ namespace BeatSaberCinema
 			if (_currentVideo?.NeedsToSave == true)
 			{
 				VideoLoader.SaveVideoConfig(_currentVideo);
+			}
+
+			if (level == null)
+			{
+				_currentLevel = null;
+				_currentVideo = null;
+				PlaybackController.Instance.SetSelectedLevel(level, _currentVideo);
+				return;
 			}
 
 			_currentLevel = level;

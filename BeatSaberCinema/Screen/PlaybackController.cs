@@ -400,14 +400,14 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public void SetSelectedLevel(IPreviewBeatmapLevel level, VideoConfig? config)
+		public void SetSelectedLevel(IPreviewBeatmapLevel? level, VideoConfig? config)
 		{
 			_previewWaitingForPreviewPlayer = true;
 			_previewWaitingForVideoPlayer = true;
 
 			_currentLevel = level;
 			VideoConfig = config;
-			Log.Debug($"Selected Level: {level.levelID}");
+			Log.Debug($"Selected Level: {level?.levelID}");
 
 			if (VideoConfig == null)
 			{

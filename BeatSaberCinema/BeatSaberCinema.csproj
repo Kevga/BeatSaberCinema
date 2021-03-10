@@ -178,6 +178,7 @@
         <Compile Include="HarmonyPatches\EnvironmentOverridePatch.cs" />
         <Compile Include="HarmonyPatches\LevelSelectionPatch.cs" />
         <Compile Include="HarmonyPatches\MapRequirementPatch.cs" />
+        <Compile Include="HarmonyPatches\MultiplayerPatch.cs" />
         <Compile Include="HarmonyPatches\ObjectCloningPatch.cs" />
         <Compile Include="HarmonyPatches\SongPreviewPatch.cs" />
         <Compile Include="HarmonyPatches\WaitForChromaPatch.cs" />

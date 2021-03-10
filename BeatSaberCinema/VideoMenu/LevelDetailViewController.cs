@@ -61,7 +61,10 @@ namespace BeatSaberCinema
 
 		public void RefreshContent()
 		{
-			_standardLevelDetailViewController.RefreshContentLevelDetailView();
+			if (!Util.IsMultiplayer())
+			{
+				_standardLevelDetailViewController.RefreshContentLevelDetailView();
+			}
 		}
 	}
 }

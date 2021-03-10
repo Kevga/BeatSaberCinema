@@ -96,7 +96,7 @@ namespace BeatSaberCinema
 
 		public static bool IsMultiplayer()
 		{
-			return BS_Utils.Plugin.LevelData.Mode == BS_Utils.Gameplay.Mode.Multiplayer;
+			return MultiplayerPatch.IsMultiplayer;
 		}
 	}
 }
