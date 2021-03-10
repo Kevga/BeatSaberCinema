@@ -28,11 +28,12 @@ namespace BeatSaberCinema
 		public SerializableVector3? screenRotation;
 		public float? screenHeight;
 		public float? screenCurvature;
+		public float? bloom;
 		public bool? disableBigMirrorOverride;
 		public bool? disableDefaultModifications;
 		public bool? forceEnvironmentModifications;
 		public bool? allowCustomPlatform;
-		public float? bloom;
+		public bool? mergePropGroups;
 
 		public ColorCorrection? colorCorrection;
 		public Vignette? vignette;

@@ -489,9 +489,10 @@ namespace BeatSaberCinema
 				var clone = Object.Instantiate(originalObject, originalObject.transform.parent);
 				objectToBeCloned.clonedObject = clone;
 
-				//Move the new object far away to prevent changing the prop IDs that chroma assigns
+				//Move the new object far away to prevent changing the prop IDs that chroma assigns, but only if "mergePropGroups" is not set
 				var position = clone.transform.position;
-				var newPosition = new Vector3(position.x, position.y, position.z + CLONED_OBJECT_Z_OFFSET);
+				var zOffset = (config.mergePropGroups == null || config.mergePropGroups == false ? CLONED_OBJECT_Z_OFFSET : 0);
+				var newPosition = new Vector3(position.x, position.y, position.z + zOffset);
 				clone.transform.position = newPosition;
 
 				//If the object has no position specified, add a position that reverts the z-offset
