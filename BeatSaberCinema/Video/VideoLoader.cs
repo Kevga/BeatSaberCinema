@@ -16,7 +16,7 @@ namespace BeatSaberCinema
 {
 	public static class VideoLoader
 	{
-		private const string OST_DIRECTORY_NAME = "CinemaOSTVideos";
+		public const string OST_DIRECTORY_NAME = "CinemaOSTVideos";
 		private const string WIP_DIRECTORY_NAME = "CustomWIPLevels";
 		private const string CONFIG_FILENAME = "cinema-video.json";
 		private const string CONFIG_FILENAME_MVP = "video.json";
@@ -97,9 +97,9 @@ namespace BeatSaberCinema
 			return config;
 		}
 
-		private static VideoConfig? GetConfigFromBundledConfigs(IPreviewBeatmapLevel level)
+		public static VideoConfig? GetConfigFromBundledConfigs(string levelID)
 		{
-			BundledConfigs.TryGetValue(level.levelID, out var config);
+			BundledConfigs.TryGetValue(levelID, out var config);
 			return config;
 		}
 
@@ -225,7 +225,7 @@ namespace BeatSaberCinema
 			}
 			else
 			{
-				videoConfig = GetConfigFromBundledConfigs(level);
+				videoConfig = GetConfigFromBundledConfigs(level.levelID);
 				if (videoConfig == null)
 				{
 					return videoConfig;
@@ -240,6 +240,11 @@ namespace BeatSaberCinema
 
 		public static string GetLevelPath(IPreviewBeatmapLevel level)
 		{
+			if (level.levelID == NothingToSeeHere.LEVEL_ID)
+			{
+				return NothingToSeeHere.GetPath();
+			}
+
 			if (level is CustomPreviewBeatmapLevel customlevel)
 			{
 				return customlevel.customLevelPath;

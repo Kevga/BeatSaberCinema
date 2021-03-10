@@ -26,6 +26,7 @@ namespace BeatSaberCinema
 	        }
 
 	        Events.SetSelectedLevel(null);
+	        NothingToSeeHere.MultiplayerLobbyJoined();
         }
     }
 }

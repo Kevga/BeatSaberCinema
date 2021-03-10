@@ -99,6 +99,7 @@ namespace BeatSaberCinema
 			_downloadController.DownloadProgress += OnDownloadProgress;
 			_downloadController.DownloadFinished += OnDownloadFinished;
 			VideoLoader.ConfigChanged += OnConfigChanged;
+			NothingToSeeHere.Init(_downloadController);
 
 			if (!_downloadController.LibrariesAvailable())
 			{
