@@ -433,6 +433,7 @@ namespace BeatSaberCinema
 
 		private static List<GameObject>? SelectObjectsFromScene(string name, string? parentName, bool clone = false, IEnumerable<GameObject>? sceneObjectList = null)
 		{
+			name = TranslateNameForBackwardsCompatibility(name);
 			if (clone)
 			{
 				name += CLONED_OBJECT_NAME_SUFFIX;
@@ -577,6 +578,18 @@ namespace BeatSaberCinema
 				meshRendererList.Add(renderer);
 			}
 			component.SetField("_meshRenderers", meshRendererList.ToArray());
+		}
+
+		private static string TranslateNameForBackwardsCompatibility(string name)
+		{
+			return name switch
+			{
+				"GlowLineL" => "NeonTubeDirectionalL",
+				"GlowLineL2" => "NeonTubeDirectionalFL",
+				"GlowLineR" => "NeonTubeDirectionalR",
+				"GlowLineR2" => "NeonTubeDirectionalFR",
+				_ => name
+			};
 		}
 	}
 }
