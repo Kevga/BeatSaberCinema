@@ -566,7 +566,7 @@ namespace BeatSaberCinema
 				case DownloadState.NotDownloaded:
 				case DownloadState.Cancelled:
 					_currentVideo.DownloadProgress = 0;
-					_downloadController.StartDownload(_currentVideo);
+					_downloadController.StartDownload(_currentVideo, SettingsStore.Instance.QualityMode);
 					_currentVideo.NeedsToSave = true;
 					VideoLoader.AddConfigToCache(_currentVideo, _currentLevel!);
 					break;
@@ -738,7 +738,7 @@ namespace BeatSaberCinema
 			VideoConfig config = new VideoConfig(_downloadController.SearchResults[_selectedCell], VideoLoader.GetLevelPath(_currentLevel));
 			config.NeedsToSave = true;
 			VideoLoader.AddConfigToCache(config, _currentLevel);
-			_downloadController.StartDownload(config);
+			_downloadController.StartDownload(config, SettingsStore.Instance.QualityMode);
 			_currentVideo = config;
 			SetupVideoDetails();
 		}

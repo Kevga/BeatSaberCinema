@@ -230,20 +230,20 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public void StartDownload(VideoConfig video)
+		public void StartDownload(VideoConfig video, VideoQuality.Mode quality)
 		{
 			DisposeProcess(_searchProcess);
-			SharedCoroutineStarter.instance.StartCoroutine(DownloadVideoCoroutine(video));
+			SharedCoroutineStarter.instance.StartCoroutine(DownloadVideoCoroutine(video, quality));
 		}
 
-		private IEnumerator DownloadVideoCoroutine(VideoConfig video)
+		private IEnumerator DownloadVideoCoroutine(VideoConfig video, VideoQuality.Mode quality)
 		{
 			Log.Info($"Starting download of {video.title}");
 
 			video.DownloadState = DownloadState.Downloading;
 			DownloadProgress?.Invoke(video);
 
-			Process downloadProcess = StartDownloadProcess(video);
+			Process downloadProcess = StartDownloadProcess(video, quality);
 
 			Log.Info(
 				$"youtube-dl command: \"{downloadProcess.StartInfo.FileName}\" {downloadProcess.StartInfo.Arguments}");
@@ -349,7 +349,7 @@ namespace BeatSaberCinema
 			DownloadFinished?.Invoke(video);
 		}
 
-		private Process StartDownloadProcess(VideoConfig video)
+		private Process StartDownloadProcess(VideoConfig video, VideoQuality.Mode quality)
 		{
 			if (video.LevelDir == null)
 			{
@@ -373,7 +373,7 @@ namespace BeatSaberCinema
 				{
 					FileName = _youtubeDLFilepath,
 					Arguments = "https://www.youtube.com/watch?v=" + video.videoID +
-					            $" -f \"{VideoQuality.ToYoutubeDLFormat(SettingsStore.Instance.QualityMode)}\"" + // Formats
+					            $" -f \"{VideoQuality.ToYoutubeDLFormat(quality)}\"" + // Formats
 					            " --no-cache-dir" + // Don't use temp storage
 					            $" -o \"{videoFileName}.%(ext)s\"" +
 					            " --no-playlist" + // Don't download playlists, only the first video
