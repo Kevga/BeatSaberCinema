@@ -97,7 +97,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			BloomPrePass bloomPrePass;
+			BloomPrePass bloomPrePass = null!;
 			try
 			{
 				bloomPrePass = camera.GetComponent<BloomPrePass>();
@@ -105,12 +105,16 @@ namespace BeatSaberCinema
 			catch (Exception e)
 			{
 				_bloomPrePassDict.Add(camera, null);
-				Log.Info($"Failed to find BloomPrePass for camera {camera.name}");
 				Log.Debug(e);
-				return;
 			}
 
 			_bloomPrePassDict.Add(camera, bloomPrePass);
+			if (bloomPrePass == null)
+			{
+				Log.Info($"Failed to find BloomPrePass for camera {camera.name}");
+				return;
+			}
+
 			_bloomPrePassRendererDict.Add(camera, bloomPrePass.GetField<BloomPrePassRendererSO, BloomPrePass>("_bloomPrepassRenderer"));
 			_bloomPrePassRenderDataDict.Add(camera, bloomPrePass.GetField<BloomPrePassRenderDataSO.Data, BloomPrePass>("_renderData"));
 			var effectsContainer = bloomPrePass.GetField<BloomPrePassEffectContainerSO, BloomPrePass>("_bloomPrePassEffectContainer");
@@ -165,7 +169,10 @@ namespace BeatSaberCinema
 			catch (Exception e)
 			{
 				Log.Error(e);
-				_bloomPrePassDict.Add(camera, null);
+				if (!_bloomPrePassDict.ContainsKey(camera))
+				{
+					_bloomPrePassDict.Add(camera, null);
+				}
 			}
 
 			_bloomPrePassDict.TryGetValue(camera, out var bloomPrePass);
