@@ -45,7 +45,7 @@ Click download in the center of the menu and wait for the download to complete, 
 
 You can of course add videos to any song you like, even if they are not pre-configured. The menu will in that case show you a button labeled "Search", which will lead you to the search results from YouTube. After you choose a video, you will have to adjust the video offset. To do so, simply click the "Preview" button to play the video, and use the "+" or "-" buttons to adjust the offset until the sound from both ears lines up. Sound from the video will play in your left ear, the map in your right ear. If the sound from the left ear is behind, use the "+" buttons, otherwise the "-" buttons. If you have trouble hearing which one is ahead, try stopping and restarting the preview and listen to which one starts earlier. The sync doesn't have to be exactly perfect though, in most cases you won't notice a slight error in either direction when playing the map.
 
-Cinema is also compatible with video configs created with MusicVideoPlayer. However, you can't use both plugins at the same time. If MVP is installed as well, Cinema will not be enabled to avoid conflicts.
+Cinema is also compatible with video configs created with MusicVideoPlayer.
 
 ## Info for Mappers
 
