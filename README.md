@@ -5,7 +5,10 @@ A Beat Saber plugin that allows you to sync up videos to play in the background 
 ## How to use
 
 ### 1. Installation
-To install Cinema, download the latest release [from here](https://github.com/Kevga/BeatSaberCinema/releases/latest) and simply unzip all of it's contents into the Beat Saber folder. Make sure you don't skip the files in the Libs folder, as those are required, too.
+
+The simplest way to install Cinema is to download it from ModAssistant.
+
+If you want to install Cinema manually, download the latest release [from here](https://github.com/Kevga/BeatSaberCinema/releases/latest) and simply unzip all of it's contents into the Beat Saber folder. Make sure you don't skip the files in the Libs folder, as those are required, too.
 
 Additionally, the following plugins are **required** for Cinema to work:
 
@@ -14,10 +17,8 @@ Additionally, the following plugins are **required** for Cinema to work:
 - BS Utils
 - SongCore
 
-You can find all of these in ModAssistant.
-
 ### 2. Download Pre-Configured Maps (*optional*)
-The plugin includes more than 90 video configurations for custom maps for you to try, as well as a few configs for DLC and OST songs. Here are some examples:
+The plugin includes about 100 video configurations for custom maps for you to try, as well as a few configs for DLC and OST songs. Here are some examples:
 
 - [Madeon - The Prince \[Bearly & dgrj4life\]](https://beatsaver.com/beatmap/110ac)
 - [2WEI feat. Edda Hayes - Warriors \[halcyon12\]](https://beatsaver.com/beatmap/8e98)
@@ -32,7 +33,7 @@ A playlist file (.bplist) with all pre-configured maps is included in the releas
 
 A readable full list of maps with videos (without download links) can be found [here](Resources/bundled-configs.txt).
 
-**Please note that you can add a video to any map you like, the maps listed here are not the only ones Cinema works with**.
+**Please note that you can add a video to any map you like, the maps listed here are not the only ones Cinema works with**. Some maps even come with a video config included by the mapper, these are not found in the previously mentioned playlist.
 
 
 ### 3. Downloading Videos
@@ -64,7 +65,9 @@ If you have any questions, please contact me on Discord (Dakari#0638).
 
 *This section is intended for mappers*
 
-Editing the json file by hand allows you to modify some settings that are not available in-game, for example to create a custom screen placement. Cinema includes the ability to change any object in the game scene, to better fit the video screen in environments that are currently not supported by Cinema. When editing the json file by hand, consider using a json validator to check for errors afterwards.
+Editing the json file by hand allows you to modify some settings that are not available in-game, for example to create a custom screen placement. Doing so is completely optional however, the default settings should give a good experience in most cases.
+
+Cinema includes the ability to change any object in the game scene, to better fit the video screen in environments that are currently not supported by Cinema. When editing the json file by hand, consider using a json validator to check for errors afterwards.
 
 The mod implements hot reloading the config file, so **changes to the video config take effect immediately upon saving the file**. This even applies while you are playing the map you are editing.
 
@@ -75,7 +78,7 @@ The following tables list the currently available configuration options:
 These basic settings get set automatically when you add a video to your map.
 
 | Property                   		| Data Type | Default       	    | Description |
-| ----------------------------------|:---------:|:---------------------:| ----------- |
+| --------------------------------- |:---------:|:---------------------:| ----------- |
 | `videoID`                  		| string    | *none*           	 	| The YouTube video ID from the part after the `&v=` in the URL, e.g.: youtube.com/watch?v=**\_qwnHeMKbVA** |
 | `title`                    		| string    | Untitled Video   	 	| The title of the video. Will be shown to the user. |
 | `author`                   		| string    | Unknown Author   	 	| The name of the video's uploader. Will be shown to the user. |
@@ -89,7 +92,7 @@ These basic settings get set automatically when you add a video to your map.
 Optional settings which you can set to fine tune the form and function of the video player.
 
 | Property                   		| Data Type | Default       	    				| Description |
-| ----------------------------------|:---------:|:------------------------------------:	| ----------- |
+| --------------------------------- |:---------:|:------------------------------------:	| ----------- |
 | `loop`                     		| bool      | false            	 					| Whether the video should loop if it ends before the map does. |
 | `endVideoAt`				 		| float     | *none*			 					| This parameter allows you to let a video end early (e.g. to hide sponsor segments, credits, logos etc.). The time references the video time, not the map time. The video will be paused at that time, and the last displayed frame stays until the map ends. Value is in seconds (e.g.: 296.5 would be 4 minutes and 56.5 seconds)  |
 | `screenPosition`           		| Vector3   | `{"x": 0.0,"y": 12.4,"z": 67.8}`	 	| This setting can be used to create a custom positioning of the video player. **x** is the deviation from the center, **y** is up/down and **z** controls the distance. **y** should usually be about half of the video height minus 0.1 if you want the video to be above the track. |
@@ -111,7 +114,7 @@ These settings are categorized under a top-level property named `colorCorrection
 When adjusting these values, you can make use of the hot reloading capability of Cinema. Simply start the map, pause the game at a frame of the video you want to look differently, and start editing the config to see the results immediately.
 
 | Property                   		| Data Type | Default       	    				| Description |
-| ----------------------------------|:---------:|:------------------------------------:	| ----------- |
+| --------------------------------- |:---------:|:-------------------------------------:| ----------- |
 | `brightness`				 		| float		| 1.0				 					| Valid range: 0 to 2 |
 | `contrast`				 		| float		| 1.0				 					| Valid range: 0 to 5 |
 | `saturation`				 		| float		| 1.0				 					| Valid range: 0 to 5 |
@@ -133,7 +136,7 @@ Example:
 Using the vignette effect you can change the shape of the video player or soften its edges.
 
 | Property                   		| Data Type | Default       	    				| Description |
-| ----------------------------------|:---------:|:------------------------------------:	| ----------- |
+| --------------------------------- |:---------:|:-------------------------------------:| ----------- |
 | `type`					 		| string	| "rectangular"		 					| Either "elliptical" or "rectangular". Changes how the radius and softness parameters behave. |
 | `radius`					 		| float		| 1.0				 					| Valid range: 0 to 1. If the type is "elliptical", the optimal value is 0.5 or below, since you will still see edges on the left and right on higher values. |
 | `softness`				 		| float		| 0.005				 					| Valid range: 0 to 1. Defines the sharpness of the cutout. If you only want to soften the edges, leave the radius at 1 and only slightly increase the softness. By default, videos have a very slight vignette which basically serves as antialiasing for the screen borders. |
@@ -152,7 +155,7 @@ Example:
 There is an additional property called `environment` which can be used to alter other objects in the game scene. The `environment` parameter is an array that contains `EnvironmentModification` objects, which currently can have the following parameters:
 
 | Property                   		| Data Type | Example 	| Description |
-| ----------------------------------|:---------:| ---------	| ----------- |
+| --------------------------------- |:---------:| ---------	| ----------- |
 | `name`							| string	| "Floor" 	| Specifies the name of the object. The name needs to be an exact match, not a substring. If there are multiple objects with the given name, all of them will be modified.
 | `parentName`						| string	| "Environment" | Specifies the name object's parent in the scene hierarchy. Can be used to differentiate between objects with the same name. Example: KDA has two different objects named "Construction", with the parent's names being "Environment" and "PlayersPlace".
 | `cloneFrom`						| string	| "Laser"   | If this is set, a new object will be created (cloned). In this case, the `name` parameter will set the name of the newly created object, while the `cloneFrom` parameter will be the object that is cloned.
