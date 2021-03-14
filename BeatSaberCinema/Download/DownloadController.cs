@@ -21,6 +21,7 @@ namespace BeatSaberCinema
 		private Coroutine? _searchCoroutine;
 		private Process? _searchProcess;
 		private Process? _downloadProcess;
+		private string _downloadLog = "";
 		private bool SearchInProgress
 		{
 			get
@@ -240,6 +241,7 @@ namespace BeatSaberCinema
 		{
 			Log.Info($"Starting download of {video.title}");
 
+			_downloadLog = "";
 			video.DownloadState = DownloadState.Downloading;
 			DownloadProgress?.Invoke(video);
 
@@ -280,6 +282,7 @@ namespace BeatSaberCinema
 				VideoLoader.DeleteVideo(video);
 			}
 
+			_downloadLog += eventArgs.Data+"\r\n";
 			Log.Debug(eventArgs.Data);
 			ParseDownloadProgress(video, eventArgs);
 		}
@@ -289,10 +292,7 @@ namespace BeatSaberCinema
 			Log.Error(eventArgs.Data);
 			video.DownloadState = DownloadState.Cancelled;
 			DownloadProgress?.Invoke(video);
-			if (video.DownloadState == DownloadState.Cancelled || eventArgs.Data.Contains("Unable to extract video data"))
-			{
-				DisposeProcess((Process) sender);
-			}
+			DisposeProcess((Process) sender);
 		}
 
 		private void DownloadProcessExited(object sender, VideoConfig video, Timer timer)
@@ -300,7 +300,19 @@ namespace BeatSaberCinema
 			timer.Stop();
 			timer.Close();
 
-			Log.Info("Download process exited with code "+((Process) sender).ExitCode);
+			var exitCode = ((Process) sender).ExitCode;
+
+			if (exitCode != 0)
+			{
+				Log.Warn(_downloadLog.Length > 0 ? _downloadLog : "Empty youtube-dl log");
+
+				video.DownloadState = DownloadState.Cancelled;
+			}
+			Log.Info($"Download process exited with code {exitCode}");
+			if (exitCode == -1073741515)
+			{
+				Log.Error("youtube-dl did not run. Possibly missing vc++ 2010 redist: https://www.microsoft.com/en-US/download/details.aspx?id=5555");
+			}
 
 			if (video.DownloadState == DownloadState.Cancelled)
 			{
@@ -316,8 +328,8 @@ namespace BeatSaberCinema
 			}
 
 			DisposeProcess(_downloadProcess);
-
 			_downloadProcess = null;
+			_downloadLog = "";
 		}
 
 		private static void ParseDownloadProgress(VideoConfig video, DataReceivedEventArgs dataReceivedEventArgs)
