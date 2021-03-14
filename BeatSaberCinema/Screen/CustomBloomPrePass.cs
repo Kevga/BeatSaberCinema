@@ -24,7 +24,7 @@ namespace BeatSaberCinema
 		private const int DOWNSAMPLE = 2;
 		private const float BLOOM_BOOST_FACTOR = 0.11f;
 		private float? _bloomIntensityConfigSetting;
-		private Vector2 _screnDimensions;
+		private Vector2 _screenDimensions;
 
 		private void Start()
 		{
@@ -47,7 +47,7 @@ namespace BeatSaberCinema
 
 		public void UpdateScreenDimensions(float width, float height)
 		{
-			_screnDimensions = new Vector2(width, height);
+			_screenDimensions = new Vector2(width, height);
 		}
 
 		public void SetBloomIntensityConfigSetting(float? bloomIntensity)
@@ -60,7 +60,7 @@ namespace BeatSaberCinema
 			var fov = camera.fieldOfView;
 
 			//Base calculation scales down with screen width and up with distance
-			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(_screnDimensions.x/GetCameraDistance(camera)));
+			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(_screenDimensions.x/GetCameraDistance(camera)));
 
 			//Apply map/user setting on top
 			if (_bloomIntensityConfigSetting != null)
@@ -73,12 +73,14 @@ namespace BeatSaberCinema
 				boost *= (float) Math.Sqrt(SettingsStore.Instance.BloomIntensity / 100f);
 			}
 
-
 			//Mitigate extreme amounts of bloom at the edges of the camera frustum when not looking directly at the screen
-			var distance = Vector3.Distance(camera.transform.forward, Vector3.forward);
+			var targetDirection = gameObject.transform.position - camera.transform.position;
+			var angle = Vector3.Angle(targetDirection, camera.transform.forward);
+			angle /= (fov/2);
 			const float threshold = 0.3f;
-			distance = Math.Max(threshold, distance); //Prevent brightness from fluctuating when looking close to the center
-			boost /= ((distance + (1 - threshold)) * (fov / 100f));
+			//Prevent brightness from fluctuating when looking close to the center
+			angle = Math.Max(threshold, angle);
+			boost /= ((angle + (1 - threshold)) * (fov / 100f));
 
 			//Adjust for FoV
 			boost *= fov / 100f;
@@ -97,17 +99,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			BloomPrePass bloomPrePass = null!;
-			try
-			{
-				bloomPrePass = camera.GetComponent<BloomPrePass>();
-			}
-			catch (Exception e)
-			{
-				_bloomPrePassDict.Add(camera, null);
-				Log.Debug(e);
-			}
-
+			var bloomPrePass = camera.GetComponent<BloomPrePass>();
 			_bloomPrePassDict.Add(camera, bloomPrePass);
 			if (bloomPrePass == null)
 			{
