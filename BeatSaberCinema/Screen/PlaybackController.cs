@@ -370,7 +370,7 @@ namespace BeatSaberCinema
 			}
 			else
 			{
-				VideoPlayer.SetPlacement(new Placement(config, _activeScene));
+				VideoPlayer.SetPlacement(new Placement(config, _activeScene, VideoPlayer.GetVideoAspectRatio()));
 			}
 
 			if (previousVideoPath != config.VideoPath)
@@ -484,7 +484,7 @@ namespace BeatSaberCinema
 				VideoLoader.SaveVideoConfig(VideoConfig);
 			}
 
-			VideoPlayer.SetPlacement(Util.IsMultiplayer() ? Placement.MultiplayerPlacement : new Placement(VideoConfig, _activeScene));
+			VideoPlayer.SetPlacement(Util.IsMultiplayer() ? Placement.MultiplayerPlacement : new Placement(VideoConfig, _activeScene, VideoPlayer.GetVideoAspectRatio()));
 
 			SetAudioSourcePanning(0);
 			VideoPlayer.Mute();

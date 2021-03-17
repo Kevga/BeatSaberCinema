@@ -367,7 +367,7 @@ namespace BeatSaberCinema
 					}
 
 					//Use different defaults for this environment
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay);
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
 					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.2f, 52.7f);
 					placement.Rotation = videoConfig?.screenRotation ?? Vector3.zero;
 					placement.Height = videoConfig?.screenHeight ?? 16f;

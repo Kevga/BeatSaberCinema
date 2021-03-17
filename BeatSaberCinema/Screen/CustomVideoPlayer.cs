@@ -413,7 +413,7 @@ namespace BeatSaberCinema
 			Log.Error("Video player error: " + message);
 		}
 
-		private float GetVideoAspectRatio()
+		public float GetVideoAspectRatio()
 		{
 			var texture = Player.texture;
 			if (texture != null && texture.width != 0 && texture.height != 0)

@@ -43,13 +43,13 @@ namespace BeatSaberCinema
 			Width = width ?? (height * (16f / 9f));
 		}
 
-		public Placement(VideoConfig? config, PlaybackController.Scene scene)
+		public Placement(VideoConfig? config, PlaybackController.Scene scene, float aspectRatio)
 		{
 			var defaultPlacement = GetDefaultPlacementForScene(scene);
 			Position = config?.screenPosition ?? defaultPlacement.Position;
 			Rotation = config?.screenRotation ?? defaultPlacement.Rotation;
 			Height = config?.screenHeight ?? defaultPlacement.Height;
-			Width = Height * (16f / 9f);
+			Width = Height * aspectRatio;
 			Curvature = config?.screenCurvature;
 		}
 

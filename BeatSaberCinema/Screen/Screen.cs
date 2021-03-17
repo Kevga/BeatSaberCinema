@@ -112,6 +112,7 @@ namespace BeatSaberCinema
 		{
 			_screenSurface.Width = _screenSurface.Height * ratio;
 			_screenBodySurface.Width = _screenSurface.Height * ratio;
+			_screenBloomPrePass.UpdateScreenDimensions(_screenSurface.Width, _screenSurface.Height);
 			RegenerateScreenSurfaces();
 		}
 	}
