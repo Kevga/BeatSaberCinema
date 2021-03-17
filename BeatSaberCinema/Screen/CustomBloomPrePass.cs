@@ -26,6 +26,9 @@ namespace BeatSaberCinema
 		private float? _bloomIntensityConfigSetting;
 		private Vector2 _screenDimensions;
 
+		private float BloomIntensity =>
+			Mathf.Clamp(_bloomIntensityConfigSetting ?? SettingsStore.Instance.BloomIntensity / 100f, 0f, 2f);
+
 		private void Start()
 		{
 			UpdateMesh();
@@ -63,10 +66,7 @@ namespace BeatSaberCinema
 
 			//Apply map/user setting on top
 			//User-facing setting uses scale of 0-200 (in percent), so divide by 100
-			var bloomIntensity = _bloomIntensityConfigSetting ?? SettingsStore.Instance.BloomIntensity / 100f;
-			bloomIntensity = Mathf.Clamp(bloomIntensity, 0f, 2f);
-			bloomIntensity = (float) Math.Sqrt(bloomIntensity);
-			boost *= bloomIntensity;
+			boost *= (float) Math.Sqrt(BloomIntensity);
 
 			//Mitigate extreme amounts of bloom at the edges of the camera frustum when not looking directly at the screen
 			var fov = camera.fieldOfView;
@@ -148,6 +148,11 @@ namespace BeatSaberCinema
 			//TODO Fix SmoothCamera instead of skipping. Current workaround is to use CameraPlus instead. Investigate what BloomPrePassRendererSO does differently
 			//Mirror cam has no BloomPrePass
 			if (camera.name == "SmoothCamera" || camera.name.StartsWith("MirrorCam"))
+			{
+				return;
+			}
+
+			if (BloomIntensity == 0)
 			{
 				return;
 			}
