@@ -22,7 +22,7 @@ namespace BeatSaberCinema
 		private Mesh _mesh = null!;
 		private static readonly int Alpha = Shader.PropertyToID("_Alpha");
 		private const int DOWNSAMPLE = 2;
-		private const float BLOOM_BOOST_FACTOR = 0.11f;
+		private const float BLOOM_BOOST_BASE_FACTOR = 0.09f;
 		private float? _bloomIntensityConfigSetting;
 		private Vector2 _screenDimensions;
 
@@ -57,33 +57,31 @@ namespace BeatSaberCinema
 
 		private float GetBloomBoost(Camera camera)
 		{
-			var fov = camera.fieldOfView;
-
-			//Base calculation scales down with screen width and up with distance
-			var boost = (BLOOM_BOOST_FACTOR / (float) Math.Sqrt(_screenDimensions.x/GetCameraDistance(camera)));
+			//Base calculation scales down with screen area and up with distance
+			var area = _screenDimensions.x * _screenDimensions.y;
+			var boost = (BLOOM_BOOST_BASE_FACTOR / (float) Math.Sqrt(Math.Sqrt(area)/GetCameraDistance(camera)));
 
 			//Apply map/user setting on top
-			if (_bloomIntensityConfigSetting != null)
-			{
-				_bloomIntensityConfigSetting = Math.Min(2f, Math.Max(0f, _bloomIntensityConfigSetting.Value));
-				boost *= (float) Math.Sqrt(_bloomIntensityConfigSetting.Value);
-			}
-			else
-			{
-				boost *= (float) Math.Sqrt(SettingsStore.Instance.BloomIntensity / 100f);
-			}
+			//User-facing setting uses scale of 0-200 (in percent), so divide by 100
+			var bloomIntensity = _bloomIntensityConfigSetting ?? SettingsStore.Instance.BloomIntensity / 100f;
+			bloomIntensity = Mathf.Clamp(bloomIntensity, 0f, 2f);
+			bloomIntensity = (float) Math.Sqrt(bloomIntensity);
+			boost *= bloomIntensity;
 
 			//Mitigate extreme amounts of bloom at the edges of the camera frustum when not looking directly at the screen
-			var targetDirection = gameObject.transform.position - camera.transform.position;
-			var angle = Vector3.Angle(targetDirection, camera.transform.forward);
-			angle /= (fov/2);
+			var fov = camera.fieldOfView;
+			var cameraTransform = camera.transform;
+			var targetDirection = gameObject.transform.position - cameraTransform.position;
+			var angle = Vector3.Angle(targetDirection, cameraTransform.forward);
+			var attenuation = angle / (fov/2);
+			//Prevent attenuation from causing brightness fluctuations when looking close to the center
 			const float threshold = 0.3f;
-			//Prevent brightness from fluctuating when looking close to the center
-			angle = Math.Max(threshold, angle);
-			boost /= ((angle + (1 - threshold)) * (fov / 100f));
+			attenuation = Math.Max(threshold, attenuation);
+			boost /= ((attenuation + (1 - threshold)));
 
 			//Adjust for FoV
 			boost *= fov / 100f;
+
 			return boost;
 		}
 
