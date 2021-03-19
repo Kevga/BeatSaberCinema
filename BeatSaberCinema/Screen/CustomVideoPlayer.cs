@@ -121,12 +121,33 @@ namespace BeatSaberCinema
 
 			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
 			SetDefaultMenuPlacement();
+
+#if DEBUG
+			var shaderWatcher = new FileSystemWatcher();
+			var projectDir = Environment.GetEnvironmentVariable("CinemaProjectDir");
+			if (projectDir == null)
+			{
+				return;
+			}
+
+			var configPath = projectDir + "\\BeatSaberCinema\\Resources\\bscinema.bundle";
+			shaderWatcher.Path = Path.GetDirectoryName(configPath);
+			shaderWatcher.Filter = Path.GetFileName(configPath);
+			shaderWatcher.EnableRaisingEvents = true;
+			shaderWatcher.Changed += ReloadShader;
+#endif
 		}
 
 		public void OnDestroy()
 		{
 			BSEvents.menuSceneLoaded -= OnMenuSceneLoaded;
 			_fadeController.EasingUpdate -= FadeControllerUpdate;
+		}
+
+#if DEBUG
+		private void ReloadShader(object sender, FileSystemEventArgs fileSystemEventArgs)
+		{
+			StartCoroutine(ReloadShaderCoroutine(fileSystemEventArgs.FullPath));
 		}
 
 		private IEnumerator ReloadShaderCoroutine(string path)
@@ -139,6 +160,7 @@ namespace BeatSaberCinema
 			var timeout2 = new Timeout(1f);
 			yield return new WaitUntil(() => timeout2.HasTimedOut);
 		}
+#endif
 
 		private void CreateScreen()
 		{
