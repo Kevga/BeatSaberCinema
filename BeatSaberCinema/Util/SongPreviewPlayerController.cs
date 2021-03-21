@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using BS_Utils.Utilities;
 using UnityEngine;
 
 namespace BeatSaberCinema
@@ -7,32 +6,21 @@ namespace BeatSaberCinema
 	public static class SongPreviewPlayerController
 	{
 		public static SongPreviewPlayer? SongPreviewPlayer;
-		public static AudioSource[]? AudioSources;
 		public static AudioSource? ActiveAudioSource;
-		private static object[]? _audioSourceControllers;
+		public static SongPreviewPlayer.AudioSourceVolumeController[]? AudioSourceControllers;
 		private static int _channelCount;
 		private static int _activeChannel;
 		private static AudioClip? _currentAudioClip;
 		public static void Init()
 		{
-			_audioSourceControllers = null;
-			AudioSources = null;
+			AudioSourceControllers = null;
 			SongPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().Last();
 		}
 
-		public static void SetFields(object[] audioSourceControllers, int channelCount, int activeChannel,
+		public static void SetFields(SongPreviewPlayer.AudioSourceVolumeController[] audioSourceControllers, int channelCount, int activeChannel,
 				AudioClip? audioClip, float startTime, float timeToDefault)
 		{
-			if (_audioSourceControllers == null)
-			{
-				_audioSourceControllers = audioSourceControllers;
-				AudioSources = new AudioSource[channelCount];
-				for (var i = 0;	i < channelCount; i++)
-				{
-					AudioSources[i] = audioSourceControllers[i].GetField<AudioSource>("audioSource");
-				}
-			}
-
+			AudioSourceControllers = audioSourceControllers;
 			_channelCount = channelCount;
 			_activeChannel = activeChannel;
 			_currentAudioClip = audioClip;
@@ -47,7 +35,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (AudioSources == null)
+			if (AudioSourceControllers == null)
 			{
 				Log.Warn("Audiosources null in when updating playback controller");
 				return;
@@ -61,11 +49,11 @@ namespace BeatSaberCinema
 
 			if (_currentAudioClip.name == "LevelCleared")
 			{
-				Log.Warn($"Ignoring {_currentAudioClip.name} sound");
+				Log.Debug($"Ignoring {_currentAudioClip.name} sound");
 				return;
 			}
 
-			ActiveAudioSource = AudioSources[_activeChannel];
+			ActiveAudioSource = AudioSourceControllers[_activeChannel].audioSource;
 			Log.Debug($"SongPreviewPatch -- channel {_activeChannel} -- startTime {startTime} -- timeRemaining {timeToDefault} -- audioclip {_currentAudioClip.name}");
 			if (PlaybackController.Instance != null)
 			{

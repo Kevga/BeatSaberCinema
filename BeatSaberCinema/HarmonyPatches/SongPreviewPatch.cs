@@ -12,7 +12,7 @@ namespace BeatSaberCinema
 	{
 		[UsedImplicitly]
 		public static void Postfix(int ____activeChannel, float ____timeToDefaultAudioTransition,
-			object[] ____audioSourceControllers, int ____channelsCount, AudioClip audioClip, float startTime)
+			SongPreviewPlayer.AudioSourceVolumeController[] ____audioSourceControllers, int ____channelsCount, AudioClip audioClip, float startTime)
 		{
 			try
 			{

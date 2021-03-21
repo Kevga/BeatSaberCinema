@@ -23,6 +23,7 @@ namespace BeatSaberCinema
 		public CustomVideoPlayer VideoPlayer = null!;
 		private AudioSource? _activeAudioSource;
 		private AudioTimeSyncController? _timeSyncController;
+		private MainSettingsModelSO? _mainSettingsModel;
 		private float _lastKnownAudioSourceTime;
 		private float _previewStartTime;
 		private float _previewTimeRemaining;
@@ -524,7 +525,7 @@ namespace BeatSaberCinema
 		{
 			try
 			{
-				if (SongPreviewPlayerController.AudioSources == null)
+				if (SongPreviewPlayerController.AudioSourceControllers == null)
 				{
 					return;
 				}
@@ -533,12 +534,9 @@ namespace BeatSaberCinema
 				// Otherwise only change the active channel.
 				if (pan == 0f || _activeAudioSource == null)
 				{
-					foreach (var source in SongPreviewPlayerController.AudioSources)
+					foreach (var sourceVolumeController in SongPreviewPlayerController.AudioSourceControllers)
 					{
-						if (source != null)
-						{
-							source.panStereo = pan;
-						}
+						sourceVolumeController.audioSource.panStereo = pan;
 					}
 				}
 				else
