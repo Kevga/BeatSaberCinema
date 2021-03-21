@@ -38,7 +38,8 @@ namespace BeatSaberCinema
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
 		private float _correctPlaybackSpeed = 1.0f;
-		private const float MAX_VOLUME = 0.45f;
+		private const float MAX_VOLUME = 0.5f;
+		[NonSerialized] public float VolumeScale = 1.0f;
 		private bool _muted = true;
 		private bool _bodyVisible;
 		private bool _waitingForFadeOut;
@@ -211,7 +212,7 @@ namespace BeatSaberCinema
 			ScreenColor = ScreenColorOn * value;
 			if (!_muted)
 			{
-				Volume = MAX_VOLUME * value;
+				Volume = MAX_VOLUME * VolumeScale * value;
 			}
 
 			if (value >= 1 && _bodyVisible)

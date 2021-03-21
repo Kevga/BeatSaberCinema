@@ -285,12 +285,7 @@ namespace BeatSaberCinema
 
 
 				_previewIgnoreNextUpdate = true;
-				const float previewPlayerVolume = 0.9f;
 				SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), startTime, _currentLevel.songDuration);
-				if (_activeAudioSource != null)
-				{
-					_activeAudioSource.volume = previewPlayerVolume;
-				}
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
 				SetAudioSourcePanning(0.9f);
@@ -344,6 +339,11 @@ namespace BeatSaberCinema
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)
 		{
 			OnMenuSceneLoaded();
+			_mainSettingsModel = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().LastOrDefault();
+			if (_mainSettingsModel != null)
+			{
+				VideoPlayer.VolumeScale = _mainSettingsModel.volume.value;
+			}
 		}
 
 		private void OnConfigChanged(VideoConfig? config)
