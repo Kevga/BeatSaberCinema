@@ -17,6 +17,7 @@ namespace BeatSaberCinema
 	{
 		private readonly string _youtubeDLFilepath = Path.Combine(UnityGame.LibraryPath, "youtube-dl.exe");
 		private readonly string _ffmpegFilepath = Path.Combine(UnityGame.LibraryPath, "ffmpeg.exe");
+		private readonly string _youtubeDLConfigFilepath = Path.Combine(UnityGame.UserDataPath, "youtube-dl.conf");
 		public readonly List<YTResult> SearchResults = new List<YTResult>();
 		private Coroutine? _searchCoroutine;
 		private Process? _searchProcess;
@@ -101,7 +102,11 @@ namespace BeatSaberCinema
 				StartInfo =
 				{
 					FileName = _youtubeDLFilepath,
-					Arguments = $"\"ytsearch{expectedResultCount}:{query}\" -j -i",
+					Arguments = $"\"ytsearch{expectedResultCount}:{query}\"" +
+					            " -j" + //Instructs yt-dl to return json data without downloading anything
+					            " -i" + //Ignore errors
+					            GetConfigFileArgument(_youtubeDLConfigFilepath) //Use config file in UserData instead of the global yt-dl one
+					,
 					RedirectStandardOutput = true,
 					RedirectStandardError = true,
 					UseShellExecute = false,
@@ -393,7 +398,8 @@ namespace BeatSaberCinema
 						        " --recode-video mp4" + //Re-encode to mp4 (will be skipped most of the time, since it's already in an mp4 container)
 					            " --no-mtime" + //Video last modified will be when it was downloaded, not when it was uploaded to youtube
 					            " --socket-timeout 10" + //Retry if no response in 10 seconds Note: Not if download takes more than 10 seconds but if the time between any 2 messages from the server is 10 seconds
-					            " --no-continue" //overwrite existing file and force re-download
+					            " --no-continue" + //overwrite existing file and force re-download
+					            GetConfigFileArgument(_youtubeDLConfigFilepath) //Use config file in UserData instead of the global yt-dl one
 					,
 					RedirectStandardOutput = true,
 					RedirectStandardError = true,
@@ -415,6 +421,11 @@ namespace BeatSaberCinema
 			video.DownloadState = DownloadState.Cancelled;
 			DownloadProgress?.Invoke(video);
 			VideoLoader.DeleteVideo(video);
+		}
+
+		private string GetConfigFileArgument(string path)
+		{
+			return !File.Exists(path) ? " --ignore-config" : $" --config-location \"{_youtubeDLConfigFilepath}\"";
 		}
 	}
 }
