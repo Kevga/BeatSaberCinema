@@ -375,6 +375,40 @@ namespace BeatSaberCinema
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
+				case "KaleidoscopeEnvironment":
+				{
+					var construction = sceneObjectList.LastOrDefault(x => x.name == "Construction" && x.transform.parent.name != "PlayersPlace" && x.activeInHierarchy);
+					if (construction != null)
+					{
+						construction.SetActive(false);
+					}
+					var trackMirror = sceneObjectList.LastOrDefault(x => x.name == "TrackMirror" && x.activeInHierarchy);
+					if (trackMirror != null)
+					{
+						trackMirror.SetActive(false);
+					}
+					const float coneOffset = 2.5f;
+					var evenCones = sceneObjectList.Where(x => x.name == "Cone" && x.transform.parent.name == "ConeRing(Clone)" && x.activeInHierarchy);
+					foreach (var glowLine in evenCones)
+					{
+						var localPos = glowLine.transform.localPosition;
+						glowLine.transform.localPosition = new Vector3(localPos.x, localPos.y + coneOffset, localPos.z);
+					}
+					var oddCones = sceneObjectList.Where(x => x.name == "Cone (1)" && x.transform.parent.name == "ConeRing(Clone)" && x.activeInHierarchy);
+					foreach (var glowLine in oddCones)
+					{
+						var localPos = glowLine.transform.localPosition;
+						glowLine.transform.localPosition = new Vector3(localPos.x, localPos.y - coneOffset, localPos.z);
+					}
+
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
+					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 1f, 35f);
+					placement.Rotation = videoConfig?.screenRotation ?? Vector3.zero;
+					placement.Height = videoConfig?.screenHeight ?? 12f;
+					placement.Curvature = videoConfig?.screenCurvature;
+					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
+					break;
+				}
 			}
 		}
 
