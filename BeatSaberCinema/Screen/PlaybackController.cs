@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
-using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -25,7 +24,6 @@ namespace BeatSaberCinema
 		private AudioSource? _activeAudioSource;
 		private AudioTimeSyncController? _timeSyncController;
 		private float _lastKnownAudioSourceTime;
-		private Coroutine? _previewFadeOutCoroutine;
 		private float _previewStartTime;
 		private float _previewTimeRemaining;
 		private bool _previewWaitingForVideoPlayer = true;
@@ -742,36 +740,9 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private void StartPreviewFadeOutCoroutine(float timeRemaining)
-		{
-			StopPreviewFadeOutCoroutine();
-			_previewTimeRemaining = timeRemaining;
-			_previewFadeOutCoroutine = StartCoroutine(PreviewFadeOutCoroutine());
-		}
-
-		private void StopPreviewFadeOutCoroutine()
-		{
-			if (_previewFadeOutCoroutine != null)
-			{
-				StopCoroutine(_previewFadeOutCoroutine);
-			}
-		}
-
-		private IEnumerator PreviewFadeOutCoroutine()
-		{
-			while (_previewTimeRemaining > 0)
-			{
-				_previewTimeRemaining -= Time.deltaTime;
-				yield return null;
-			}
-
-			VideoPlayer.FadeOut(1.0f);
-		}
-
 		public void StopPlayback()
 		{
 			VideoPlayer.Stop();
-			StopPreviewFadeOutCoroutine();
 		}
 
 		public void SetScreenDistance(float value)
@@ -807,7 +778,6 @@ namespace BeatSaberCinema
 			if (timeRemaining <= 0 || VideoConfig == null)
 			{
 				VideoPlayer.FadeOut(1f);
-				StopPreviewFadeOutCoroutine();
 				if (IsPreviewPlaying)
 				{
 					StopPreview(false);
@@ -838,7 +808,7 @@ namespace BeatSaberCinema
 			}
 
 			//This allows the short 3-second-preview for the practice offset to play
-			if ((_previewWaitingForPreviewPlayer || _previewWaitingForVideoPlayer) && Math.Abs(_previewTimeRemaining - 3) > 0.001f)
+			if ((_previewWaitingForPreviewPlayer || _previewWaitingForVideoPlayer) && Math.Abs(_previewTimeRemaining - 2.5f) > 0.001f)
 			{
 				return;
 			}
@@ -850,25 +820,15 @@ namespace BeatSaberCinema
 
 			Log.Debug("Starting song preview playback");
 
-			StopPreviewFadeOutCoroutine();
-
 			var delay = DateTime.Now.Subtract(_previewSyncStartTime);
 			var delaySeconds = (float) Math.Round(delay.TotalSeconds);
 
-			//This is the case if the video preparation took longer than the SongPreviewPlayer.
-			//If the player is instructed to play immediately after preparing, the playback start seems to be delayed, so we offset the start a bit
-			if (delaySeconds > 1/1000f)
-			{
-				delaySeconds += 250/1000f;
-				Log.Debug($"Adjusting for SongPreview delay: {delaySeconds}");
-			}
-
 			_previewStartTime += delaySeconds;
+			_previewTimeRemaining -= delaySeconds;
 
 			if (_previewTimeRemaining > 2)
 			{
 				PlayVideo(_previewStartTime);
-				StartPreviewFadeOutCoroutine(_previewTimeRemaining);
 			}
 			else
 			{
