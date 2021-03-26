@@ -106,7 +106,7 @@ namespace BeatSaberCinema
 
 		public void ResumeVideo()
 		{
-			if (!VideoPlayer.IsPlaying && VideoConfig != null)
+			if (!VideoPlayer.IsPlaying && VideoConfig != null && (!VideoPlayer.VideoEnded || VideoConfig.loop == true))
 			{
 				VideoPlayer.Play();
 			}
@@ -267,7 +267,7 @@ namespace BeatSaberCinema
 
 				if (!VideoPlayer.IsPrepared)
 				{
-					Log.Info("Video not prepared yet");
+					Log.Debug("Video not prepared yet");
 				}
 
 				//Start the preview at the point the video kicks in

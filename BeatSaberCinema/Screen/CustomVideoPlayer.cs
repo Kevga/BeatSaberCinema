@@ -43,6 +43,7 @@ namespace BeatSaberCinema
 		private bool _muted = true;
 		private bool _bodyVisible;
 		private bool _waitingForFadeOut;
+		public bool VideoEnded { get; private set; }
 
 		public Color ScreenColor
 		{
@@ -105,6 +106,7 @@ namespace BeatSaberCinema
 			Player.errorReceived += VideoPlayerErrorReceived;
 			Player.prepareCompleted += VideoPlayerPrepareComplete;
 			Player.started += VideoPlayerStarted;
+			Player.loopPointReached += VideoPlayerFinished;
 
 			//TODO PanStereo does not work as expected with this AudioSource. Panning fully to one side is still slightly audible in the other.
 			_videoPlayerAudioSource = gameObject.AddComponent<AudioSource>();
@@ -424,6 +426,13 @@ namespace BeatSaberCinema
 			Log.Debug("Video player started event");
 			_currentlyPlayingVideo = source.url;
 			_waitingForFadeOut = false;
+			VideoEnded = false;
+		}
+
+		private void VideoPlayerFinished(VideoPlayer source)
+		{
+			Log.Debug("Video player loop point event");
+			VideoEnded = true;
 		}
 
 		private static void VideoPlayerErrorReceived(VideoPlayer source, string message)
