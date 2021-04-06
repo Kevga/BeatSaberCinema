@@ -1,9 +1,11 @@
 using System;
+using System.IO;
 using System.Reflection;
 using HarmonyLib;
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
+using IPA.Utilities;
 using JetBrains.Annotations;
 
 namespace BeatSaberCinema
@@ -54,6 +56,10 @@ namespace BeatSaberCinema
 			VideoMenu.instance.AddTab();
 			SongCore.Collections.RegisterCapability(CAPABILITY);
 			Log.Info($"{nameof(BeatSaberCinema)} enabled");
+			if (File.Exists(Path.Combine(UnityGame.InstallPath, "dxgi.dll")))
+			{
+				Log.Warn("dxgi.dll is present, video may fail to play");
+			}
 		}
 
 		[OnDisable]
