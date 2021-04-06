@@ -15,7 +15,7 @@
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<ModVersion>1.4.1</ModVersion>
+		<ModVersion>1.4.2</ModVersion>
 		<ModName>BeatSaberCinema</ModName>
 		<OutDir>$(ProjectDir)bin\$(Configuration)</OutDir>
 		<AssemblyVersion>$(ModVersion)</AssemblyVersion>
@@ -229,10 +229,10 @@
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 
 	<Target Name="CopyToPlugins" AfterTargets="AfterBuild">
-		<Message Text="Copying $(OutDir)$(ModName).dll to Plugins folder" Importance="high" />
-		<Copy SourceFiles="$(OutDir)$(ModName).dll" DestinationFiles="$(BeatSaberDir)\Plugins\$(ModName).dll" />
-		<Message Text="Copying $(OutDir)$(ModName).pdb to Plugins folder" Importance="high" />
-		<Copy SourceFiles="$(OutDir)$(ModName).pdb" DestinationFiles="$(BeatSaberDir)\Plugins\$(ModName).pdb" />
+		<Message Text="Copying $(OutDir)$(AssemblyName).dll to Plugins folder" Importance="high" />
+		<Copy SourceFiles="$(OutDir)$(AssemblyName).dll" DestinationFiles="$(BeatSaberDir)\Plugins\$(AssemblyName).dll" />
+		<Message Text="Copying $(OutDir)$(AssemblyName).pdb to Plugins folder" Importance="high" />
+		<Copy SourceFiles="$(OutDir)$(AssemblyName).pdb" DestinationFiles="$(BeatSaberDir)\Plugins\$(AssemblyName).pdb" />
 	</Target>
 
 </Project>
