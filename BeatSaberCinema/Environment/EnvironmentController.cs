@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using IPA.Utilities;
 using UnityEngine;
+using static BeatSaberCinema.VideoConfig;
 using Object = UnityEngine.Object;
 
 namespace BeatSaberCinema
@@ -435,10 +436,10 @@ namespace BeatSaberCinema
 				}
 				else
 				{
-					selectedObjectsList = SelectObjectsFromScene(environmentModification.name, environmentModification.parentName, environmentModification.cloneFrom != null, sceneObjectList);
-					if (selectedObjectsList == null || !selectedObjectsList.Any())
+					selectedObjectsList = SelectObjectsFromScene(environmentModification, false, sceneObjectList);
+					if (!selectedObjectsList.Any())
 					{
-						Log.Error($"Failed to find object: name={environmentModification.name}, parentName={environmentModification.parentName}");
+						Log.Error($"Failed to find object: name={environmentModification.name}, parentName={environmentModification.parentName ?? "null"}");
 						continue;
 					}
 				}
@@ -468,13 +469,16 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private static List<GameObject>? SelectObjectsFromScene(string name, string? parentName, bool clone = false, IEnumerable<GameObject>? sceneObjectList = null)
+		private static List<GameObject> SelectObjectsFromScene(EnvironmentModification modification, bool clone, IEnumerable<GameObject>? sceneObjectList = null)
 		{
-			name = TranslateNameForBackwardsCompatibility(name);
-			if (clone)
+			modification = TranslateNameForBackwardsCompatibility(modification, clone);
+			var name = clone ? modification.cloneFrom! : modification.name;
+			var parentName = modification.parentName;
+			if (!clone && modification.cloneFrom != null)
 			{
 				name += CLONED_OBJECT_NAME_SUFFIX;
 			}
+
 			IEnumerable<GameObject>? environmentObjects = null;
 			try
 			{
@@ -488,7 +492,7 @@ namespace BeatSaberCinema
 				Log.Warn(e);
 			}
 
-			return environmentObjects?.ToList();
+			return environmentObjects?.ToList() ?? new List<GameObject>();
 		}
 
 		public static void CloneObjects(VideoConfig? config)
@@ -515,10 +519,10 @@ namespace BeatSaberCinema
 					continue;
 				}
 
-				var environmentObjectList = SelectObjectsFromScene(objectToBeCloned.cloneFrom!, objectToBeCloned.parentName, false, sceneObjectList);
-				if (environmentObjectList == null || !environmentObjectList.Any())
+				var environmentObjectList = SelectObjectsFromScene(objectToBeCloned, true, sceneObjectList);
+				if (!environmentObjectList.Any())
 				{
-					Log.Error($"Failed to find object while cloning: name={objectToBeCloned.name}, parentName={objectToBeCloned.parentName}");
+					Log.Error($"Failed to find object while cloning: name={objectToBeCloned.cloneFrom}, parentName={objectToBeCloned.parentName ?? "null"}");
 					continue;
 				}
 
@@ -617,16 +621,47 @@ namespace BeatSaberCinema
 			component.SetField("_meshRenderers", meshRendererList.ToArray());
 		}
 
-		private static string TranslateNameForBackwardsCompatibility(string name)
+		private static EnvironmentModification TranslateNameForBackwardsCompatibility(EnvironmentModification modification, bool clone)
 		{
-			return name switch
+			var name = clone ? modification.cloneFrom! : modification.name;
+			var newName = name switch
 			{
 				"GlowLineL" => "NeonTubeDirectionalL",
 				"GlowLineL2" => "NeonTubeDirectionalFL",
 				"GlowLineR" => "NeonTubeDirectionalR",
 				"GlowLineR2" => "NeonTubeDirectionalFR",
+				"TrackLaneRing(Clone)" => "SmallTrackLaneRing(Clone)",
 				_ => name
 			};
+
+			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
+			{
+				case "BigMirrorEnvironment":
+				{
+					if (modification.parentName == "Buildings")
+					{
+						newName = name switch
+						{
+							"NearBuildingLeft" => "NearBuildingLeft (2)",
+							"NearBuildingRight" => "NearBuildingRight (2)",
+							_ => name
+						};
+						modification.parentName = "Environment";
+					}
+					break;
+				}
+			}
+
+			if (modification.cloneFrom != null)
+			{
+				modification.cloneFrom = newName;
+			}
+			else
+			{
+				modification.name = newName;
+			}
+
+			return modification;
 		}
 	}
 }
