@@ -71,6 +71,7 @@ namespace BeatSaberCinema
 		private bool _videoMenuActive;
 		private int _selectedCell;
 		private string _searchText = "";
+		private string _thumbnailURL = "";
 		private readonly DownloadController _downloadController = new DownloadController();
 		private readonly List<YTResult> _searchResults = new List<YTResult>();
 
@@ -274,7 +275,7 @@ namespace BeatSaberCinema
 			_videoDurationText.text = "Duration: "+Util.SecondsToString(_currentVideo.duration);
 
 			_videoOffsetText.text = $"{_currentVideo.offset:n0}" + " ms";
-			_videoThumnnail.SetImage($"https://i.ytimg.com/vi/{_currentVideo.videoID}/hqdefault.jpg");
+			SetThumbnail($"https://i.ytimg.com/vi/{_currentVideo.videoID}/hqdefault.jpg");
 
 			UpdateStatusText(_currentVideo);
 			if (CustomizeOffset)
@@ -365,6 +366,18 @@ namespace BeatSaberCinema
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+		}
+
+		private void SetThumbnail(string url)
+		{
+			if (url == _thumbnailURL)
+			{
+				return;
+			}
+
+			Log.Debug("Updating thumbnail");
+			_thumbnailURL = url;
+			_videoThumnnail.SetImage(url);
 		}
 
 		public void SetSelectedLevel(IPreviewBeatmapLevel level)
