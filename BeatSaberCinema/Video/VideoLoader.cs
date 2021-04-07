@@ -295,7 +295,11 @@ namespace BeatSaberCinema
 			{
 				File.Delete(videoConfig.VideoPath);
 				Log.Info("Deleted video at "+videoConfig.VideoPath);
-				videoConfig.DownloadState = DownloadState.NotDownloaded;
+				if (videoConfig.DownloadState != DownloadState.Cancelled)
+				{
+					videoConfig.DownloadState = DownloadState.NotDownloaded;
+				}
+
 				videoConfig.videoFile = null;
 			}
 			catch (Exception e)

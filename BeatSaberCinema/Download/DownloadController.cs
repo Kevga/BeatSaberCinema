@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Timers;
 using IPA.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -256,12 +255,9 @@ namespace BeatSaberCinema
 				$"youtube-dl command: \"{downloadProcess.StartInfo.FileName}\" {downloadProcess.StartInfo.Arguments}");
 
 			var timeout = new Timeout(5 * 60);
-			var timer = new Timer(250);
-			timer.Elapsed += (sender, args) => DownloadProgress?.Invoke(video);
 			downloadProcess.OutputDataReceived += (sender, e) => DownloadOutputDataReceived(sender, e, video);
-			downloadProcess.ErrorDataReceived += (sender, e) => DownloadErrorDataReceived(sender, e, video);
-			downloadProcess.Exited += (sender, e) => DownloadProcessExited(sender, video, timer);
-			timer.Start();
+			downloadProcess.ErrorDataReceived += DownloadErrorDataReceived;
+			downloadProcess.Exited += (sender, e) => DownloadProcessExited(sender, video);
 			yield return downloadProcess.Start();
 
 			downloadProcess.BeginOutputReadLine();
@@ -272,39 +268,28 @@ namespace BeatSaberCinema
 			{
 				Log.Warn("Timeout reached, disposing download process");
 			}
-			timeout.Stop();
 
+			timeout.Stop();
+			_downloadProcess = null;
+			_downloadLog = "";
 			DisposeProcess(downloadProcess);
 		}
 
 		private void DownloadOutputDataReceived(object sender, DataReceivedEventArgs eventArgs, VideoConfig video)
 		{
-			if (video.DownloadState == DownloadState.Cancelled)
-			{
-				DisposeProcess((Process) sender);
-				_downloadProcess = null;
-				Log.Info("Download cancelled");
-				VideoLoader.DeleteVideo(video);
-			}
-
 			_downloadLog += eventArgs.Data+"\r\n";
 			Log.Debug(eventArgs.Data);
 			ParseDownloadProgress(video, eventArgs);
+			DownloadProgress?.Invoke(video);
 		}
 
-		private void DownloadErrorDataReceived(object sender, DataReceivedEventArgs eventArgs, VideoConfig video)
+		private static void DownloadErrorDataReceived(object sender, DataReceivedEventArgs eventArgs)
 		{
 			Log.Error(eventArgs.Data);
-			video.DownloadState = DownloadState.Cancelled;
-			DownloadProgress?.Invoke(video);
-			DisposeProcess((Process) sender);
 		}
 
-		private void DownloadProcessExited(object sender, VideoConfig video, Timer timer)
+		private void DownloadProcessExited(object sender, VideoConfig video)
 		{
-			timer.Stop();
-			timer.Close();
-
 			var exitCode = ((Process) sender).ExitCode;
 
 			if (exitCode != 0)
@@ -323,6 +308,7 @@ namespace BeatSaberCinema
 			{
 				Log.Info("Cancelled download");
 				VideoLoader.DeleteVideo(video);
+				DownloadFinished?.Invoke(video);
 			}
 			else
 			{
@@ -331,10 +317,6 @@ namespace BeatSaberCinema
 				SharedCoroutineStarter.instance.StartCoroutine(WaitForDownloadToFinishCoroutine(video));
 				Log.Info("Download finished");
 			}
-
-			DisposeProcess(_downloadProcess);
-			_downloadProcess = null;
-			_downloadLog = "";
 		}
 
 		private static void ParseDownloadProgress(VideoConfig video, DataReceivedEventArgs dataReceivedEventArgs)
@@ -419,7 +401,7 @@ namespace BeatSaberCinema
 			Log.Debug("Cancelling download");
 			DisposeProcess(_downloadProcess);
 			video.DownloadState = DownloadState.Cancelled;
-			DownloadProgress?.Invoke(video);
+			DownloadFinished?.Invoke(video);
 			VideoLoader.DeleteVideo(video);
 		}
 

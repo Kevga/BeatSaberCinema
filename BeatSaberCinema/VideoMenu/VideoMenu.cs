@@ -162,11 +162,6 @@ namespace BeatSaberCinema
 		{
 			UpdateStatusText(videoConfig);
 			SetupLevelDetailView(videoConfig);
-			if (videoConfig.DownloadState == DownloadState.Cancelled)
-			{
-				SetButtonState(true);
-			}
-
 		}
 
 		public void SetButtonState(bool state)
