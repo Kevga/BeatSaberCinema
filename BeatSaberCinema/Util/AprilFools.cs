@@ -3,7 +3,7 @@ using System.IO;
 
 namespace BeatSaberCinema
 {
-	public static class NothingToSeeHere
+	public static class AprilFools
 	{
 		public const string LEVEL_ID = "custom_level_103D39B43966277C5E4167AB086F404E0943891F";
 		private static DownloadController? _downloadController;
@@ -14,7 +14,7 @@ namespace BeatSaberCinema
 			_downloadController = downloadController;
 		}
 
-		private static bool ItsHappening
+		private static bool IsAprilFoolsDay
 		{
 			get
 			{
@@ -30,7 +30,7 @@ namespace BeatSaberCinema
 
 		public static void MultiplayerLobbyJoined()
 		{
-			if (!ItsHappening || _downloadAttempted)
+			if (!IsAprilFoolsDay || _downloadAttempted)
 			{
 				return;
 			}
