@@ -39,7 +39,14 @@ namespace BeatSaberCinema
 				{
 					DefaultSceneModifications(videoConfig);
 				}
+			}
+			catch (Exception e)
+			{
+				Log.Error(e);
+			}
 
+			try
+			{
 				VideoConfigSceneModifications(videoConfig);
 			}
 			catch (Exception e)
@@ -159,8 +166,15 @@ namespace BeatSaberCinema
 					}
 
 					var movementEffect = Resources.FindObjectsOfTypeAll<MovementBeatmapEventEffect>().LastOrDefault(x => x.name == "PillarsMovementEffect");
-					movementEffectStartPositions.Reverse();
-					movementEffect.SetField("_startLocalPositions", movementEffectStartPositions.ToArray());
+					if (movementEffect != null)
+					{
+						movementEffectStartPositions.Reverse();
+						movementEffect.SetField("_startLocalPositions", movementEffectStartPositions.ToArray());
+					}
+					else
+					{
+						Log.Warn("BTS movement effect not found");
+					}
 
 					if (videoConfig!.screenPosition == null)
 					{
