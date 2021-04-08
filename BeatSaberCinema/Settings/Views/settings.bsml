@@ -24,14 +24,8 @@
 						  hover-hint='Curves the screen slightly towards you, which corrects for perspective distortion.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
 			<bool-setting apply-on-change="true" text='Transparent Screen' value='transparency-enabled'
 						  hover-hint="Allows you to see through the screen. Turning this off makes the video clearer, but some transparency effects look much worse.&#xD;&#xA;&#xD;&#xA;Recommended: On"></bool-setting>
-			<horizontal horizontal-fit="PreferredSize">
-				<horizontal horizontal-fit="PreferredSize">
-					<text text="Bloom Intensity" italics="true"></text>
-				</horizontal>
-				<horizontal horizontal-fit="PreferredSize">
-					<slider-setting apply-on-change="true" integer-only="true" value="bloom-intensity" text="" hover-hint="Change the amount of glow around the screen when the image is bright.&#xD;&#xA;&#xD;&#xA;Recommended: 100" min="0" max="150" increment="10"></slider-setting>
-				</horizontal>
-			</horizontal>
+			<slider-setting apply-on-change="true" integer-only="true" value="bloom-intensity" text="Bloom Intensity" hover-hint="Change the amount of glow around the screen when the image is bright. The effect is not visible on the image used in this menu.&#xD;&#xA;&#xD;&#xA;Recommended: 100" min="0" max="150" increment="10"></slider-setting>
+			<slider-setting apply-on-change="true" integer-only="true" value="corner-roundness" text="Corner Roundness" hover-hint="Adjust the roundness of the screen's corners to your preference.&#xD;&#xA;&#xD;&#xA;Default: 0" min="0" max="100" increment="1"></slider-setting>
 		</modifier-container>
 	</tab>
 </vertical>

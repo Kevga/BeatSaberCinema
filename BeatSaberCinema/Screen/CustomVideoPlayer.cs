@@ -357,12 +357,30 @@ namespace BeatSaberCinema
 			SetShaderFloat(Exposure,   colorCorrection?.exposure,   0f,   5f, 1f);
 			SetShaderFloat(Gamma,      colorCorrection?.gamma,      0f,   5f, 1f);
 
-			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, 1f);
-			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, 0.005f);
-
-			_materialPropertyBlock.SetInt(VignetteElliptical, vignette?.type == "oval" || vignette?.type == "elliptical" || vignette?.type == "ellipse" ? 1 : 0);
+			SetVignette(vignette, _materialPropertyBlock);
 
 			_screenRenderer.SetPropertyBlock(_materialPropertyBlock);
+		}
+
+		public void SetVignette(VideoConfig.Vignette? vignette = null, MaterialPropertyBlock? materialPropertyBlock = null)
+		{
+			var setPropertyBlock = materialPropertyBlock == null;
+			if (setPropertyBlock)
+			{
+				_screenRenderer.GetPropertyBlock(_materialPropertyBlock);
+				materialPropertyBlock = _materialPropertyBlock;
+			}
+
+			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, (SettingsStore.Instance.CornerRoundness > 0 ? 1 - SettingsStore.Instance.CornerRoundness : 1f));
+			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, 0.005f);
+			materialPropertyBlock!.SetInt(VignetteElliptical,
+				vignette?.type == "oval" || vignette?.type == "elliptical" || vignette?.type == "ellipse" || (vignette?.type == null && SettingsStore.Instance.CornerRoundness > 0)
+					? 1 : 0);
+
+			if (setPropertyBlock)
+			{
+				_screenRenderer.SetPropertyBlock(_materialPropertyBlock);
+			}
 		}
 
 		private void SetShaderFloat(int nameID, float? value, float min, float max, float defaultValue)

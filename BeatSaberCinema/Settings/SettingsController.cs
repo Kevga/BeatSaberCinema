@@ -52,6 +52,17 @@ namespace BeatSaberCinema
 	        set => SettingsStore.Instance.BloomIntensity = value;
         }
 
+        [UIValue("corner-roundness")]
+        public int CornerRoundness
+        {
+	        get => (int) Math.Round(SettingsStore.Instance.CornerRoundness * 100);
+	        set
+	        {
+		        SettingsStore.Instance.CornerRoundness = value / 100f;
+		        PlaybackController.Instance.VideoPlayer.SetVignette();
+	        }
+        }
+
         [UIValue("curved-screen")]
         public bool CurvedScreen
         {
