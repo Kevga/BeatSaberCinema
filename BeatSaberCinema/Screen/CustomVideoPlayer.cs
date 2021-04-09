@@ -371,10 +371,11 @@ namespace BeatSaberCinema
 				materialPropertyBlock = _materialPropertyBlock;
 			}
 
-			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, (SettingsStore.Instance.CornerRoundness > 0 ? 1 - SettingsStore.Instance.CornerRoundness : 1f));
-			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, 0.005f);
+			var elliptical = SettingsStore.Instance.CornerRoundness > 0;
+			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, (elliptical ? 1 - SettingsStore.Instance.CornerRoundness : 1f));
+			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, (elliptical ? 0.02f : 0.005f));
 			materialPropertyBlock!.SetInt(VignetteElliptical,
-				vignette?.type == "oval" || vignette?.type == "elliptical" || vignette?.type == "ellipse" || (vignette?.type == null && SettingsStore.Instance.CornerRoundness > 0)
+				vignette?.type == "oval" || vignette?.type == "elliptical" || vignette?.type == "ellipse" || (vignette?.type == null && elliptical)
 					? 1 : 0);
 
 			if (setPropertyBlock)
