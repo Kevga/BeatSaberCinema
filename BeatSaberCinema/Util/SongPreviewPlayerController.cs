@@ -47,7 +47,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (_currentAudioClip.name == "LevelCleared")
+			if (_currentAudioClip.name == "LevelCleared" || _currentAudioClip.name == "Credits")
 			{
 				Log.Debug($"Ignoring {_currentAudioClip.name} sound");
 				return;
