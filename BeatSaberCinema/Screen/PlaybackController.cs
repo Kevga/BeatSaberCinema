@@ -709,7 +709,7 @@ namespace BeatSaberCinema
 			if (VideoConfig.IsLocal)
 			{
 				var videoFileInfo = new FileInfo(videoPath);
-				var timeout = new Timeout(3f);
+				var timeout = new Timeout(0.25f);
 				if (VideoPlayer.Url != videoPath)
 				{
 					yield return new WaitUntil(() =>
@@ -719,9 +719,7 @@ namespace BeatSaberCinema
 				timeout.Stop();
 				if (timeout.HasTimedOut && Util.IsFileLocked(videoFileInfo))
 				{
-					var exception = new Exception("File locked");
-					Log.Error(exception);
-					throw exception;
+					Log.Warn("Video file locked");
 				}
 			}
 
