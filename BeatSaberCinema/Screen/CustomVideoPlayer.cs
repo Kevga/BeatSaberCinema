@@ -371,7 +371,7 @@ namespace BeatSaberCinema
 				materialPropertyBlock = _materialPropertyBlock;
 			}
 
-			var elliptical = SettingsStore.Instance.CornerRoundness > 0;
+			var elliptical = SettingsStore.Instance.CornerRoundness > 0 && vignette == null;
 			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, (elliptical ? 1 - SettingsStore.Instance.CornerRoundness : 1f));
 			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, (elliptical ? 0.02f : 0.005f));
 			materialPropertyBlock!.SetInt(VignetteElliptical,
