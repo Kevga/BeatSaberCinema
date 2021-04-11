@@ -814,10 +814,10 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			Log.Debug("Starting song preview playback");
-
 			var delay = DateTime.Now.Subtract(_previewSyncStartTime);
-			var delaySeconds = (float) Math.Round(delay.TotalSeconds);
+			var delaySeconds = (float) delay.TotalSeconds;
+
+			Log.Debug($"Starting song preview playback with a delay of {delaySeconds}");
 
 			_previewStartTime += delaySeconds;
 			_previewTimeRemaining -= delaySeconds;
