@@ -14,14 +14,13 @@ namespace BeatSaberCinema
 		{
 			try
 			{
-				FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
-				stream.Close();
+				using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+				return !stream.CanRead;
 			}
 			catch (IOException)
 			{
 				return true;
 			}
-			return false;
 		}
 
 		public static string FilterEmoji(string text)
