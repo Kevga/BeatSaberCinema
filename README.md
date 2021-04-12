@@ -29,11 +29,9 @@ The plugin includes about 100 video configurations for custom maps for you to tr
 - [K/DA - MORE \[DACK\]](https://beatsaver.com/beatmap/1059c)
 - [BLACKPINK - Kill This Love \[aggrogahu\]](https://beatsaver.com/beatmap/46be)
 
-A playlist file (.bplist) with all pre-configured maps is included in the release of the mod and can additionally also be found [here](https://raw.githubusercontent.com/Kevga/BeatSaberCinema/master/Resources/cinema.bplist). You can use a mod like PlaylistManager to access it in game.
+A playlist with all maps pre-configured by me is included with the mod. You can use a mod like **PlaylistManager** to access it in game. Please note that the playlist doesn't include maps that come with a video config made by the mappers themselves.
 
-A readable full list of maps with videos (without download links) can be found [here](Resources/bundled-configs.txt).
-
-**Please note that you can add a video to any map you like, the maps listed here are not the only ones Cinema works with**. Some maps even come with a video config included by the mapper, these are not found in the previously mentioned playlist.
+**Please note that you can add a video to any map you like, the maps listed here are not the only ones Cinema works with**.
 
 
 ### 3. Downloading Videos
@@ -48,21 +46,17 @@ You can of course add videos to any song you like, even if they are not pre-conf
 Cinema is also compatible with video configs created with MusicVideoPlayer.
 
 ## Info for Mappers
-
 *This section is intended for mappers*
 
 If you want to add a video to your map, you can simply set it up in the game from the WIP maps section. Refer to the section [Downloading Videos](https://github.com/Kevga/BeatSaberCinema#3-downloading-videos) for details on how to do that. The video configuration will be stored in the same folder as the map itself, in a file called **cinema-video.json**. You can include the json file in the zip file you upload to BeatSaver. **Please do not include the actual video file, the users will download that themselves from YouTube.**
 
-If you add a video config, please consider adding "Cinema" as a suggestion in your map editor to let people know they can improve their experience by installing the mod. If your Cinema integration is an essential part of your map, you can also add "Cinema" as a requirement, in which case the map will only be playable if Cinema is installed and the video is downloaded.
+If you include a video config, please **add "Cinema" as a suggestion** in your map editor, same as you would do with Chroma. If your Cinema integration is an essential part of your map, you can also add "Cinema" as a requirement, in which case the map will only be playable if Cinema is installed and the video is downloaded.
 
-You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments (Big Mirror, Origins, KDA, Rocket, BTS, Dragons, Linkin Park) to make the video screen fit in seamlessly. If your chosen environment is not yet supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
-
-The mod can also be used to just modify the environment without any video being involved. To do that, create a new config file by hand, set the property `forceEnvironmentModifications` to true and then use the environment modification options listed below.
+You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments (**Big Mirror, Origins, KDA, Rocket, BTS, Dragons, Linkin Park, Kaleidoscope**) to make the video screen fit in seamlessly. If your chosen environment is not yet supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
 
 If you have any questions, please contact me on Discord (Dakari#0638).
 
 ## JSON Format
-
 *This section is intended for mappers*
 
 Editing the json file by hand allows you to modify some settings that are not available in-game, for example to create a custom screen placement. Doing so is completely optional however, the default settings should give a good experience in most cases.
@@ -74,7 +68,6 @@ The mod implements hot reloading the config file, so **changes to the video conf
 The following tables list the currently available configuration options:
 
 ### Basic settings
-
 These basic settings get set automatically when you add a video to your map.
 
 | Property                   		| Data Type | Default       	    | Description |
@@ -138,7 +131,7 @@ Using the vignette effect you can change the shape of the video player or soften
 | Property                   		| Data Type | Default       	    				| Description |
 | --------------------------------- |:---------:|:-------------------------------------:| ----------- |
 | `type`					 		| string	| "rectangular"		 					| Either "elliptical" or "rectangular". Changes how the radius and softness parameters behave. |
-| `radius`					 		| float		| 1.0				 					| Valid range: 0 to 1. If the type is "elliptical", the optimal value is 0.5 or below, since you will still see edges on the left and right on higher values. |
+| `radius`					 		| float		| 1.0				 					| Valid range: 0 to 1. If the type is "elliptical", the screen is only really elliptical if the radius is set to 0. Values above that simply round the corners of the screen to varying degrees. |
 | `softness`				 		| float		| 0.005				 					| Valid range: 0 to 1. Defines the sharpness of the cutout. If you only want to soften the edges, leave the radius at 1 and only slightly increase the softness. By default, videos have a very slight vignette which basically serves as antialiasing for the screen borders. |
 
 Example:
@@ -171,7 +164,7 @@ To find the names of objects you want to modify, you can use [this document](htt
 
 Cinema can be used to clone static objects and lights. Dynamic objects other than lights, like spectrograms or rings, will currently have no function if cloned.
 
-If you clone lights, they will be in the same light group as the light they are cloned from. If you use Chroma, cloned lights will get IDs that are above all of the original light IDs, so the lighting setup in ChroMapper will not be changed. The same goes for prop groups: If you clone multiple lights that are in the same prop group, the cloned objects will be together in a new prop group that has a new ID, without changing prop group IDs of existing lights.
+If you clone lights, they will be in the same light group as the light they are cloned from. If you use Chroma, cloned lights will get IDs that are above all of the original light IDs, so the lighting setup in ChroMapper will not be changed. The same goes for prop groups: If you clone multiple lights that are in the same prop group, the cloned objects will be together in a new prop group that has a new ID, without changing prop group IDs of existing lights. This behavior can be changed with the `mergePropGroups` setting, as explained above.
 
 ### Hot reloading
 
@@ -253,6 +246,20 @@ Template for local videos:
 }
 ```
 
+## FAQ
+### I can't download any videos. What do I do?
+This can have multiple causes.
+1) If you are unsure how to download videos for maps, refer to the instructions [here](https://github.com/Kevga/BeatSaberCinema#3-downloading-videos).
+2) If you didn't install Cinema from ModAssistant, make sure you installed youtube-dl and FFmpeg in the Libs folder of Beat Saber. If one or both of these are not found, the mod will show you a message saying that these are missing. If Cinema doesn't show up at all in-game, please make sure you have all [dependencies](https://github.com/Kevga/BeatSaberCinema#1-installation) installed.
+3) If Cinema shows up in-game and says nothing about missing libraries, but your downloads still fail, try installing [Visual C++ 2010 Redist](https://www.microsoft.com/en-US/download/details.aspx?id=5555). This is required by youtube-dl, but can in some cases be missing.
+4) If you still can't download videos, please create an issue here on GitHub or contact me on Discord. Make sure to attach a log file.
+### I can download videos, but they don't show up.
+1) Check if Cinema is enabled in your Main Menu settings (the Cinema button on the left side)
+2) If you use **ReShade**, you might have to remove it to use Cinema. It's an incompatibility that I can't do anything about. To uninstall ReShade, delete the file `dxgi.dll` from your Beat Saber folder.
+3) If you have Cinema enabled, don't use ReShade and are sure that the video is downloaded, but it still doesn't play, please create an issue here on GitHub or contact me on Discord.
+### I have a custom youtube-dl config (e.g. for proxy usage), but Cinema ignores my config. What gives?
+Cinema intentionally ignores any global youtube-dl config you might have created. You still have the ability to configure youtube-dl however, by placing your config file in the `UserData` folder of Beat Saber and naming the file `youtube-dl.conf`.
+
 ## Contributing
 
 I'd gladly accept pull requests if you want to help out. To set up the development environment, create a file called `BeatSaberCinema.csproj.user` with the following content, and change the path where your Beat Saber installation is located, if necessary:
@@ -277,5 +284,5 @@ For creating MVP and helping me improve the looks of the video screen
 - **rie-kumar** and **b-rad15**:
 For keeping MVP alive across many game updates
 
-- The **youtube-dl** and **ffmpeg** projects:
+- The **youtube-dl** and **FFmpeg** projects:
 Used to download and convert the videos
