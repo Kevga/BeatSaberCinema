@@ -26,7 +26,6 @@ namespace BeatSaberCinema
 	        }
 
 	        Events.SetSelectedLevel(null);
-	        AprilFools.MultiplayerLobbyJoined();
         }
     }
 }

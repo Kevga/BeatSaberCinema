@@ -240,11 +240,6 @@ namespace BeatSaberCinema
 
 		public static string GetLevelPath(IPreviewBeatmapLevel level)
 		{
-			if (level.levelID == AprilFools.LEVEL_ID)
-			{
-				return AprilFools.GetPath();
-			}
-
 			if (level is CustomPreviewBeatmapLevel customlevel)
 			{
 				return customlevel.customLevelPath;
