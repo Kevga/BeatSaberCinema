@@ -1,26 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="16.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{7B79BACE-CE67-4957-9EF9-05019FE2AB90}</ProjectGuid>
+		<TargetFramework>net472</TargetFramework>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>BeatSaberCinema</RootNamespace>
         <AssemblyName>BeatSaberCinema</AssemblyName>
-        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-        <FileAlignment>512</FileAlignment>
+		<ModName>BeatSaberCinema</ModName>
 		<LangVersion>8</LangVersion>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<ModVersion>1.4.2</ModVersion>
-		<ModName>BeatSaberCinema</ModName>
-		<OutDir>$(ProjectDir)bin\$(Configuration)</OutDir>
-		<AssemblyVersion>$(ModVersion)</AssemblyVersion>
-		<FileVersion>$(ModVersion)</FileVersion>
-		<InformationalVersion>$(ModVersion)</InformationalVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -28,7 +17,6 @@
         <DebugSymbols>true</DebugSymbols>
         <DebugType>portable</DebugType>
         <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
@@ -37,7 +25,6 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
@@ -170,69 +157,24 @@
 		</Reference>
     </ItemGroup>
 
-    <ItemGroup>
-        <Compile Include="Download\DownloadController.cs" />
-        <Compile Include="Download\YTFormat.cs" />
-        <Compile Include="Download\YTResult.cs" />
-        <Compile Include="Environment\EnvironmentController.cs" />
-        <Compile Include="HarmonyPatches\EnvironmentOverridePatch.cs" />
-        <Compile Include="HarmonyPatches\LevelSelectionPatch.cs" />
-        <Compile Include="HarmonyPatches\MapRequirementPatch.cs" />
-        <Compile Include="HarmonyPatches\MultiplayerPatch.cs" />
-        <Compile Include="HarmonyPatches\ObjectCloningPatch.cs" />
-        <Compile Include="HarmonyPatches\SongPreviewPatch.cs" />
-        <Compile Include="HarmonyPatches\WaitForChromaPatch.cs" />
-        <Compile Include="Plugin.cs" />
-        <Compile Include="Screen\CurvedSurface.cs" />
-        <Compile Include="Screen\CustomBloomPrePass.cs" />
-        <Compile Include="Screen\CustomVideoPlayer.cs" />
-        <Compile Include="Screen\Placement.cs" />
-        <Compile Include="Screen\Screen.cs" />
-        <Compile Include="Screen\PlaybackController.cs" />
-        <Compile Include="Settings\SettingsStore.cs" />
-        <Compile Include="Settings\SettingsController.cs" />
-        <Compile Include="Settings\SettingsFlowCoordinator.cs" />
-        <Compile Include="Settings\SettingsUI.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Settings\VideoQuality.cs" />
-        <Compile Include="Util\EasingController.cs" />
-        <Compile Include="Util\Events.cs" />
-        <Compile Include="Util\Log.cs" />
-        <Compile Include="Util\AprilFools.cs" />
-        <Compile Include="Util\SerializableVector3.cs" />
-        <Compile Include="Util\SongPreviewPlayerController.cs" />
-        <Compile Include="Util\Timeout.cs" />
-        <Compile Include="Util\Util.cs" />
-        <Compile Include="VideoMenu\LevelDetailViewController.cs" />
-        <Compile Include="VideoMenu\VideoMenu.cs" />
-        <Compile Include="Video\VideoConfig.cs" />
-        <Compile Include="Video\VideoConfigBackCompat.cs" />
-        <Compile Include="Video\VideoLoader.cs" />
-    </ItemGroup>
-
 	<ItemGroup>
 		<EmbeddedResource Include="manifest.json" />
-		<EmbeddedResource Include="Settings\Views\settings.bsml" />
-		<EmbeddedResource Include="Resources\trash.png" />
-		<EmbeddedResource Include="Resources\configs.json" />
-		<EmbeddedResource Include="Resources\bscinema.bundle" />
-		<EmbeddedResource Include="Resources\beat-saber-logo-landscape.png" />
-		<EmbeddedResource Include="VideoMenu\Views\video-menu.bsml" />
-		<EmbeddedResource Include="VideoMenu\Views\level-detail.bsml" />
+		<EmbeddedResource Include="Resources\*" />
+		<EmbeddedResource Include="*.bsml" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="$(ModName).csproj.user" />
-		<None Include="packages.config" />
+		<None Include="$(ModName).csproj.user" Condition="Exists('$(ModName).csproj.user')" />
+		<None Include="packages.config" Condition="Exists('packages.config')" />
+		<None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
+		<None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
 	</ItemGroup>
 
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-
-	<Target Name="CopyToPlugins" AfterTargets="AfterBuild">
-		<Message Text="Copying $(OutDir)$(AssemblyName).dll to Plugins folder" Importance="high" />
-		<Copy SourceFiles="$(OutDir)$(AssemblyName).dll" DestinationFiles="$(BeatSaberDir)\Plugins\$(AssemblyName).dll" />
-		<Message Text="Copying $(OutDir)$(AssemblyName).pdb to Plugins folder" Importance="high" />
-		<Copy SourceFiles="$(OutDir)$(AssemblyName).pdb" DestinationFiles="$(BeatSaberDir)\Plugins\$(AssemblyName).pdb" />
-	</Target>
+	<ItemGroup>
+		<PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.2">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
 </Project>
