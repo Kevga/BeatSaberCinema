@@ -17,7 +17,7 @@ Additionally, the following plugins are **required** for Cinema to work:
 - BS Utils
 - SongCore
 
-### 2. Download Pre-Configured Maps (*optional*)
+### 2. Download Preconfigured Maps (*optional*)
 The plugin includes about 100 video configurations for custom maps for you to try, as well as a few configs for DLC and OST songs. Here are some examples:
 
 - [Madeon - The Prince \[Bearly & dgrj4life\]](https://beatsaver.com/beatmap/110ac)
@@ -25,13 +25,14 @@ The plugin includes about 100 video configurations for custom maps for you to tr
 - [Reol - Utena \[Pixelguy & Rayman\]](https://beatsaver.com/beatmap/b24b)
 - [JVNA - Catch Me \[nitronik.exe\]](https://beatsaver.com/beatmap/bc4e)
 - [Yorushika - Say It \[squeaksies\]](https://beatsaver.com/beatmap/4a21)
-- [Dreamcatcher - Scream \[noxn; simplymarvellous; aggrogahu\]](https://beatsaver.com/beatmap/8d49)
 - [K/DA - MORE \[DACK\]](https://beatsaver.com/beatmap/1059c)
 - [BLACKPINK - Kill This Love \[aggrogahu\]](https://beatsaver.com/beatmap/46be)
 
-A playlist with all maps pre-configured by me is included with the mod. You can use a mod like **PlaylistManager** to access it in game. Please note that the playlist doesn't include maps that come with a video config made by the mappers themselves.
+A playlist with all maps preconfigured by me is included with the mod. You can use a mod like **PlaylistManager** to access it in game. Please note that the playlist doesn't include maps that come with a video config made by the mappers themselves.
 
-**Please note that you can add a video to any map you like, the maps listed here are not the only ones Cinema works with**.
+To find a list of all maps that have a video ready to go, visit [https://bsaber.org/?filter_mods=cinema&count=100](https://bsaber.org/?filter_mods=cinema&count=100).
+
+**Please note that you yourself can add a video to any map you like**.
 
 
 ### 3. Downloading Videos
@@ -41,9 +42,7 @@ Select a song in-game, look to your left to the panel labeled "Gameplay Setup" a
 
 Click download in the center of the menu and wait for the download to complete, then simply play the map. If the download takes too long for you, you can lower the video quality from the settings on the left side of the main menu.
 
-You can of course add videos to any song you like, even if they are not pre-configured. The menu will in that case show you a button labeled "Search", which will lead you to the search results from YouTube. After you choose a video, you will have to adjust the video offset. To do so, simply click the "Preview" button to play the video, and use the "+" or "-" buttons to adjust the offset until the sound from both ears lines up. Sound from the video will play in your left ear, the map in your right ear. If the sound from the left ear is behind, use the "+" buttons, otherwise the "-" buttons. If you have trouble hearing which one is ahead, try stopping and restarting the preview and listen to which one starts earlier. The sync doesn't have to be exactly perfect though, in most cases you won't notice a slight error in either direction when playing the map.
-
-Cinema is also compatible with video configs created with MusicVideoPlayer.
+You can of course add videos to any song you like, even if they are not preconfigured. The menu will in that case show you a button labeled "Search", which will lead you to the search results from YouTube. After you choose a video, you will have to adjust the video offset. To do so, simply click the "Preview" button to play the video, and use the "+" or "-" buttons to adjust the offset until the sound from both ears lines up. Sound from the video will play in your left ear, the map in your right ear. If the sound from the left ear is behind, use the "+" buttons, otherwise the "-" buttons. If you have trouble hearing which one is ahead, try stopping and restarting the preview and listen to which one starts earlier. The sync doesn't have to be exactly perfect though, in most cases you won't notice a slight error in either direction when playing the map.
 
 ## Info for Mappers
 *This section is intended for mappers*
