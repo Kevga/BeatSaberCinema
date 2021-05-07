@@ -383,8 +383,7 @@ namespace BeatSaberCinema
 				VideoPlayer.SetBloomIntensity(config.bloom);
 			}
 
-			if ((config.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
-			    (config.transparency != null && !config.transparency.Value))
+			if (config.TransparencyEnabled)
 			{
 				VideoPlayer.ShowScreenBody();
 			}
@@ -560,8 +559,7 @@ namespace BeatSaberCinema
 
 			VideoPlayer.IsSyncing = false;
 
-			if ((VideoConfig.transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
-			    (VideoConfig.transparency != null && !VideoConfig.transparency.Value))
+			if (VideoConfig.TransparencyEnabled)
 			{
 				VideoPlayer.ShowScreenBody();
 			}

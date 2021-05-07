@@ -405,9 +405,9 @@ namespace BeatSaberCinema
 			VideoLoader.DeleteVideo(video);
 		}
 
-		private string GetConfigFileArgument(string path)
+		private static string GetConfigFileArgument(string path)
 		{
-			return !File.Exists(path) ? " --ignore-config" : $" --config-location \"{_youtubeDLConfigFilepath}\"";
+			return !File.Exists(path) ? " --ignore-config" : $" --config-location \"{path}\"";
 		}
 	}
 }

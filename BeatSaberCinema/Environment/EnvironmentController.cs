@@ -628,10 +628,7 @@ namespace BeatSaberCinema
 
 			var spectrogramMeshRenderers = clone.GetComponentsInChildren<MeshRenderer>();
 			var meshRendererList = component.GetField<MeshRenderer[], Spectrogram>("_meshRenderers").ToList();
-			foreach (var renderer in spectrogramMeshRenderers)
-			{
-				meshRendererList.Add(renderer);
-			}
+			meshRendererList.AddRange(spectrogramMeshRenderers);
 			component.SetField("_meshRenderers", meshRendererList.ToArray());
 		}
 

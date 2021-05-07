@@ -22,7 +22,11 @@ namespace BeatSaberCinema
 		public bool? loop;
 		public float? endVideoAt;
 		public bool? configByMapper;
+		[JsonIgnore] public bool IsOfficialConfig => configByMapper is true;
+
 		public bool? transparency;
+		[JsonIgnore] public bool TransparencyEnabled => ((transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
+		                                          (transparency != null && !transparency.Value));
 
 		public SerializableVector3? screenPosition;
 		public SerializableVector3? screenRotation;
@@ -67,7 +71,6 @@ namespace BeatSaberCinema
 		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
 		[JsonIgnore] public bool IsPlayable => DownloadState == DownloadState.Downloaded || IsStreamable;
 		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains("WIPLevels");
-		[JsonIgnore] public bool IsOfficialConfig => configByMapper != null && configByMapper == true;
 
 
 		private static Regex _regexParseID = new Regex(@"\/watch\?v=([a-z0-9_-]*)",
