@@ -265,14 +265,15 @@ namespace BeatSaberCinema
 					var arena = sceneObjectList.LastOrDefault(x => x.name == "RocketArena" && x.activeInHierarchy);
 					if (arena != null)
 					{
-						arena.transform.localScale = new Vector3(1, 2, 1);
+						arena.transform.localScale = new Vector3(2.38f, 2, 1);
 					}
 
 					var arenaLight = sceneObjectList.LastOrDefault(x => x.name == "RocketArenaLight" && x.activeInHierarchy);
 					if (arenaLight != null)
 					{
-						arenaLight.transform.position = new Vector3(0, 23, 42);
-						arenaLight.transform.localScale = new Vector3(2.5f, 1, 1);
+						arenaLight.transform.position = new Vector3(0, 5.8f, 42.4f);
+						arenaLight.transform.localScale = new Vector3(2.38f, 1, 1);
+						arenaLight.transform.eulerAngles = new Vector3(90, 180, 0);
 					}
 
 					var gateLight = sceneObjectList.LastOrDefault(x => x.name == "RocketGateLight" && x.activeInHierarchy);
