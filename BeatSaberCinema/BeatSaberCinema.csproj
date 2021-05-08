@@ -160,7 +160,8 @@
 	<ItemGroup>
 		<EmbeddedResource Include="manifest.json" />
 		<EmbeddedResource Include="Resources\*" />
-		<EmbeddedResource Include="*.bsml" />
+		<EmbeddedResource Include="VideoMenu\Views\*.bsml" />
+		<EmbeddedResource Include="Settings\Views\*.bsml" />
 	</ItemGroup>
 
 	<ItemGroup>
