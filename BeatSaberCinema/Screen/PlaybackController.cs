@@ -426,7 +426,7 @@ namespace BeatSaberCinema
 
 			try
 			{
-				var coverSprite = await _currentLevel.GetCoverImageAsync(new CancellationToken());
+				var coverSprite = await _currentLevel.GetCoverImageAsync(CancellationToken.None);
 				VideoPlayer.SetCoverTexture(coverSprite.texture);
 				VideoPlayer.FadeIn(0.3f);
 			}

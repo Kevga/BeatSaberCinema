@@ -169,7 +169,7 @@ namespace BeatSaberCinema
 		{
 			if (!IsDlcSong(level) || BeatmapLevelAsyncCache == null)
 			{
-				return await level.GetPreviewAudioClipAsync(new CancellationToken());
+				return await level.GetPreviewAudioClipAsync(CancellationToken.None);
 			}
 
 			Log.Debug("Getting audio clip from async cache");
@@ -179,14 +179,14 @@ namespace BeatSaberCinema
 				return levelData.beatmapLevelData.audioClip;
 			}
 
-			return await level.GetPreviewAudioClipAsync(new CancellationToken());
+			return await level.GetPreviewAudioClipAsync(CancellationToken.None);
 		}
 
 		public static async Task<AdditionalContentModel.EntitlementStatus> GetEntitlementForLevel(IPreviewBeatmapLevel level)
 		{
 			if (AdditionalContentModel != null)
 			{
-				return await AdditionalContentModel.GetLevelEntitlementStatusAsync(level.levelID, new CancellationToken());
+				return await AdditionalContentModel.GetLevelEntitlementStatusAsync(level.levelID, CancellationToken.None);
 			}
 
 			return AdditionalContentModel.EntitlementStatus.Owned;
