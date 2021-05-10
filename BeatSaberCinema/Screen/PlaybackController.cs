@@ -559,7 +559,8 @@ namespace BeatSaberCinema
 
 			VideoPlayer.IsSyncing = false;
 
-			if (VideoConfig.TransparencyEnabled)
+			// Always hide screen body in the menu, since the drawbacks of the body being visible are large
+			if (VideoConfig.TransparencyEnabled && _activeScene != Scene.Menu)
 			{
 				VideoPlayer.ShowScreenBody();
 			}
