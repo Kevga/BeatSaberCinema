@@ -4,12 +4,12 @@
 	"name": "Cinema",
 	"description": "Sync up videos to play in the background of your beatmaps",
 	"author": "Dakari",
-	"gameVersion": "1.14.0",
-	"version": "1.4.2",
+	"gameVersion": "1.16.1",
+	"version": "1.4.3",
 	"dependsOn": {
-		"BSIPA": "^4.1.4",
-		"BeatSaberMarkupLanguage": "^1.5.1",
-		"BS Utils": "^1.8.0",
-		"SongCore": "^3.2.0"
+		"BSIPA": "^4.1.6",
+		"BeatSaberMarkupLanguage": "^1.5.3",
+		"BS Utils": "^1.10.0",
+		"SongCore": "^3.4.0"
 	}
 }
