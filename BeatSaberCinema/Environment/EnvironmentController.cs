@@ -126,7 +126,7 @@ namespace BeatSaberCinema
 		private static void DefaultSceneModifications(VideoConfig? videoConfig)
 		{
 			//FrontLights appear in many environments and need to be removed in all of them
-			var frontLights = EnvironmentObjects.LastOrDefault(x => x.name == "FrontLights" && x.activeInHierarchy);
+			var frontLights = EnvironmentObjects.LastOrDefault(x => (x.name == "FrontLights" || x.name == "FrontLight") && x.activeInHierarchy);
 			if (frontLights != null)
 			{
 				frontLights.SetActive(false);
@@ -492,6 +492,37 @@ namespace BeatSaberCinema
 						PlaybackController.Instance.VideoPlayer.SetSoftParent(coreHUDController.transform);
 					}
 
+					break;
+				}
+				case "InterscopeEnvironment":
+				{
+					//Not full support for this environment (not whitelisted)
+					//These changes just make it look passable when using environment overrides.
+
+					var ceilingFront = EnvironmentObjects.LastOrDefault(x => x.name == "Plane (1)" && x.activeInHierarchy);
+					if (ceilingFront != null)
+					{
+						ceilingFront.SetActive(false);
+					}
+
+					var ceilingBack = EnvironmentObjects.LastOrDefault(x => x.name == "Plane (4)" && x.activeInHierarchy);
+					if (ceilingBack != null)
+					{
+						ceilingBack.SetActive(false);
+					}
+
+					var topLights = EnvironmentObjects.Where(x => x.name.Contains("NeonTop") && x.activeInHierarchy);
+					foreach (var light in topLights)
+					{
+						light.SetActive(false);
+					}
+
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
+					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.2f, 32.8f);
+					placement.Rotation = videoConfig?.screenRotation ?? Vector3.zero;
+					placement.Height = videoConfig?.screenHeight ?? 12.5f;
+					placement.Curvature = videoConfig?.screenCurvature;
+					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
 			}
