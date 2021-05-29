@@ -54,6 +54,7 @@ namespace BeatSaberCinema
 			ApplyHarmonyPatches();
 			SettingsUI.CreateMenu();
 			VideoMenu.instance.AddTab();
+			EnvironmentController.Init();
 			SongCore.Collections.RegisterCapability(CAPABILITY);
 			Log.Info($"{nameof(BeatSaberCinema)} enabled");
 			if (File.Exists(Path.Combine(UnityGame.InstallPath, "dxgi.dll")))
@@ -75,6 +76,7 @@ namespace BeatSaberCinema
 			//PlaybackController.Destroy();
 
 			VideoMenu.instance.RemoveTab();
+			EnvironmentController.Disable();
 			VideoLoader.StopFileSystemWatcher();
 			SongCore.Collections.DeregisterizeCapability(CAPABILITY);
 			Log.Info($"{nameof(BeatSaberCinema)} disabled");

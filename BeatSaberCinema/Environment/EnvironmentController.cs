@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using BS_Utils.Utilities;
 using IPA.Utilities;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static BeatSaberCinema.VideoConfig;
 using Object = UnityEngine.Object;
 
@@ -15,6 +17,60 @@ namespace BeatSaberCinema
 		private const string CLONED_OBJECT_NAME_SUFFIX = " (CinemaClone)";
 
 		private static bool _environmentModified;
+				private static string _currentEnvironment = "Menu";
+        		private static List<GameObject>? _environmentObjectList;
+        		private static IEnumerable<GameObject> EnvironmentObjects
+        		{
+        			get
+        			{
+        				if (_environmentObjectList != null && _environmentObjectList.Any())
+        				{
+        					return _environmentObjectList;
+        				}
+
+                        var environmentObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                        _environmentObjectList = environmentObjects.ToList();
+
+                        return _environmentObjectList;
+        			}
+        		}
+
+        		public static void Init()
+        		{
+        			BSEvents.gameSceneLoaded += SceneChanged;
+        			BSEvents.lateMenuSceneLoadedFresh += SceneChanged;
+        			BSEvents.menuSceneLoaded += SceneChanged;
+        		}
+
+        		public static void Disable()
+        		{
+        			BSEvents.gameSceneLoaded -= SceneChanged;
+        			BSEvents.lateMenuSceneLoadedFresh -= SceneChanged;
+        			BSEvents.menuSceneLoaded -= SceneChanged;
+        			_environmentObjectList?.Clear();
+        		}
+
+        		private static void SceneChanged()
+        		{
+                    Reset();
+
+        			_currentEnvironment = "MainMenu";
+        			var sceneName = SceneManager.GetActiveScene().name;
+        			if (sceneName == "GameCore")
+        			{
+        				var environment = GameObject.Find("Environment");
+        				if (environment != null)
+        				{
+        					_currentEnvironment = environment.scene.name;
+        				}
+        			}
+        			Log.Debug($"Environment name (new method): {_currentEnvironment}");
+        		}
+
+        		private static void SceneChanged(ScenesTransitionSetupDataSO scenesTransitionSetupDataSo)
+        		{
+        			SceneChanged();
+        		}
 
 		public static void ModifyGameScene(VideoConfig? videoConfig)
 		{
@@ -57,17 +113,16 @@ namespace BeatSaberCinema
 			Log.Debug("Modified environment");
 		}
 
-		public static void Reset()
+		private static void Reset()
 		{
 			_environmentModified = false;
+			_environmentObjectList?.Clear();
 		}
 
 		private static void DefaultSceneModifications(VideoConfig? videoConfig)
 		{
-			var sceneObjectList = Resources.FindObjectsOfTypeAll<GameObject>();
-
 			//FrontLights appear in many environments and need to be removed in all of them
-			var frontLights = sceneObjectList.LastOrDefault(x => x.name == "FrontLights" && x.activeInHierarchy);
+			var frontLights = EnvironmentObjects.LastOrDefault(x => x.name == "FrontLights" && x.activeInHierarchy);
 			if (frontLights != null)
 			{
 				frontLights.SetActive(false);
@@ -78,7 +133,7 @@ namespace BeatSaberCinema
 				case "NiceEnvironment":
 				case "BigMirrorEnvironment":
 				{
-					var doubleColorLasers = sceneObjectList.Where(x => x.name.Contains("DoubleColorLaser") && x.activeInHierarchy);
+					var doubleColorLasers = EnvironmentObjects.Where(x => x.name.Contains("DoubleColorLaser") && x.activeInHierarchy);
 					foreach (var doubleColorLaser in doubleColorLasers)
 					{
 						var laserName = doubleColorLaser.name;
@@ -109,13 +164,13 @@ namespace BeatSaberCinema
 				}
 				case "BTSEnvironment":
 				{
-					var centerLight = sceneObjectList.LastOrDefault(x => x.name == "MagicDoorSprite" && x.activeInHierarchy);
+					var centerLight = EnvironmentObjects.LastOrDefault(x => x.name == "MagicDoorSprite" && x.activeInHierarchy);
 					if (centerLight != null)
 					{
 						centerLight.SetActive(false);
 					}
 
-					var pillarPairs = sceneObjectList.Where(x => x.name.Contains("PillarPair") && x.activeInHierarchy);
+					var pillarPairs = EnvironmentObjects.Where(x => x.name.Contains("PillarPair") && x.activeInHierarchy);
 					var movementEffectStartPositions = new List<Vector3>();
 					foreach (var pillarPair in pillarPairs)
 					{
@@ -133,7 +188,7 @@ namespace BeatSaberCinema
 						}
 						var i = int.Parse(match.Groups[1].Value);
 
-						var children = sceneObjectList.Where(x =>
+						var children = EnvironmentObjects.Where(x =>
 						{
 							Transform parent;
 							return x.name.Contains("Pillar") &&
@@ -185,7 +240,7 @@ namespace BeatSaberCinema
 				}
 				case "OriginsEnvironment":
 				{
-					var spectrograms = sceneObjectList.Where(x => x.name == "Spectrogram" && x.activeInHierarchy);
+					var spectrograms = EnvironmentObjects.Where(x => x.name == "Spectrogram" && x.activeInHierarchy);
 					foreach (var spectrogram in spectrograms)
 					{
 						var pos = spectrogram.transform.position;
@@ -200,14 +255,14 @@ namespace BeatSaberCinema
 				}
 				case "KDAEnvironment":
 				{
-					var construction = sceneObjectList.LastOrDefault(x => x.name == "Construction" && x.transform.parent.name != "PlayersPlace" && x.activeInHierarchy);
+					var construction = EnvironmentObjects.LastOrDefault(x => x.name == "Construction" && x.transform.parent.name != "PlayersPlace" && x.activeInHierarchy);
 					if (construction != null)
 					{
 						//Stretch it in the y-axis to get rid of the beam above
 						construction.transform.localScale = new Vector3(1, 2, 1);
 					}
 
-					var tentacles = sceneObjectList.Where(x => x.name.Contains("Tentacle") && x.activeInHierarchy);
+					var tentacles = EnvironmentObjects.Where(x => x.name.Contains("Tentacle") && x.activeInHierarchy);
 					foreach (var tentacle in tentacles)
 					{
 						var pos = tentacle.transform.position;
@@ -224,7 +279,7 @@ namespace BeatSaberCinema
 						tentacle.transform.eulerAngles = new Vector3(rot.x, newRotY * sign, rot.z);
 					}
 
-					var verticalLasers = sceneObjectList.Where(
+					var verticalLasers = EnvironmentObjects.Where(
 						x => x.name.Contains("Laser") && !x.name.Contains("RotatingLasersPair") && x.activeInHierarchy);
 					foreach (var laser in verticalLasers)
 					{
@@ -239,7 +294,7 @@ namespace BeatSaberCinema
 						laser.transform.position = new Vector3(newX, pos.y, newZ);
 					}
 
-					var glowLines = sceneObjectList.Where(x => x.name.Contains("GlowTopLine") && x.activeInHierarchy);
+					var glowLines = EnvironmentObjects.Where(x => x.name.Contains("GlowTopLine") && x.activeInHierarchy);
 					foreach (var glowLine in glowLines)
 					{
 						var pos = glowLine.transform.position;
@@ -250,7 +305,7 @@ namespace BeatSaberCinema
 				}
 				case "RocketEnvironment":
 				{
-					var cars = sceneObjectList.Where(x => x.name.Contains("RocketCar") && x.activeInHierarchy);
+					var cars = EnvironmentObjects.Where(x => x.name.Contains("RocketCar") && x.activeInHierarchy);
 					foreach (var car in cars)
 					{
 						var pos = car.transform.position;
@@ -262,13 +317,13 @@ namespace BeatSaberCinema
 						car.transform.position = new Vector3(newX, pos.y, pos.z);
 					}
 
-					var arena = sceneObjectList.LastOrDefault(x => x.name == "RocketArena" && x.activeInHierarchy);
+					var arena = EnvironmentObjects.LastOrDefault(x => x.name == "RocketArena" && x.activeInHierarchy);
 					if (arena != null)
 					{
 						arena.transform.localScale = new Vector3(2.38f, 2, 1);
 					}
 
-					var arenaLight = sceneObjectList.LastOrDefault(x => x.name == "RocketArenaLight" && x.activeInHierarchy);
+					var arenaLight = EnvironmentObjects.LastOrDefault(x => x.name == "RocketArenaLight" && x.activeInHierarchy);
 					if (arenaLight != null)
 					{
 						arenaLight.transform.position = new Vector3(0, 5.8f, 42.4f);
@@ -276,7 +331,7 @@ namespace BeatSaberCinema
 						arenaLight.transform.eulerAngles = new Vector3(90, 180, 0);
 					}
 
-					var gateLight = sceneObjectList.LastOrDefault(x => x.name == "RocketGateLight" && x.activeInHierarchy);
+					var gateLight = EnvironmentObjects.LastOrDefault(x => x.name == "RocketGateLight" && x.activeInHierarchy);
 					if (gateLight != null)
 					{
 						gateLight.transform.position = new Vector3(0, -3, 64);
@@ -286,7 +341,7 @@ namespace BeatSaberCinema
 				}
 				case "DragonsEnvironment":
 				{
-					var spectrograms = sceneObjectList.Where(x => x.name == "Spectrogram" && x.activeInHierarchy);
+					var spectrograms = EnvironmentObjects.Where(x => x.name == "Spectrogram" && x.activeInHierarchy);
 					foreach (var spectrogram in spectrograms)
 					{
 						var pos = spectrogram.transform.position;
@@ -298,21 +353,21 @@ namespace BeatSaberCinema
 						spectrogram.transform.position = new Vector3(newX, pos.y, pos.z);
 					}
 
-					var topConstructionParts = sceneObjectList.Where(x => x.name.Contains("TopConstruction") && x.activeInHierarchy);
+					var topConstructionParts = EnvironmentObjects.Where(x => x.name.Contains("TopConstruction") && x.activeInHierarchy);
 					foreach (var topConstruction in topConstructionParts)
 					{
 						var pos = topConstruction.transform.position;
 						topConstruction.transform.position = new Vector3(pos.x, 27.0f, pos.z);
 					}
 
-					var hallConstruction = sceneObjectList.LastOrDefault(x => x.name == "HallConstruction" && x.activeInHierarchy);
+					var hallConstruction = EnvironmentObjects.LastOrDefault(x => x.name == "HallConstruction" && x.activeInHierarchy);
 					if (hallConstruction != null)
 					{
 						var pos = hallConstruction.transform.position;
 						hallConstruction.transform.position = new Vector3(pos.x, 22.0f, pos.z);
 					}
 
-					var trackLaneRings = sceneObjectList.Where(x => x.name.Contains("PanelsTrackLaneRing") && x.activeInHierarchy);
+					var trackLaneRings = EnvironmentObjects.Where(x => x.name.Contains("PanelsTrackLaneRing") && x.activeInHierarchy);
 					foreach (var ring in trackLaneRings)
 					{
 						ring.transform.localScale = new Vector3(5f, 5f, 1f);
@@ -321,7 +376,7 @@ namespace BeatSaberCinema
 				}
 				case "LinkinParkEnvironment":
 				{
-					var logo = sceneObjectList.LastOrDefault(x =>
+					var logo = EnvironmentObjects.LastOrDefault(x =>
 					{
 						Transform parent;
 						return x.name == "Logo" &&
@@ -337,46 +392,46 @@ namespace BeatSaberCinema
 					var environmentScale = new Vector3(4f, 3f, 3f);
 					var invertedScale = new Vector3(1/environmentScale.x, 1/environmentScale.y, 1/environmentScale.z);
 
-					var environment = sceneObjectList.LastOrDefault(x => x.name == "Environment" && x.activeInHierarchy);
+					var environment = EnvironmentObjects.LastOrDefault(x => x.name == "Environment" && x.activeInHierarchy);
 					if (environment != null)
 					{
 						environment.transform.localScale = environmentScale;
 					}
 
-					var trackConstruction = sceneObjectList.LastOrDefault(x => x.name == "TrackConstruction" && x.activeInHierarchy);
+					var trackConstruction = EnvironmentObjects.LastOrDefault(x => x.name == "TrackConstruction" && x.activeInHierarchy);
 					if (trackConstruction != null)
 					{
 						trackConstruction.transform.position = new Vector3(0.9f, 0f, 106.5f);
 						trackConstruction.transform.localScale = invertedScale;
 					}
 
-					var trackMirror = sceneObjectList.LastOrDefault(x => x.name == "TrackMirror" && x.activeInHierarchy);
+					var trackMirror = EnvironmentObjects.LastOrDefault(x => x.name == "TrackMirror" && x.activeInHierarchy);
 					if (trackMirror != null)
 					{
 						trackMirror.transform.position = new Vector3(0.3f, 0f, 6.55f);
 						trackMirror.transform.localScale = invertedScale;
 					}
 
-					var trackShadow = sceneObjectList.LastOrDefault(x => x.name == "TrackShadow" && x.activeInHierarchy);
+					var trackShadow = EnvironmentObjects.LastOrDefault(x => x.name == "TrackShadow" && x.activeInHierarchy);
 					if (trackShadow != null)
 					{
 						trackShadow.transform.position = new Vector3(0f, -0.3f, 126.1f);
 						trackShadow.transform.localScale = invertedScale;
 					}
 
-					var playersPlace = sceneObjectList.LastOrDefault(x => x.name == "PlayersPlace" && x.activeInHierarchy);
+					var playersPlace = EnvironmentObjects.LastOrDefault(x => x.name == "PlayersPlace" && x.activeInHierarchy);
 					if (playersPlace != null)
 					{
 						playersPlace.transform.localScale = invertedScale;
 					}
 
-					var playersPlaceShadow = sceneObjectList.LastOrDefault(x => x.name == "PlayersPlaceShadow" && x.activeInHierarchy);
+					var playersPlaceShadow = EnvironmentObjects.LastOrDefault(x => x.name == "PlayersPlaceShadow" && x.activeInHierarchy);
 					if (playersPlaceShadow != null)
 					{
 						playersPlaceShadow.transform.localScale = invertedScale;
 					}
 
-					var hud = sceneObjectList.LastOrDefault(x => x.name == "NarrowGameHUD" && x.activeInHierarchy);
+					var hud = EnvironmentObjects.LastOrDefault(x => x.name == "NarrowGameHUD" && x.activeInHierarchy);
 					if (hud != null)
 					{
 						hud.transform.localScale = invertedScale;
@@ -393,24 +448,24 @@ namespace BeatSaberCinema
 				}
 				case "KaleidoscopeEnvironment":
 				{
-					var construction = sceneObjectList.LastOrDefault(x => x.name == "Construction" && x.transform.parent.name != "PlayersPlace" && x.activeInHierarchy);
+					var construction = EnvironmentObjects.LastOrDefault(x => x.name == "Construction" && x.transform.parent.name != "PlayersPlace" && x.activeInHierarchy);
 					if (construction != null)
 					{
 						construction.SetActive(false);
 					}
-					var trackMirror = sceneObjectList.LastOrDefault(x => x.name == "TrackMirror" && x.activeInHierarchy);
+					var trackMirror = EnvironmentObjects.LastOrDefault(x => x.name == "TrackMirror" && x.activeInHierarchy);
 					if (trackMirror != null)
 					{
 						trackMirror.SetActive(false);
 					}
 					const float coneOffset = 2.5f;
-					var evenCones = sceneObjectList.Where(x => x.name == "Cone" && x.transform.parent.name == "ConeRing(Clone)" && x.activeInHierarchy);
+					var evenCones = EnvironmentObjects.Where(x => x.name == "Cone" && x.transform.parent.name == "ConeRing(Clone)" && x.activeInHierarchy);
 					foreach (var glowLine in evenCones)
 					{
 						var localPos = glowLine.transform.localPosition;
 						glowLine.transform.localPosition = new Vector3(localPos.x, localPos.y + coneOffset, localPos.z);
 					}
-					var oddCones = sceneObjectList.Where(x => x.name == "Cone (1)" && x.transform.parent.name == "ConeRing(Clone)" && x.activeInHierarchy);
+					var oddCones = EnvironmentObjects.Where(x => x.name == "Cone (1)" && x.transform.parent.name == "ConeRing(Clone)" && x.activeInHierarchy);
 					foreach (var glowLine in oddCones)
 					{
 						var localPos = glowLine.transform.localPosition;
@@ -440,8 +495,6 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			var sceneObjectList = Resources.FindObjectsOfTypeAll<GameObject>();
-
 			foreach (var environmentModification in config.environment)
 			{
 				List<GameObject>? selectedObjectsList;
@@ -451,7 +504,7 @@ namespace BeatSaberCinema
 				}
 				else
 				{
-					selectedObjectsList = SelectObjectsFromScene(environmentModification, false, sceneObjectList);
+					selectedObjectsList = SelectObjectsFromScene(environmentModification, false);
 					if (!selectedObjectsList.Any())
 					{
 						Log.Error($"Failed to find object: name={environmentModification.name}, parentName={environmentModification.parentName ?? "null"}");
@@ -484,7 +537,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private static List<GameObject> SelectObjectsFromScene(EnvironmentModification modification, bool clone, IEnumerable<GameObject>? sceneObjectList = null)
+		private static List<GameObject> SelectObjectsFromScene(EnvironmentModification modification, bool clone)
 		{
 			modification = TranslateNameForBackwardsCompatibility(modification, clone);
 			var name = clone ? modification.cloneFrom! : modification.name;
@@ -497,8 +550,7 @@ namespace BeatSaberCinema
 			IEnumerable<GameObject>? environmentObjects = null;
 			try
 			{
-				sceneObjectList ??= Resources.FindObjectsOfTypeAll<GameObject>();
-				environmentObjects = sceneObjectList.Where(x =>
+				environmentObjects = EnvironmentObjects.Where(x =>
 					x.name == name &&
 					(parentName == null || x.transform.parent.name == parentName));
 			}
@@ -524,8 +576,6 @@ namespace BeatSaberCinema
 				Log.Error("Failed to find LightWithIdManager. Cannot clone lights.");
 			}
 
-			var sceneObjectList = Resources.FindObjectsOfTypeAll<GameObject>();
-
 			var cloneCounter = 0;
 			foreach (var objectToBeCloned in config.environment)
 			{
@@ -534,7 +584,7 @@ namespace BeatSaberCinema
 					continue;
 				}
 
-				var environmentObjectList = SelectObjectsFromScene(objectToBeCloned, true, sceneObjectList);
+				var environmentObjectList = SelectObjectsFromScene(objectToBeCloned, true);
 				if (!environmentObjectList.Any())
 				{
 					Log.Error($"Failed to find object while cloning: name={objectToBeCloned.cloneFrom}, parentName={objectToBeCloned.parentName ?? "null"}");

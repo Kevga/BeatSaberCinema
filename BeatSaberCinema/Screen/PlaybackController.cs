@@ -325,7 +325,6 @@ namespace BeatSaberCinema
 		{
 			Log.Debug("MenuSceneLoaded");
 			_activeScene = Scene.Menu;
-			EnvironmentController.Reset();
 			VideoPlayer.Hide();
 			StopAllCoroutines();
 			_previewWaitingForPreviewPlayer = true;
