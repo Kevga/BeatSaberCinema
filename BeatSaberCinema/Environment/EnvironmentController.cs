@@ -117,6 +117,10 @@ namespace BeatSaberCinema
 		{
 			_environmentModified = false;
 			_environmentObjectList?.Clear();
+			if (PlaybackController.Instance != null && PlaybackController.Instance.VideoPlayer != null)
+			{
+				PlaybackController.Instance.VideoPlayer.SetSoftParent(null);
+			}
 		}
 
 		private static void DefaultSceneModifications(VideoConfig? videoConfig)
@@ -478,6 +482,16 @@ namespace BeatSaberCinema
 					placement.Height = videoConfig?.screenHeight ?? 12f;
 					placement.Curvature = videoConfig?.screenCurvature;
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
+					break;
+				}
+				case "GlassDesertEnvironment":
+				{
+					var coreHUDController = Resources.FindObjectsOfTypeAll<CoreGameHUDController>().LastOrDefault(x => x.isActiveAndEnabled);
+					if (coreHUDController != null)
+					{
+						PlaybackController.Instance.VideoPlayer.SetSoftParent(coreHUDController.transform);
+					}
+
 					break;
 				}
 			}

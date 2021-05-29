@@ -12,6 +12,7 @@ namespace BeatSaberCinema
         public virtual bool PluginEnabled { get; set; } = true;
         public virtual bool OverrideEnvironment { get; set; } = true;
         public virtual bool DisableCustomPlatforms { get; set; } = true;
+        public virtual bool Enable360Rotation { get; set; } = true;
         public virtual bool CurvedScreen { get; set; } = true;
         public virtual bool TransparencyEnabled { get; set; } = true;
         public virtual bool CoverEnabled { get; set; }

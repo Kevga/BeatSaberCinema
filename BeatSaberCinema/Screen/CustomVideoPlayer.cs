@@ -492,5 +492,13 @@ namespace BeatSaberCinema
 		{
 			_screen.SetDistance(value);
 		}
+
+		public void SetSoftParent(Transform? parent)
+		{
+			if (SettingsStore.Instance.Enable360Rotation)
+			{
+				_screen.SetSoftParent(parent);
+			}
+		}
 	}
 }

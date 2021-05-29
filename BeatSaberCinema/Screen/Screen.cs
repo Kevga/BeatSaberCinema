@@ -11,6 +11,7 @@ namespace BeatSaberCinema
 		private readonly Renderer _screenRenderer;
 		private CurvedSurface _screenBodySurface = null!;
 		private readonly CustomBloomPrePass _screenBloomPrePass;
+		private readonly SoftParent _softParent;
 
 		public Screen()
 		{
@@ -20,6 +21,7 @@ namespace BeatSaberCinema
 			_screenRenderer = _screenGameObject.GetComponent<Renderer>();
 			_screenBodyGameObject = CreateBody();
 			_screenBloomPrePass = _screenGameObject.AddComponent<CustomBloomPrePass>();
+			_softParent = _screenGameObject.AddComponent<SoftParent>();
 
 			Hide();
 		}
@@ -114,6 +116,12 @@ namespace BeatSaberCinema
 			_screenBodySurface.Width = _screenSurface.Height * ratio;
 			_screenBloomPrePass.UpdateScreenDimensions(_screenSurface.Width, _screenSurface.Height);
 			RegenerateScreenSurfaces();
+		}
+
+		public void SetSoftParent(Transform? parent)
+		{
+			_softParent.enabled = parent != null;
+			_softParent.AssignParent(parent);
 		}
 	}
 }

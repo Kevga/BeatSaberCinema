@@ -45,6 +45,13 @@ namespace BeatSaberCinema
 	        set => SettingsStore.Instance.DisableCustomPlatforms = value;
         }
 
+        [UIValue("enable-360-rotation")]
+        public bool Enable360Rotation
+        {
+	        get => SettingsStore.Instance.Enable360Rotation;
+	        set => SettingsStore.Instance.Enable360Rotation = value;
+        }
+
         [UIValue("bloom-intensity")]
         public int BloomIntensity
         {

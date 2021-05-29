@@ -13,6 +13,8 @@
 						  hover-hint='Force the use of the Big Mirror environment for songs with videos.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
 			<bool-setting apply-on-change="true" text='Disable CustomPlatforms' value='disable-custom-platforms'
 						  hover-hint='Prevents custom platforms from loading when a video is playing.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
+			<bool-setting apply-on-change="true" text='Rotate in 90/360 maps' value='enable-360-rotation'
+						  hover-hint='Move the screen in 90°/360° levels to always be in the direction the notes come from.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
 			<bool-setting apply-on-change="true" text='Show Song Cover on Screen' value='cover-enabled'
 						  hover-hint="Shows the song's cover image on screen if the map doesn't have a video.&#xD;&#xA;&#xD;&#xA;This may currently not look great on some environments."></bool-setting>
 		</modifier-container>
