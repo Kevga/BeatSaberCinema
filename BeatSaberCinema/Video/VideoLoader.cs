@@ -232,6 +232,7 @@ namespace BeatSaberCinema
 				}
 
 				videoConfig.LevelDir = GetLevelPath(level);
+				videoConfig.bundledConfig = true;
 				Log.Debug("Loaded from bundled configs");
 			}
 

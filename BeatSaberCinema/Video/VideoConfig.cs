@@ -22,6 +22,7 @@ namespace BeatSaberCinema
 		public bool? loop;
 		public float? endVideoAt;
 		public bool? configByMapper;
+		public bool? bundledConfig;
 		[JsonIgnore] public bool IsOfficialConfig => configByMapper is true;
 
 		public bool? transparency;
