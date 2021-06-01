@@ -14,7 +14,7 @@
             </horizontal>
 
             <horizontal horizontal-fit='PreferredSize' vertical-fit='PreferredSize' width='50' height='25' child-expand-width='false' child-expand-height='false'>
-                <image id='video-thumbnail' src='' pref-width='40' pref-height='25' preserve-aspect='true'/>
+                <image id='video-thumbnail' pref-width='40' pref-height='25' preserve-aspect='true'/>
                 <vertical align='Top' pad-left='3' spacing='0' pref-width='40' child-expand-width='false' vertical-fit='PreferredSize'>
                     <text id='video-author' font-size='3' align='Left' overflow-mode='Ellipsis' text='Author Name'></text>
                     <text id='video-duration' font-size='3' align='Left' overflow-mode='Ellipsis' text='4:20'></text>
