@@ -20,9 +20,25 @@ namespace BeatSaberCinema
 			return (int) mode + "p";
 		}
 
-		public static string ToYoutubeDLFormat(Mode quality)
+		public static string? ToYoutubeDLFormat(VideoConfig config, Mode quality)
 		{
-			string qualityString = $"bestvideo[height<={(int) quality}][vcodec*=avc1]+bestaudio[acodec*=mp4]";
+			string? qualityString;
+			if (config.videoUrl == null || config.videoUrl.Contains("youtube.com/watch"))
+			{
+				qualityString = $"bestvideo[height<={(int) quality}][vcodec*=avc1]+bestaudio[acodec*=mp4]";
+			}
+			else if (config.videoUrl.Contains("drive.google.com"))
+			{
+				qualityString = $"best[height<={(int) quality}]";
+			}
+			else if (config.videoUrl.Contains("dropbox.com"))
+			{
+				return null;
+			}
+			else
+			{
+				qualityString = $"best[height<={(int) quality}][vcodec*=avc1]";
+			}
 
 			return qualityString;
 		}

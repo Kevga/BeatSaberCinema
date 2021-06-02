@@ -71,7 +71,7 @@ namespace BeatSaberCinema
 		private bool _videoMenuActive;
 		private int _selectedCell;
 		private string _searchText = "";
-		private string _thumbnailURL = "";
+		private string? _thumbnailURL;
 		private readonly DownloadController _downloadController = new DownloadController();
 		private readonly List<YTResult> _searchResults = new List<YTResult>();
 
@@ -244,7 +244,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (_currentVideo.videoID == null)
+			if (_currentVideo.videoID == null && _currentVideo.videoUrl == null)
 			{
 				ResetVideoMenu();
 				if (_currentVideo.forceEnvironmentModifications != true)
@@ -269,7 +269,7 @@ namespace BeatSaberCinema
 			_videoDurationText.text = "Duration: "+Util.SecondsToString(_currentVideo.duration);
 
 			_videoOffsetText.text = $"{_currentVideo.offset:n0}" + " ms";
-			SetThumbnail($"https://i.ytimg.com/vi/{_currentVideo.videoID}/hqdefault.jpg");
+			SetThumbnail(_currentVideo.videoID != null ? $"https://i.ytimg.com/vi/{_currentVideo.videoID}/hqdefault.jpg" : null);
 
 			UpdateStatusText(_currentVideo);
 			if (CustomizeOffset)
@@ -294,7 +294,7 @@ namespace BeatSaberCinema
 			}
 
 			//This is the case if the map only uses environment modifications
-			if (_currentVideo.videoID == null)
+			if (_currentVideo.videoID == null && _currentVideo.videoUrl == null)
 			{
 				return;
 			}
@@ -362,15 +362,22 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private void SetThumbnail(string url)
+		private void SetThumbnail(string? url)
 		{
 			if (url == _thumbnailURL)
 			{
 				return;
 			}
 
+			if (url == null)
+			{
+				_videoThumnnail.gameObject.SetActive(false);
+				return;
+			}
+
 			Log.Debug("Updating thumbnail");
 			_thumbnailURL = url;
+			_videoThumnnail.gameObject.SetActive(true);
 			_videoThumnnail.SetImage(url);
 		}
 

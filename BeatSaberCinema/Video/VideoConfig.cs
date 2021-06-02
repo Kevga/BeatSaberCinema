@@ -14,6 +14,7 @@ namespace BeatSaberCinema
 	public class VideoConfig
 	{
 		public string? videoID;
+		public string? videoUrl;
 		public string? title;
 		public string? author;
 		public string? videoFile;
@@ -141,7 +142,7 @@ namespace BeatSaberCinema
 
 		public DownloadState UpdateDownloadState()
 		{
-			return (DownloadState = (VideoPath != null && videoID != null && IsLocal && File.Exists(VideoPath) ? DownloadState.Downloaded : DownloadState.NotDownloaded));
+			return (DownloadState = (VideoPath != null && (videoID != null || videoUrl != null) && IsLocal && File.Exists(VideoPath) ? DownloadState.Downloaded : DownloadState.NotDownloaded));
 		}
 
 		[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]

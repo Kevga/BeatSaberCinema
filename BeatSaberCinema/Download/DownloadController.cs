@@ -363,16 +363,19 @@ namespace BeatSaberCinema
 
 			var videoFileName = Util.ReplaceIllegalFilesystemChars(video.title ?? video.videoID ?? "video");
 			videoFileName = Util.ShortenFilename(video.LevelDir, videoFileName);
-
 			video.videoFile = videoFileName + ".mp4";
+
+			var videoUrl = video.videoUrl ?? $"https://www.youtube.com/watch?v={video.videoID}";
+			var videoFormat = VideoQuality.ToYoutubeDLFormat(video, quality);
+			videoFormat = videoFormat == null ? "" : $" -f \"{videoFormat}\"";
 
 			var downloadProcess = new Process
 			{
 				StartInfo =
 				{
 					FileName = _youtubeDLFilepath,
-					Arguments = "https://www.youtube.com/watch?v=" + video.videoID +
-					            $" -f \"{VideoQuality.ToYoutubeDLFormat(quality)}\"" + // Formats
+					Arguments = videoUrl +
+					            videoFormat +
 					            " --no-cache-dir" + // Don't use temp storage
 					            $" -o \"{videoFileName}.%(ext)s\"" +
 					            " --no-playlist" + // Don't download playlists, only the first video
