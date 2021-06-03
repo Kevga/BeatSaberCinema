@@ -286,7 +286,7 @@ namespace BeatSaberCinema
 
 
 				_previewIgnoreNextUpdate = true;
-				SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), startTime, _currentLevel.songDuration);
+				SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), 1f, startTime, _currentLevel.songDuration);
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
 				SetAudioSourcePanning(0.9f);

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace BeatSaberCinema
 {
-	[HarmonyPatch(typeof(SongPreviewPlayer), nameof(SongPreviewPlayer.CrossfadeTo), typeof(AudioClip), typeof(float), typeof(float), typeof(bool))]
+	[HarmonyPatch(typeof(SongPreviewPlayer), nameof(SongPreviewPlayer.CrossfadeTo), typeof(AudioClip), typeof(float), typeof(float), typeof(float), typeof(bool))]
 	[UsedImplicitly]
 	public class SongPreviewPatch
 	{
