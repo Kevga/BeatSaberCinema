@@ -518,7 +518,7 @@ namespace BeatSaberCinema
 					}
 
 					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
-					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.2f, 32.8f);
+					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.3f, 37f);
 					placement.Rotation = videoConfig?.screenRotation ?? Vector3.zero;
 					placement.Height = videoConfig?.screenHeight ?? 12.5f;
 					placement.Curvature = videoConfig?.screenCurvature;
