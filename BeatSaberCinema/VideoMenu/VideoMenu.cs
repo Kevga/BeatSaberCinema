@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -364,21 +365,32 @@ namespace BeatSaberCinema
 
 		private void SetThumbnail(string? url)
 		{
-			if (url == _thumbnailURL)
+			if (url != null && url == _thumbnailURL)
 			{
 				return;
 			}
+			_thumbnailURL = url;
 
 			if (url == null)
 			{
-				_videoThumnnail.gameObject.SetActive(false);
+
+				SetThumbnailFromCover(_currentLevel);
 				return;
 			}
 
 			Log.Debug("Updating thumbnail");
-			_thumbnailURL = url;
-			_videoThumnnail.gameObject.SetActive(true);
 			_videoThumnnail.SetImage(url);
+		}
+
+		private async void SetThumbnailFromCover(IPreviewBeatmapLevel? level)
+		{
+			if (level == null)
+			{
+				return;
+			}
+
+			var coverSprite = await level.GetCoverImageAsync(CancellationToken.None);
+			_videoThumnnail.sprite = coverSprite;
 		}
 
 		public void SetSelectedLevel(IPreviewBeatmapLevel level)
