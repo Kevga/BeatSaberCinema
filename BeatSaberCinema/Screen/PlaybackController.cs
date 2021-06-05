@@ -739,11 +739,6 @@ namespace BeatSaberCinema
 			VideoPlayer.Stop();
 		}
 
-		public void SetScreenDistance(float value)
-		{
-			VideoPlayer.SetScreenDistance(value);
-		}
-
 		public void SceneTransitionInitCalled()
 		{
 			Events.InvokeSceneTransitionEvents(VideoConfig);

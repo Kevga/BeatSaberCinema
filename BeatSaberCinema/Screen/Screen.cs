@@ -103,14 +103,6 @@ namespace BeatSaberCinema
 			_screenBloomPrePass.SetBloomIntensityConfigSetting(bloomIntensity);
 		}
 
-		public void SetDistance(float distance)
-		{
-			var currentPos = _screenGameObject.transform.position;
-			_screenGameObject.transform.position = new Vector3(currentPos.x, currentPos.y, distance);
-			_screenSurface.Distance = distance;
-			_screenBodySurface.Distance = distance;
-		}
-
 		public void SetAspectRatio(float ratio)
 		{
 			_screenSurface.Width = _screenSurface.Height * ratio;

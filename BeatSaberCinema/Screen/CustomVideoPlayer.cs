@@ -488,11 +488,6 @@ namespace BeatSaberCinema
 			_muted = false;
 		}
 
-		public void SetScreenDistance(float value)
-		{
-			_screen.SetDistance(value);
-		}
-
 		public void SetSoftParent(Transform? parent)
 		{
 			if (SettingsStore.Instance.Enable360Rotation)

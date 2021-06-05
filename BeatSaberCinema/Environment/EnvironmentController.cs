@@ -237,7 +237,9 @@ namespace BeatSaberCinema
 
 					if (videoConfig!.screenPosition == null)
 					{
-						PlaybackController.Instance.SetScreenDistance(80f);
+						var placement = Placement.GetDefaultPlacementForScene(PlaybackController.Scene.SoloGameplay);
+						placement.Position.z = 80;
+						PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					}
 
 					break;
