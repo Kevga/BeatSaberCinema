@@ -17,60 +17,60 @@ namespace BeatSaberCinema
 		private const string CLONED_OBJECT_NAME_SUFFIX = " (CinemaClone)";
 
 		private static bool _environmentModified;
-				private static string _currentEnvironment = "Menu";
-        		private static List<GameObject>? _environmentObjectList;
-        		private static IEnumerable<GameObject> EnvironmentObjects
-        		{
-        			get
-        			{
-        				if (_environmentObjectList != null && _environmentObjectList.Any())
-        				{
-        					return _environmentObjectList;
-        				}
+		private static string _currentEnvironment = "Menu";
+		private static List<GameObject>? _environmentObjectList;
+		private static IEnumerable<GameObject> EnvironmentObjects
+		{
+			get
+			{
+				if (_environmentObjectList != null && _environmentObjectList.Any())
+				{
+					return _environmentObjectList;
+				}
 
-                        var environmentObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                        _environmentObjectList = environmentObjects.ToList();
+				var environmentObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+				_environmentObjectList = environmentObjects.ToList();
 
-                        return _environmentObjectList;
-        			}
-        		}
+				return _environmentObjectList;
+			}
+		}
 
-        		public static void Init()
-        		{
-        			BSEvents.gameSceneLoaded += SceneChanged;
-        			BSEvents.lateMenuSceneLoadedFresh += SceneChanged;
-        			BSEvents.menuSceneLoaded += SceneChanged;
-        		}
+		public static void Init()
+		{
+			BSEvents.gameSceneLoaded += SceneChanged;
+			BSEvents.lateMenuSceneLoadedFresh += SceneChanged;
+			BSEvents.menuSceneLoaded += SceneChanged;
+		}
 
-        		public static void Disable()
-        		{
-        			BSEvents.gameSceneLoaded -= SceneChanged;
-        			BSEvents.lateMenuSceneLoadedFresh -= SceneChanged;
-        			BSEvents.menuSceneLoaded -= SceneChanged;
-        			_environmentObjectList?.Clear();
-        		}
+		public static void Disable()
+		{
+			BSEvents.gameSceneLoaded -= SceneChanged;
+			BSEvents.lateMenuSceneLoadedFresh -= SceneChanged;
+			BSEvents.menuSceneLoaded -= SceneChanged;
+			_environmentObjectList?.Clear();
+		}
 
-        		private static void SceneChanged()
-        		{
-                    Reset();
+		private static void SceneChanged()
+		{
+			Reset();
 
-        			_currentEnvironment = "MainMenu";
-        			var sceneName = SceneManager.GetActiveScene().name;
-        			if (sceneName == "GameCore")
-        			{
-        				var environment = GameObject.Find("Environment");
-        				if (environment != null)
-        				{
-        					_currentEnvironment = environment.scene.name;
-        				}
-        			}
-        			Log.Debug($"Environment name (new method): {_currentEnvironment}");
-        		}
+			_currentEnvironment = "MainMenu";
+			var sceneName = SceneManager.GetActiveScene().name;
+			if (sceneName == "GameCore")
+			{
+				var environment = GameObject.Find("Environment");
+				if (environment != null)
+				{
+					_currentEnvironment = environment.scene.name;
+				}
+			}
+			Log.Debug($"Environment name (new method): {_currentEnvironment}");
+		}
 
-        		private static void SceneChanged(ScenesTransitionSetupDataSO scenesTransitionSetupDataSo)
-        		{
-        			SceneChanged();
-        		}
+		private static void SceneChanged(ScenesTransitionSetupDataSO scenesTransitionSetupDataSo)
+		{
+			SceneChanged();
+		}
 
 		public static void ModifyGameScene(VideoConfig? videoConfig)
 		{
@@ -733,30 +733,35 @@ namespace BeatSaberCinema
 		private static EnvironmentModification TranslateNameForBackwardsCompatibility(EnvironmentModification modification, bool clone)
 		{
 			var name = clone ? modification.cloneFrom! : modification.name;
-			var newName = name switch
-			{
-				"GlowLineL" => "NeonTubeDirectionalL",
-				"GlowLineL2" => "NeonTubeDirectionalFL",
-				"GlowLineR" => "NeonTubeDirectionalR",
-				"GlowLineR2" => "NeonTubeDirectionalFR",
-				"TrackLaneRing(Clone)" => "SmallTrackLaneRing(Clone)",
-				_ => name
-			};
+			string newName = name;
 
 			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
 			{
 				case "BigMirrorEnvironment":
 				{
+					newName = name switch
+					{
+						"GlowLineL" => "NeonTubeDirectionalL",
+						"GlowLineL2" => "NeonTubeDirectionalFL",
+						"GlowLineR" => "NeonTubeDirectionalR",
+						"GlowLineR2" => "NeonTubeDirectionalFR",
+						_ => name
+					};
+
 					if (modification.parentName == "Buildings")
 					{
-						newName = name switch
-						{
-							"NearBuildingLeft" => "NearBuildingLeft (2)",
-							"NearBuildingRight" => "NearBuildingRight (2)",
-							_ => name
-						};
 						modification.parentName = "Environment";
 					}
+
+					break;
+				}
+				case "NiceEnvironment":
+				{
+					newName = name switch
+					{
+						"TrackLaneRing(Clone)" => "SmallTrackLaneRing(Clone)",
+						_ => name
+					};
 					break;
 				}
 			}
