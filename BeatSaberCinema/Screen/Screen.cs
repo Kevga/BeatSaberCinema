@@ -79,6 +79,7 @@ namespace BeatSaberCinema
 		{
 			_screenGameObject.transform.position = pos;
 			_screenGameObject.transform.eulerAngles = rot;
+			_screenGameObject.transform.localScale = Vector3.one;
 			InitializeSurfaces(width, height, pos.z, curvatureDegrees);
 			RegenerateScreenSurfaces();
 		}
