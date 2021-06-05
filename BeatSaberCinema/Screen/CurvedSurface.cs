@@ -56,7 +56,7 @@ namespace BeatSaberCinema
 			{
 				//Limit range and prevent infinities and div/0
 				curvatureDegrees = Math.Max(MIN_CURVATURE, curvatureDegrees.Value);
-				curvatureDegrees = Math.Min(180, curvatureDegrees.Value);
+				curvatureDegrees = Math.Min(360, curvatureDegrees.Value);
 			}
 
 			_curvatureDegreesFixed = curvatureDegrees;
@@ -64,6 +64,17 @@ namespace BeatSaberCinema
 			Height = height;
 			_distance = distance;
 			UpdateRadius();
+		}
+
+		private void Update()
+		{
+			var distance = transform.position.z;
+			if (Math.Abs(_distance - distance) < 0.01f)
+			{
+				return;
+			}
+
+			Distance = distance;
 		}
 
 		private void UpdateRadius()
