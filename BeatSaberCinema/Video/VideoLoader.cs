@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using IPA.Utilities;
+using IPA.Utilities.Async;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -132,6 +133,11 @@ namespace BeatSaberCinema
 		}
 
 		private static void OnConfigChanged(object _, FileSystemEventArgs e)
+		{
+			UnityMainThreadTaskScheduler.Factory.StartNew(delegate { OnConfigChangedMainThread(e); });
+		}
+
+		private static void OnConfigChangedMainThread(FileSystemEventArgs e)
 		{
 			Log.Debug("Config "+e.ChangeType+" detected: "+e.FullPath);
 			if (_ignoreNextEventForPath == e.FullPath)
