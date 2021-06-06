@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using IPA.Utilities;
+using IPA.Utilities.Async;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -115,9 +116,14 @@ namespace BeatSaberCinema
 				PriorityBoostEnabled = true
 			};
 
-			_searchProcess.OutputDataReceived += SearchProcessDataReceived;
-			_searchProcess.ErrorDataReceived += SearchProcessErrorDataReceived;
-			_searchProcess.Exited += SearchProcessExited;
+			_searchProcess.OutputDataReceived += (sender, e) =>
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { SearchProcessDataReceived(e); });
+
+			_searchProcess.ErrorDataReceived += (sender, e) =>
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { SearchProcessErrorDataReceived(e); });
+
+			_searchProcess.Exited += (sender, e) =>
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { SearchProcessExited(((Process) sender).ExitCode, e); });
 
 			Log.Info($"Starting youtube-dl process with arguments: \"{_searchProcess.StartInfo.FileName}\" {_searchProcess.StartInfo.Arguments}");
 			yield return _searchProcess.Start();
@@ -133,7 +139,7 @@ namespace BeatSaberCinema
 			DisposeProcess(_searchProcess);
 		}
 
-		private static void SearchProcessErrorDataReceived(object sender, DataReceivedEventArgs e)
+		private static void SearchProcessErrorDataReceived(DataReceivedEventArgs e)
 		{
 			if (e.Data == null)
 			{
@@ -144,7 +150,7 @@ namespace BeatSaberCinema
 			Log.Error(e.Data);
 		}
 
-		private void SearchProcessDataReceived(object sender, DataReceivedEventArgs e)
+		private void SearchProcessDataReceived(DataReceivedEventArgs e)
 		{
 			var output = e.Data.Trim();
 			if (string.IsNullOrWhiteSpace(output))
@@ -193,9 +199,9 @@ namespace BeatSaberCinema
 			return ytResult;
 		}
 
-		private void SearchProcessExited(object sender, EventArgs e)
+		private void SearchProcessExited(int exitCode, EventArgs e)
 		{
-			Log.Info($"Search process exited with exitcode {((Process) sender).ExitCode}");
+			Log.Info($"Search process exited with exitcode {exitCode}");
 			SearchFinished?.Invoke();
 			DisposeProcess(_searchProcess);
 			_searchProcess = null;
@@ -255,9 +261,16 @@ namespace BeatSaberCinema
 				$"youtube-dl command: \"{downloadProcess.StartInfo.FileName}\" {downloadProcess.StartInfo.Arguments}");
 
 			var timeout = new Timeout(5 * 60);
-			downloadProcess.OutputDataReceived += (sender, e) => DownloadOutputDataReceived(sender, e, video);
-			downloadProcess.ErrorDataReceived += DownloadErrorDataReceived;
-			downloadProcess.Exited += (sender, e) => DownloadProcessExited(sender, video);
+
+			downloadProcess.OutputDataReceived += (sender, e) =>
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadOutputDataReceived(e, video); });
+
+			downloadProcess.ErrorDataReceived += (sender, e) =>
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadErrorDataReceived(e); });
+
+			downloadProcess.Exited += (sender, e) =>
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadProcessExited(((Process) sender).ExitCode, video); });
+
 			yield return downloadProcess.Start();
 
 			downloadProcess.BeginOutputReadLine();
@@ -268,6 +281,11 @@ namespace BeatSaberCinema
 			{
 				Log.Warn("Timeout reached, disposing download process");
 			}
+			else
+			{
+				//When the download is finished, wait for process to exit instead of immediately killing it
+				yield return new WaitForSeconds(2f);
+			}
 
 			timeout.Stop();
 			_downloadProcess = null;
@@ -275,7 +293,7 @@ namespace BeatSaberCinema
 			DisposeProcess(downloadProcess);
 		}
 
-		private void DownloadOutputDataReceived(object sender, DataReceivedEventArgs eventArgs, VideoConfig video)
+		private void DownloadOutputDataReceived(DataReceivedEventArgs eventArgs, VideoConfig video)
 		{
 			_downloadLog += eventArgs.Data+"\r\n";
 			Log.Debug(eventArgs.Data);
@@ -283,15 +301,13 @@ namespace BeatSaberCinema
 			DownloadProgress?.Invoke(video);
 		}
 
-		private static void DownloadErrorDataReceived(object sender, DataReceivedEventArgs eventArgs)
+		private static void DownloadErrorDataReceived(DataReceivedEventArgs eventArgs)
 		{
 			Log.Error(eventArgs.Data);
 		}
 
-		private void DownloadProcessExited(object sender, VideoConfig video)
+		private void DownloadProcessExited(int exitCode, VideoConfig video)
 		{
-			var exitCode = ((Process) sender).ExitCode;
-
 			if (exitCode != 0)
 			{
 				Log.Warn(_downloadLog.Length > 0 ? _downloadLog : "Empty youtube-dl log");
