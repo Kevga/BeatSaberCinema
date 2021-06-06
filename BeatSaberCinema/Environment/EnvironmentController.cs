@@ -527,6 +527,195 @@ namespace BeatSaberCinema
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
+				case "MonstercatEnvironment":
+				{
+					var smallRings = EnvironmentObjects.Where(x => x.name == "SmallTrackLaneRing(Clone)" && x.activeInHierarchy);
+					foreach (var ring in smallRings)
+					{
+						ring.transform.localScale = new Vector3(3f, 3f, 1f);
+					}
+
+					var glowLineL = EnvironmentObjects.LastOrDefault(x => x.name == "GlowLineL" && x.activeInHierarchy);
+					if (glowLineL != null)
+					{
+						glowLineL.transform.position = new Vector3(-10f, -1.5f, 9.5f);
+					}
+
+					var glowLineR = EnvironmentObjects.LastOrDefault(x => x.name == "GlowLineR" && x.activeInHierarchy);
+					if (glowLineR != null)
+					{
+						glowLineR.transform.position = new Vector3(10f, -1.5f, 9.5f);
+					}
+
+					var glowLineL2 = EnvironmentObjects.LastOrDefault(x => x.name == "GlowLineL (1)" && x.activeInHierarchy);
+					if (glowLineL2 != null)
+					{
+						glowLineL2.transform.position = new Vector3(-12f, 1.5f, -20f);
+					}
+
+					var glowLineR2 = EnvironmentObjects.LastOrDefault(x => x.name == "GlowLineR (1)" && x.activeInHierarchy);
+					if (glowLineR2 != null)
+					{
+						glowLineR2.transform.position = new Vector3(12f, 1.5f, -20f);
+					}
+
+					var monstercatLogo = EnvironmentObjects.Where(x => x.name.Contains("MonstercatLogo") && x.activeInHierarchy);
+					foreach (var logo in monstercatLogo)
+					{
+						logo.SetActive(false);
+					}
+
+					var glowTopLines = EnvironmentObjects.Where(x => x.name.Contains("GlowTopLine") && x.activeInHierarchy);
+					foreach (var glowTopLine in glowTopLines)
+					{
+						glowTopLine.transform.localScale = new Vector3(2, 2, 2);
+					}
+
+					var glowTopLine5 = EnvironmentObjects.LastOrDefault(x => x.name == "GlowTopLine (5)" && x.activeInHierarchy);
+					if (glowTopLine5 != null)
+					{
+						glowTopLine5.transform.position = new Vector3(0f, 12f, 0f);
+					}
+
+					var glowTopLine6 = EnvironmentObjects.LastOrDefault(x => x.name == "GlowTopLine (6)" && x.activeInHierarchy);
+					if (glowTopLine6 != null)
+					{
+						glowTopLine6.transform.position = new Vector3(-3f, 12f, 0f);
+					}
+
+					var glowTopLine7 = EnvironmentObjects.LastOrDefault(x => x.name == "GlowTopLine (7)" && x.activeInHierarchy);
+					if (glowTopLine7 != null)
+					{
+						glowTopLine7.transform.position = new Vector3(3f, 12f, 0f);
+					}
+
+					var glowTopLine8 = EnvironmentObjects.LastOrDefault(x => x.name == "GlowTopLine (8)" && x.activeInHierarchy);
+					if (glowTopLine8 != null)
+					{
+						glowTopLine8.transform.position = new Vector3(-6f, 12f, 0f);
+					}
+
+					var glowTopLine9 = EnvironmentObjects.LastOrDefault(x => x.name == "GlowTopLine (9)" && x.activeInHierarchy);
+					if (glowTopLine9 != null)
+					{
+						glowTopLine9.transform.position = new Vector3(6f, 12f, 0f);
+					}
+
+					var glowTopLine10 = EnvironmentObjects.LastOrDefault(x => x.name == "GlowTopLine (10)" && x.activeInHierarchy);
+					if (glowTopLine10 != null)
+					{
+						glowTopLine10.transform.position = new Vector3(-9f, 12f, 1f);
+					}
+
+					var glowTopLine11 = EnvironmentObjects.LastOrDefault(x => x.name == "GlowTopLine (11)" && x.activeInHierarchy);
+					if (glowTopLine11 != null)
+					{
+						glowTopLine11.transform.position = new Vector3(9f, 12f, 1f);
+					}
+
+					var rotatingLasers = EnvironmentObjects.Where(x => x.name.Contains("RotatingLasersPair") && x.activeInHierarchy);
+					foreach (var rotatingLaser in rotatingLasers)
+					{
+						rotatingLaser.transform.eulerAngles = new Vector3(-15, 0, 180);
+					}
+
+					var farBuildings = EnvironmentObjects.LastOrDefault(x => x.name == "FarBuildings" && x.activeInHierarchy);
+					if (farBuildings != null)
+					{
+						farBuildings.transform.localScale = new Vector3(1.1f, 1f, 1f);
+						farBuildings.transform.position = new Vector3(0f, -5f, -30f);
+					}
+
+					var construction = EnvironmentObjects.LastOrDefault(x => x.name == "Construction" && x.transform.parent.name != "PlayersPlace" && x.activeInHierarchy);
+					if (construction != null)
+					{
+						construction.transform.position = new Vector3(0f, -1f, 2f);
+						construction.transform.localScale = new Vector3(1.5f, 1, 1);
+
+					}
+
+					var vConstruction = EnvironmentObjects.LastOrDefault(x => x.name == "VConstruction" && x.activeInHierarchy);
+					if (vConstruction != null)
+					{
+						vConstruction.transform.position = new Vector3(0f, 2f, -1f);
+						vConstruction.transform.localScale = new Vector3(1f, 1, 0.7f);
+
+					}
+
+					var trackMirror = EnvironmentObjects.LastOrDefault(x => x.name == "TrackMirror" && x.activeInHierarchy);
+					if (trackMirror != null)
+					{
+						trackMirror.transform.position = new Vector3(0f, -1f, 9.75f);
+						trackMirror.transform.localScale = new Vector3(1.8f, 1, 1);
+
+					}
+
+					var laser4 = EnvironmentObjects.LastOrDefault(x => x.name == "Laser (4)" && x.activeInHierarchy);
+					if (laser4 != null)
+					{
+						laser4.transform.position = new Vector3(12.4f, 10f, 9.9f);
+						laser4.transform.eulerAngles = new Vector3(0f, 0, -30);
+					}
+
+					var laser5 = EnvironmentObjects.LastOrDefault(x => x.name == "Laser (5)" && x.activeInHierarchy);
+					if (laser5 != null)
+					{
+						laser5.transform.position = new Vector3(-12.4f, 10f, 9.9f);
+						laser5.transform.eulerAngles = new Vector3(0f, 0, 30);
+					}
+
+					//Not a typo, Beat Games apparently just skipped Laser (6)
+					var laser6 = EnvironmentObjects.LastOrDefault(x => x.name == "Laser (7)" && x.activeInHierarchy);
+					if (laser6 != null)
+					{
+						laser6.transform.position = new Vector3(12.4f, 10f, 9.7f);
+						laser6.transform.eulerAngles = new Vector3(0f, 0, -30);
+					}
+
+					var laser7 = EnvironmentObjects.LastOrDefault(x => x.name == "Laser (8)" && x.activeInHierarchy);
+					if (laser7 != null)
+					{
+						laser7.transform.position = new Vector3(-12.4f, 10f, 9.7f);
+						laser7.transform.eulerAngles = new Vector3(0f, 0, 30);
+					}
+
+					var laser8 = EnvironmentObjects.LastOrDefault(x => x.name == "Laser (9)" && x.activeInHierarchy);
+					if (laser8 != null)
+					{
+						laser8.transform.position = new Vector3(12.4f, 10f, 9.5f);
+						laser8.transform.eulerAngles = new Vector3(0f, 0, -30);
+					}
+
+					var laser9 = EnvironmentObjects.LastOrDefault(x => x.name == "Laser (10)" && x.activeInHierarchy);
+					if (laser9 != null)
+					{
+						laser9.transform.position = new Vector3(-12.4f, 10f, 9.5f);
+						laser9.transform.eulerAngles = new Vector3(0f, 0, 30);
+					}
+
+					var laser10 = EnvironmentObjects.LastOrDefault(x => x.name == "Laser (11)" && x.activeInHierarchy);
+					if (laser10 != null)
+					{
+						laser10.transform.position = new Vector3(12.4f, 10f, 9.3f);
+						laser10.transform.eulerAngles = new Vector3(0f, 0, -30);
+					}
+
+					var laser11 = EnvironmentObjects.LastOrDefault(x => x.name == "Laser (12)" && x.activeInHierarchy);
+					if (laser11 != null)
+					{
+						laser11.transform.position = new Vector3(-12.4f, 10f, 9.3f);
+						laser11.transform.eulerAngles = new Vector3(0f, 0, 30);
+					}
+
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
+					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 5.46f, 40f);
+					placement.Rotation = videoConfig?.screenRotation ?? new Vector3(-5f, 0f, 0f);;
+					placement.Height = videoConfig?.screenHeight ?? 13f;
+					placement.Curvature = videoConfig?.screenCurvature;
+					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
+
+					break;
+				}
 			}
 		}
 
