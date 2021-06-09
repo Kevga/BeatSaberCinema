@@ -42,10 +42,6 @@ namespace BeatSaberCinema
 				{
 					Log.Debug($"No video or not playable, DownloadState: {video?.DownloadState}");
 					overrideEnvironmentEnabled = false;
-				} else if (video.disableBigMirrorOverride != null && video.disableBigMirrorOverride == true)
-				{
-					Log.Debug("Override disabled via config");
-					overrideEnvironmentEnabled = false;
 				}
 
 				if (!overrideEnvironmentEnabled)
