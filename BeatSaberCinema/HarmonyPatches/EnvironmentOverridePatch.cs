@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace BeatSaberCinema
 {
-	[HarmonyBefore("com.kyle1413.BeatSaber.BS-Utils")]
 	[HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init))]
 	[UsedImplicitly]
 	// ReSharper disable once InconsistentNaming
@@ -21,44 +20,77 @@ namespace BeatSaberCinema
 				PlaybackController.Instance.SceneTransitionInitCalled();
 				VideoMenu.instance.SetSelectedLevel(difficultyBeatmap.level);
 
-				var overrideEnvironmentEnabled = SettingsStore.Instance.OverrideEnvironment;
-				var environmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();
+				var video = PlaybackController.Instance.VideoConfig;
+				if (video == null || (!video.IsPlayable && video.forceEnvironmentModifications != true))
+				{
+					Log.Debug($"No video or not playable, DownloadState: {video?.DownloadState}");
+					return;
+				}
 
+				if (video.environmentName != null)
+				{
+					var overrideSettings = GetOverrideEnvironmentSettingsFor(video.environmentName);
+					if (overrideSettings != null)
+					{
+						overrideEnvironmentSettings = overrideSettings;
+						Log.Debug($"Overriding environment to {video.environmentName} as configured");
+						return;
+					}
+				}
+
+				if (video.EnvironmentModified)
+				{
+					Log.Debug("Environment is modified, disabling environment override");
+					overrideEnvironmentSettings = null!;
+					return;
+				}
+
+				var overrideEnvironmentEnabled = SettingsStore.Instance.OverrideEnvironment;
+				if (!overrideEnvironmentEnabled)
+				{
+					Log.Debug("Cinema's environment override disallowed by user");
+					return;
+				}
+
+				var environmentWhitelist = new[]
+				{
+					"BigMirrorEnvironment",
+					"OriginsEnvironment",
+					"BTSEnvironment",
+					"KDAEnvironment",
+					"RocketEnvironment",
+					"DragonsEnvironment",
+					"LinkinParkEnvironment",
+					"KaleidoscopeEnvironment",
+					"GlassDesertEnvironment",
+					"MonstercatEnvironment"
+				};
+
+				var mapEnvironmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();
 				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
 				if (overrideEnvironmentSettings != null && overrideEnvironmentSettings.overrideEnvironments)
 				{
-					environmentInfoSo = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(environmentInfoSo.environmentType);
+					var overrideEnvironmentInfo = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(mapEnvironmentInfoSo.environmentType);
+					if (environmentWhitelist.Contains(overrideEnvironmentInfo.serializedName))
+					{
+						Log.Debug("Environment override by user is in whitelist, allowing override");
+						return;
+					}
 				}
 
-				var environmentWhitelist = new[] {"BigMirrorEnvironment", "OriginsEnvironment", "BTSEnvironment", "KDAEnvironment", "RocketEnvironment", "DragonsEnvironment", "LinkinParkEnvironment", "KaleidoscopeEnvironment", "GlassDesertEnvironment", "MonstercatEnvironment"};
-				if (environmentWhitelist.Contains(environmentInfoSo.serializedName))
+				if (environmentWhitelist.Contains(mapEnvironmentInfoSo.serializedName))
 				{
-					Log.Debug("Environment in whitelist");
-					overrideEnvironmentEnabled = false;
-				}
-
-				var video = PlaybackController.Instance.VideoConfig;
-				if (video == null || !video.IsPlayable)
-				{
-					Log.Debug($"No video or not playable, DownloadState: {video?.DownloadState}");
-					overrideEnvironmentEnabled = false;
-				}
-
-				if (!overrideEnvironmentEnabled)
-				{
-					Log.Debug("Skipping environment override");
+					Log.Debug("Environment chosen by mapper is in whitelist");
+					overrideEnvironmentSettings = null!;
 					return;
 				}
 
-				var bigMirrorEnvInfo = Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().First(x => x.serializedName == "BigMirrorEnvironment");
-				if (bigMirrorEnvInfo == null)
+				var bigMirrorOverrideSettings = GetOverrideEnvironmentSettingsFor("BigMirrorEnvironment");
+				if (bigMirrorOverrideSettings == null)
 				{
-					Log.Warn("Did not find big mirror env");
 					return;
 				}
 
-				var bigMirrorOverrideSettings = new OverrideEnvironmentSettings {overrideEnvironments = true};
-				bigMirrorOverrideSettings.SetEnvironmentInfoForType(bigMirrorEnvInfo.environmentType, bigMirrorEnvInfo);
 				overrideEnvironmentSettings = bigMirrorOverrideSettings;
 				Log.Info("Overwriting environment to Big Mirror");
 			}
@@ -67,11 +99,27 @@ namespace BeatSaberCinema
 				Log.Warn(e);
 			}
 		}
+
+		private static OverrideEnvironmentSettings? GetOverrideEnvironmentSettingsFor(string serializedName)
+		{
+			var environmentInfo = GetEnvironmentInfoFor(serializedName);
+			if (environmentInfo == null)
+			{
+				Log.Error($"Could not find environment environment info for {serializedName}");
+				return null;
+			}
+
+			var overrideSettings = new OverrideEnvironmentSettings {overrideEnvironments = true};
+			overrideSettings.SetEnvironmentInfoForType(environmentInfo.environmentType, environmentInfo);
+			return overrideSettings;
+		}
+
+		private static EnvironmentInfoSO? GetEnvironmentInfoFor(string serializedName)
+		{
+			return Resources.FindObjectsOfTypeAll<EnvironmentInfoSO>().FirstOrDefault(x => x.serializedName == serializedName);
+		}
 	}
 
-
-
-	[HarmonyBefore("com.kyle1413.BeatSaber.BS-Utils")]
 	[HarmonyPatch(typeof(MissionLevelScenesTransitionSetupDataSO), "Init")]
 	[UsedImplicitly]
 	// ReSharper disable once InconsistentNaming
