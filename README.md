@@ -51,7 +51,7 @@ If you want to add a video to your map, you can simply set it up in the game fro
 
 If you include a video config, please **add "Cinema" as a suggestion** in your map editor, same as you would do with Chroma. If your Cinema integration is an essential part of your map, you can also add "Cinema" as a requirement, in which case the map will only be playable if Cinema is installed and the video is downloaded.
 
-You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments (**Big Mirror, Origins, KDA, Rocket, BTS, Dragons, Linkin Park, Kaleidoscope**) to make the video screen fit in seamlessly. If your chosen environment is not yet supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
+You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments (**Big Mirror, Origins, KDA, Rocket, BTS, Dragons, Linkin Park, Kaleidoscope, Monstercat**) to make the video screen fit in seamlessly. If your chosen environment is not yet supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
 
 If you have any questions, please contact me on Discord (Dakari#0638).
 
@@ -72,6 +72,7 @@ These basic settings get set automatically when you add a video to your map.
 | Property                   		| Data Type | Default       	    | Description |
 | --------------------------------- |:---------:|:---------------------:| ----------- |
 | `videoID`                  		| string    | *none*           	 	| The YouTube video ID from the part after the `&v=` in the URL, e.g.: youtube.com/watch?v=**\_qwnHeMKbVA** |
+| `videoUrl`                  		| string    | *none*           	 	| Use this parameter instead of videoID if you want to use a video hoster other than YouTube. Provide the full video URL for this parameter. You can check the list of sites supported by youtube-dl [here](https://github.com/blackjack4494/yt-dlc/blob/master/docs/supportedsites.md), though not all will work by default in Cinema (please contact me if you want me to look into adding support for a specific site). Only use this if using YouTube is not possible. Using Dropbox links works well, though consider the download limit of 20 GB per day for individual files. |
 | `title`                    		| string    | Untitled Video   	 	| The title of the video. Will be shown to the user. |
 | `author`                   		| string    | Unknown Author   	 	| The name of the video's uploader. Will be shown to the user. |
 | `videoFile`                		| string    | *none*           	 	| Name of the video file on the local file system. Path is not included, the file is assumed to be in the map's folder. Will be set automatically after downloading and set to the title of the video, with illegal characters replaced by `_`. |
@@ -85,6 +86,7 @@ Optional settings which you can set to fine tune the form and function of the vi
 
 | Property                   		| Data Type | Default       	    				| Description |
 | --------------------------------- |:---------:|:------------------------------------:	| ----------- |
+| `environmentName`          		| string    | *none*           	 					| The environment that is supposed to be loaded. This allows you to force a specific environment that is only used if the user has Cinema installed and the video downloaded. This also disables the user's choice in the Override Environment setting of the base game. |
 | `loop`                     		| bool      | false            	 					| Whether the video should loop if it ends before the map does. |
 | `endVideoAt`				 		| float     | *none*			 					| This parameter allows you to let a video end early (e.g. to hide sponsor segments, credits, logos etc.). The time references the video time, not the map time. The video will be paused at that time, and the last displayed frame stays until the map ends. Value is in seconds (e.g.: 296.5 would be 4 minutes and 56.5 seconds)  |
 | `screenPosition`           		| Vector3   | `{"x": 0.0,"y": 12.4,"z": 67.8}`	 	| This setting can be used to create a custom positioning of the video player. **x** is the deviation from the center, **y** is up/down and **z** controls the distance. **y** should usually be about half of the video height minus 0.1 if you want the video to be above the track. |
@@ -249,7 +251,7 @@ Template for local videos:
 This can have multiple causes.
 1) If you are unsure how to download videos for maps, refer to the instructions [here](https://github.com/Kevga/BeatSaberCinema#3-downloading-videos).
 2) If you didn't install Cinema from ModAssistant, make sure you installed youtube-dl and FFmpeg in the Libs folder of Beat Saber. If one or both of these are not found, the mod will show you a message saying that these are missing. If Cinema doesn't show up at all in-game, please make sure you have all [dependencies](https://github.com/Kevga/BeatSaberCinema#1-installation) installed.
-3) If Cinema shows up in-game and says nothing about missing libraries, but your downloads still fail, try installing [Visual C++ 2010 Redist](https://www.microsoft.com/en-US/download/details.aspx?id=5555). This is required by youtube-dl, but can in some cases be missing.
+3) If Cinema shows up in-game and says nothing about missing libraries, but your downloads still fail, try installing [Visual C++ 2010 Redist](https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x86.exe). This is required by youtube-dl, but can in some cases be missing.
 4) If you still can't download videos, please create an issue here on GitHub or contact me on Discord. Make sure to attach a log file.
 ### I can download videos, but they don't show up.
 1) Check if Cinema is enabled in your Main Menu settings (the Cinema button on the left side)
@@ -276,11 +278,14 @@ I'd gladly accept pull requests if you want to help out. To set up the developme
 
 Special thanks go to:
 
-- **Rolo**:
-For creating MVP and helping me improve the looks of the video screen
+- [Rolo](https://github.com/rolopogo),
+for creating [MVP](https://github.com/rolopogo/MusicVideoPlayer) and helping me improve the looks of the video screen
 
-- **rie-kumar** and **b-rad15**:
-For keeping MVP alive across many game updates
+- [rie-kumar](https://github.com/rie-kumar) and [b-rad15](https://github.com/b-rad15),
+for keeping MVP alive across many game updates
 
-- The **youtube-dl** and **FFmpeg** projects:
-Used to download and convert the videos
+- The [youtube-dl](https://yt-dl.org/) ([license](https://raw.githubusercontent.com/ytdl-org/youtube-dl/master/LICENSE)) and [FFmpeg](https://ffmpeg.org/) ([license](https://raw.githubusercontent.com/FFmpeg/FFmpeg/master/LICENSE.md)) projects,
+which are used to download and convert the videos for playback in-game
+
+- [JetBrains](https://jb.gg/OpenSource),
+for supporting this project by providing a license for their dev tools
