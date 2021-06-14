@@ -359,6 +359,23 @@ namespace BeatSaberCinema
 						spectrogram.transform.position = new Vector3(newX, pos.y, pos.z);
 					}
 
+					//Move rotating lasers BaseL and BaseR from x = -8/+8 to something farther away
+					var rotatingLaserPairs = EnvironmentObjects.Where(x => x.name.Contains("RotatingLasersPair") && x.activeInHierarchy);
+					foreach (var laser in rotatingLaserPairs)
+					{
+						foreach (Transform child in laser.transform)
+						{
+							var pos = child.transform.position;
+							var newX = 20;
+							if (pos.x < 0)
+							{
+								newX *= -1;
+							}
+							child.transform.position = new Vector3(newX, pos.y, pos.z);
+						}
+
+					}
+
 					var topConstructionParts = EnvironmentObjects.Where(x => x.name.Contains("TopConstruction") && x.activeInHierarchy);
 					foreach (var topConstruction in topConstructionParts)
 					{
