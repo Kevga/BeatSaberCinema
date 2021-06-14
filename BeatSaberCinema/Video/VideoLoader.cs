@@ -98,9 +98,17 @@ namespace BeatSaberCinema
 			return config;
 		}
 
-		public static VideoConfig? GetConfigFromBundledConfigs(string levelID)
+		private static VideoConfig? GetConfigFromBundledConfigs(IPreviewBeatmapLevel level)
 		{
-			BundledConfigs.TryGetValue(levelID, out var config);
+			BundledConfigs.TryGetValue(level.levelID, out var config);
+
+			if (config == null)
+			{
+				return config;
+			}
+
+			config.LevelDir = GetLevelPath(level);
+			config.bundledConfig = true;
 			return config;
 		}
 
@@ -228,17 +236,24 @@ namespace BeatSaberCinema
 			if (results.Length != 0)
 			{
 				videoConfig = LoadConfig(results[0]);
+
+				//Update bundled configs with new environmentName parameter to fix broken configs
+				var bundledConfig = GetConfigFromBundledConfigs(level);
+				if (bundledConfig != null && videoConfig?.videoID == bundledConfig.videoID && bundledConfig.environmentName != null)
+				{
+					Log.Info($"Updating existing config for video {videoConfig?.title}");
+					bundledConfig.videoFile = videoConfig?.videoFile;
+					bundledConfig.UpdateDownloadState();
+					videoConfig = bundledConfig;
+				}
 			}
 			else
 			{
-				videoConfig = GetConfigFromBundledConfigs(level.levelID);
+				videoConfig = GetConfigFromBundledConfigs(level);
 				if (videoConfig == null)
 				{
 					return videoConfig;
 				}
-
-				videoConfig.LevelDir = GetLevelPath(level);
-				videoConfig.bundledConfig = true;
 				Log.Debug("Loaded from bundled configs");
 			}
 
