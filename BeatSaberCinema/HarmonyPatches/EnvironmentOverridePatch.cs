@@ -63,7 +63,8 @@ namespace BeatSaberCinema
 					"LinkinParkEnvironment",
 					"KaleidoscopeEnvironment",
 					"GlassDesertEnvironment",
-					"MonstercatEnvironment"
+					"MonstercatEnvironment",
+					"CrabRaveEnvironment"
 				};
 
 				var mapEnvironmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();

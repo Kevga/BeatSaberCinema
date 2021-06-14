@@ -527,6 +527,7 @@ namespace BeatSaberCinema
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
+				case "CrabRaveEnvironment":
 				case "MonstercatEnvironment":
 				{
 					var smallRings = EnvironmentObjects.Where(x => x.name == "SmallTrackLaneRing(Clone)" && x.activeInHierarchy);
