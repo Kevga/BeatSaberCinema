@@ -325,6 +325,23 @@ namespace BeatSaberCinema
 						glowLine.transform.position = new Vector3(pos.x, 20f, pos.z);
 					}
 
+					//Move rotating lasers BaseL and BaseR farther away
+					var rotatingLaserPairs = EnvironmentObjects.Where(x => x.name.Contains("RotatingLasersPair") && x.activeInHierarchy);
+					foreach (var laser in rotatingLaserPairs)
+					{
+						foreach (Transform child in laser.transform)
+						{
+							var pos = child.transform.position;
+							var newX = 18;
+							if (pos.x < 0)
+							{
+								newX *= -1;
+							}
+							child.transform.position = new Vector3(newX, pos.y, pos.z);
+						}
+
+					}
+
 					break;
 				}
 				case "RocketEnvironment":
