@@ -160,9 +160,27 @@ namespace BeatSaberCinema
 							sign = -sign;
 						}
 
-						var shiftBy = 18f * sign;
+						var shiftXBy = 18f * sign;
+						var shiftZBy = -28.5f;
 						var pos = doubleColorLaser.transform.position;
-						doubleColorLaser.transform.position = new Vector3(pos.x + shiftBy, pos.y, pos.z);
+						doubleColorLaser.transform.position = new Vector3(pos.x + shiftXBy, pos.y, pos.z + shiftZBy );
+					}
+
+					//Move rotating lasers BaseL and BaseR from x = -8/+8 to something farther away
+					var rotatingLaserPairs = EnvironmentObjects.Where(x => x.name.Contains("RotatingLasersPair") && x.activeInHierarchy);
+					foreach (var laser in rotatingLaserPairs)
+					{
+						foreach (Transform child in laser.transform)
+						{
+							var pos = child.transform.position;
+							var newX = 20;
+							if (pos.x < 0)
+							{
+								newX *= -1;
+							}
+							child.transform.position = new Vector3(newX, pos.y, pos.z);
+						}
+
 					}
 					break;
 				}
