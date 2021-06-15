@@ -554,14 +554,16 @@ namespace BeatSaberCinema
 
 		private void OnDownloadFinished(VideoConfig video)
 		{
-			if (_currentVideo == video)
+			if (_currentVideo != video)
 			{
-				PlaybackController.Instance.PrepareVideo(video);
+				return;
+			}
 
-				if (_currentLevel != null)
-				{
-					VideoLoader.RemoveConfigFromCache(_currentLevel);
-				}
+			PlaybackController.Instance.PrepareVideo(video);
+
+			if (_currentLevel != null)
+			{
+				VideoLoader.RemoveConfigFromCache(_currentLevel);
 			}
 
 			SetupVideoDetails();
