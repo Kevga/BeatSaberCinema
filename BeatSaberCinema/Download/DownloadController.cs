@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -11,28 +12,25 @@ namespace BeatSaberCinema
 {
 	public class DownloadController: YoutubeDLController
 	{
-		private Process? _downloadProcess;
+		private readonly Dictionary<VideoConfig, Process> _downloadProcesses = new Dictionary<VideoConfig, Process>();
 		private string _downloadLog = "";
-
-		private bool DownloadInProgress
-		{
-			get
-			{
-				try
-				{
-					return _downloadProcess != null && !_downloadProcess.HasExited;
-				}
-				catch (Exception e)
-				{
-					Log.Debug(e);
-				}
-
-				return false;
-			}
-		}
 
 		public event Action<VideoConfig>? DownloadProgress;
 		public event Action<VideoConfig>? DownloadFinished;
+
+		private static bool IsDownloadInProgress(Process? process)
+		{
+			try
+			{
+				return process != null && !process.HasExited;
+			}
+			catch (Exception e)
+			{
+				Log.Debug(e);
+			}
+
+			return false;
+		}
 
 		public void StartDownload(VideoConfig video, VideoQuality.Mode quality)
 		{
@@ -68,7 +66,7 @@ namespace BeatSaberCinema
 			downloadProcess.BeginOutputReadLine();
 			downloadProcess.BeginErrorReadLine();
 
-			yield return new WaitUntil(() => !DownloadInProgress || timeout.HasTimedOut);
+			yield return new WaitUntil(() => !IsDownloadInProgress(downloadProcess) || timeout.HasTimedOut);
 			if (timeout.HasTimedOut)
 			{
 				Log.Warn("Timeout reached, disposing download process");
@@ -80,9 +78,9 @@ namespace BeatSaberCinema
 			}
 
 			timeout.Stop();
-			_downloadProcess = null;
 			_downloadLog = "";
 			DisposeProcess(downloadProcess);
+			_downloadProcesses.Remove(video);
 		}
 
 		private void DownloadOutputDataReceived(DataReceivedEventArgs eventArgs, VideoConfig video)
@@ -187,14 +185,21 @@ namespace BeatSaberCinema
 			                               " --no-mtime" + //Video last modified will be when it was downloaded, not when it was uploaded to youtube
 			                               " --socket-timeout 10"; //Retry if no response in 10 seconds Note: Not if download takes more than 10 seconds but if the time between any 2 messages from the server is 10 seconds
 
-			_downloadProcess = StartProcess(downloadProcessArguments, video.LevelDir);
-			return _downloadProcess;
+			var process = StartProcess(downloadProcessArguments, video.LevelDir);
+			_downloadProcesses.Add(video, process);
+			return process;
 		}
 
 		public void CancelDownload(VideoConfig video)
 		{
 			Log.Debug("Cancelling download");
-			DisposeProcess(_downloadProcess);
+			var success = _downloadProcesses.TryGetValue(video, out var process);
+			if (success)
+			{
+				DisposeProcess(process);
+				_downloadProcesses.Remove(video);
+			}
+
 			video.DownloadState = DownloadState.Cancelled;
 			DownloadFinished?.Invoke(video);
 			VideoLoader.DeleteVideo(video);
