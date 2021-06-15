@@ -244,6 +244,7 @@ namespace BeatSaberCinema
 					Log.Info($"Updating existing config for video {videoConfig?.title}");
 					bundledConfig.videoFile = videoConfig?.videoFile;
 					bundledConfig.UpdateDownloadState();
+					bundledConfig.NeedsToSave = true;
 					videoConfig = bundledConfig;
 				}
 			}
