@@ -483,6 +483,14 @@ namespace BeatSaberCinema
 
 			VideoPlayer.SetPlacement(Util.IsMultiplayer() ? Placement.MultiplayerPlacement : new Placement(VideoConfig, _activeScene, VideoPlayer.GetVideoAspectRatio()));
 
+			//Fixes rough pop-in at the start of the song when transparency is disabled
+			if (VideoConfig.TransparencyEnabled)
+			{
+				VideoPlayer.Show();
+				VideoPlayer.ScreenColor = Color.black;
+				VideoPlayer.ShowScreenBody();
+			}
+
 			SetAudioSourcePanning(0);
 			VideoPlayer.Mute();
 			StartCoroutine(PlayVideoAfterAudioSourceCoroutine(false));
