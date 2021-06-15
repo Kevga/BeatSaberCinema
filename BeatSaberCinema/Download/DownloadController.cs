@@ -185,8 +185,7 @@ namespace BeatSaberCinema
 			                               " --no-part" + // Don't store download in parts, write directly to file
 			                               " --recode-video mp4" + //Re-encode to mp4 (will be skipped most of the time, since it's already in an mp4 container)
 			                               " --no-mtime" + //Video last modified will be when it was downloaded, not when it was uploaded to youtube
-			                               " --socket-timeout 10" + //Retry if no response in 10 seconds Note: Not if download takes more than 10 seconds but if the time between any 2 messages from the server is 10 seconds
-			                               " --no-continue"; //overwrite existing file and force re-download
+			                               " --socket-timeout 10"; //Retry if no response in 10 seconds Note: Not if download takes more than 10 seconds but if the time between any 2 messages from the server is 10 seconds
 
 			_downloadProcess = StartProcess(downloadProcessArguments, video.LevelDir);
 			return _downloadProcess;
