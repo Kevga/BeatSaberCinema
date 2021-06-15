@@ -1,47 +1,18 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
-using IPA.Utilities;
 using IPA.Utilities.Async;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace BeatSaberCinema
 {
-	public class DownloadController
+	public class DownloadController: YoutubeDLController
 	{
-		private readonly string _youtubeDLFilepath = Path.Combine(UnityGame.LibraryPath, "youtube-dl.exe");
-		private readonly string _ffmpegFilepath = Path.Combine(UnityGame.LibraryPath, "ffmpeg.exe");
-		private readonly string _youtubeDLConfigFilepath = Path.Combine(UnityGame.UserDataPath, "youtube-dl.conf");
-		public readonly List<YTResult> SearchResults = new List<YTResult>();
-		private Coroutine? _searchCoroutine;
-		private Process? _searchProcess;
 		private Process? _downloadProcess;
 		private string _downloadLog = "";
-		private bool SearchInProgress
-		{
-			get
-			{
-				try
-				{
-					return _searchProcess != null && !_searchProcess.HasExited;
-				}
-				catch (Exception e)
-				{
-					if (!e.Message.Contains("No process is associated with this object."))
-					{
-						Log.Warn(e);
-					}
-				}
-
-				return false;
-			}
-		}
 
 		private bool DownloadInProgress
 		{
@@ -62,188 +33,9 @@ namespace BeatSaberCinema
 
 		public event Action<VideoConfig>? DownloadProgress;
 		public event Action<VideoConfig>? DownloadFinished;
-		public event Action<YTResult>? SearchProgress;
-		public event Action? SearchFinished;
-
-		private bool? _librariesAvailable;
-		public bool LibrariesAvailable()
-		{
-			if (_librariesAvailable != null)
-			{
-				return _librariesAvailable.Value;
-			}
-
-			_librariesAvailable = File.Exists(_youtubeDLFilepath) && File.Exists(_ffmpegFilepath);
-			return _librariesAvailable.Value;
-		}
-
-		public void Search(string query)
-		{
-			if (_searchCoroutine != null)
-			{
-				SharedCoroutineStarter.instance.StopCoroutine(_searchCoroutine);
-			}
-
-			_searchCoroutine = SharedCoroutineStarter.instance.StartCoroutine(SearchCoroutine(query));
-		}
-
-		private IEnumerator SearchCoroutine(string query, int expectedResultCount = 10)
-		{
-			if (SearchInProgress)
-			{
-				DisposeProcess(_searchProcess);
-			}
-
-			SearchResults.Clear();
-			Log.Debug($"Starting search with query {query}");
-
-			_searchProcess = new Process
-			{
-				StartInfo =
-				{
-					FileName = _youtubeDLFilepath,
-					Arguments = $"\"ytsearch{expectedResultCount}:{query}\"" +
-					            " -j" + //Instructs yt-dl to return json data without downloading anything
-					            " -i" + //Ignore errors
-					            GetConfigFileArgument(_youtubeDLConfigFilepath) //Use config file in UserData instead of the global yt-dl one
-					,
-					RedirectStandardOutput = true,
-					RedirectStandardError = true,
-					UseShellExecute = false,
-					CreateNoWindow = true
-				},
-				EnableRaisingEvents = true,
-				PriorityBoostEnabled = true
-			};
-
-			_searchProcess.OutputDataReceived += (sender, e) =>
-				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { SearchProcessDataReceived(e); });
-
-			_searchProcess.ErrorDataReceived += (sender, e) =>
-				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { SearchProcessErrorDataReceived(e); });
-
-			_searchProcess.Exited += (sender, e) =>
-				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { SearchProcessExited(((Process) sender).ExitCode, e); });
-
-			Log.Info($"Starting youtube-dl process with arguments: \"{_searchProcess.StartInfo.FileName}\" {_searchProcess.StartInfo.Arguments}");
-			yield return _searchProcess.Start();
-
-			var timeout = new Timeout(15);
-			_searchProcess.BeginErrorReadLine();
-			_searchProcess.BeginOutputReadLine();
-			// var outputs = searchProcess.StandardOutput.ReadToEnd().Split('\n');
-			yield return new WaitUntil(() => !SearchInProgress || timeout.HasTimedOut);
-			timeout.Stop();
-
-			SearchFinished?.Invoke();
-			DisposeProcess(_searchProcess);
-		}
-
-		private static void SearchProcessErrorDataReceived(DataReceivedEventArgs e)
-		{
-			if (e.Data == null)
-			{
-				return;
-			}
-
-			Log.Error("youtube-dl process error:");
-			Log.Error(e.Data);
-		}
-
-		private void SearchProcessDataReceived(DataReceivedEventArgs e)
-		{
-			var output = e.Data.Trim();
-			if (string.IsNullOrWhiteSpace(output))
-			{
-				return;
-			}
-
-			if (output.Contains("yt command exited"))
-			{
-				Log.Debug("Done with Youtube Search, Processing...");
-				return;
-			}
-
-			if (output.Contains("yt command"))
-			{
-				Log.Debug($"Running with {output}");
-				return;
-			}
-
-			var trimmedLine = output;
-			var ytResult = ParseSearchResult(trimmedLine);
-			if (ytResult == null)
-			{
-				return;
-			}
-
-			SearchResults.Add(ytResult);
-			SearchProgress?.Invoke(ytResult);
-		}
-
-		private static YTResult? ParseSearchResult(string searchResultJson)
-		{
-			if (!(JsonConvert.DeserializeObject(searchResultJson) is JObject result))
-			{
-				Log.Error("Failed to deserialize "+searchResultJson);
-				return null;
-			}
-
-			if (result["id"] == null)
-			{
-				Log.Warn("YT search result had no ID, skipping");
-				return null;
-			}
-
-			YTResult ytResult = new YTResult(result);
-			return ytResult;
-		}
-
-		private void SearchProcessExited(int exitCode, EventArgs e)
-		{
-			Log.Info($"Search process exited with exitcode {exitCode}");
-			SearchFinished?.Invoke();
-			DisposeProcess(_searchProcess);
-			_searchProcess = null;
-		}
-
-		private static void DisposeProcess(Process? process)
-		{
-			if (process == null)
-			{
-				return;
-			}
-
-			Log.Debug("Cleaning up process");
-
-			try
-			{
-				if (!process.HasExited)
-				{
-					process.Kill();
-				}
-			}
-			catch (Exception exception)
-			{
-				if (!exception.Message.Contains("The operation completed successfully") &&
-				    !exception.Message.Contains("No process is associated with this object."))
-				{
-					Log.Warn(exception);
-				}
-			}
-			try
-			{
-				process.Dispose();
-			}
-			catch (Exception exception)
-			{
-				Log.Warn(exception);
-			}
-		}
 
 		public void StartDownload(VideoConfig video, VideoQuality.Mode quality)
 		{
-			DisposeProcess(_searchProcess);
 			SharedCoroutineStarter.instance.StartCoroutine(DownloadVideoCoroutine(video, quality));
 		}
 
@@ -385,34 +177,19 @@ namespace BeatSaberCinema
 			var videoFormat = VideoQuality.ToYoutubeDLFormat(video, quality);
 			videoFormat = videoFormat == null ? "" : $" -f \"{videoFormat}\"";
 
-			var downloadProcess = new Process
-			{
-				StartInfo =
-				{
-					FileName = _youtubeDLFilepath,
-					Arguments = videoUrl +
-					            videoFormat +
-					            " --no-cache-dir" + // Don't use temp storage
-					            $" -o \"{videoFileName}.%(ext)s\"" +
-					            " --no-playlist" + // Don't download playlists, only the first video
-					            " --no-part" + // Don't store download in parts, write directly to file
-						        " --recode-video mp4" + //Re-encode to mp4 (will be skipped most of the time, since it's already in an mp4 container)
-					            " --no-mtime" + //Video last modified will be when it was downloaded, not when it was uploaded to youtube
-					            " --socket-timeout 10" + //Retry if no response in 10 seconds Note: Not if download takes more than 10 seconds but if the time between any 2 messages from the server is 10 seconds
-					            " --no-continue" + //overwrite existing file and force re-download
-					            GetConfigFileArgument(_youtubeDLConfigFilepath) //Use config file in UserData instead of the global yt-dl one
-					,
-					RedirectStandardOutput = true,
-					RedirectStandardError = true,
-					UseShellExecute = false,
-					CreateNoWindow = true,
-					WorkingDirectory = video.LevelDir
-				},
-				EnableRaisingEvents = true,
-				PriorityBoostEnabled = true
-			};
-			_downloadProcess = downloadProcess;
-			return downloadProcess;
+			var downloadProcessArguments = videoUrl +
+			                               videoFormat +
+			                               " --no-cache-dir" + // Don't use temp storage
+			                               $" -o \"{videoFileName}.%(ext)s\"" +
+			                               " --no-playlist" + // Don't download playlists, only the first video
+			                               " --no-part" + // Don't store download in parts, write directly to file
+			                               " --recode-video mp4" + //Re-encode to mp4 (will be skipped most of the time, since it's already in an mp4 container)
+			                               " --no-mtime" + //Video last modified will be when it was downloaded, not when it was uploaded to youtube
+			                               " --socket-timeout 10" + //Retry if no response in 10 seconds Note: Not if download takes more than 10 seconds but if the time between any 2 messages from the server is 10 seconds
+			                               " --no-continue"; //overwrite existing file and force re-download
+
+			_downloadProcess = StartProcess(downloadProcessArguments, video.LevelDir);
+			return _downloadProcess;
 		}
 
 		public void CancelDownload(VideoConfig video)
@@ -422,11 +199,6 @@ namespace BeatSaberCinema
 			video.DownloadState = DownloadState.Cancelled;
 			DownloadFinished?.Invoke(video);
 			VideoLoader.DeleteVideo(video);
-		}
-
-		private static string GetConfigFileArgument(string path)
-		{
-			return !File.Exists(path) ? " --ignore-config" : $" --config-location \"{path}\"";
 		}
 	}
 }

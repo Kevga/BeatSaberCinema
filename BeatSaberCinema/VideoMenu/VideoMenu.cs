@@ -74,6 +74,7 @@ namespace BeatSaberCinema
 		private string _searchText = "";
 		private string? _thumbnailURL;
 		private readonly DownloadController _downloadController = new DownloadController();
+		private readonly SearchController _searchController = new SearchController();
 		private readonly List<YTResult> _searchResults = new List<YTResult>();
 
 		public void Init()
@@ -96,8 +97,8 @@ namespace BeatSaberCinema
 
 			Events.LevelSelected += HandleDidSelectLevel;
 
-			_downloadController.SearchProgress += SearchProgress;
-			_downloadController.SearchFinished += SearchFinished;
+			_searchController.SearchProgress += SearchProgress;
+			_searchController.SearchFinished += SearchFinished;
 			_downloadController.DownloadProgress += OnDownloadProgress;
 			_downloadController.DownloadFinished += OnDownloadFinished;
 			VideoLoader.ConfigChanged += OnConfigChanged;
@@ -601,6 +602,7 @@ namespace BeatSaberCinema
 				case DownloadState.NotDownloaded:
 				case DownloadState.Cancelled:
 					_currentVideo.DownloadProgress = 0;
+					_searchController.StopSearch();
 					_downloadController.StartDownload(_currentVideo, SettingsStore.Instance.QualityMode);
 					_currentVideo.NeedsToSave = true;
 					VideoLoader.AddConfigToCache(_currentVideo, _currentLevel!);
@@ -667,7 +669,7 @@ namespace BeatSaberCinema
 			_downloadButton.interactable = false;
 			StartCoroutine(SearchLoadingCoroutine());
 
-			_downloadController.Search(query);
+			_searchController.Search(query);
 			_searchText = query;
 		}
 
@@ -749,7 +751,6 @@ namespace BeatSaberCinema
 			{
 				_selectedCell = selection;
 				_downloadButton.interactable = true;
-				Log.Debug($"Selected cell: [{_selectedCell}] {_downloadController.SearchResults[selection].ToString()}");
 			}
 			else
 			{
@@ -770,9 +771,10 @@ namespace BeatSaberCinema
 			}
 
 			_downloadButton.interactable = false;
-			VideoConfig config = new VideoConfig(_downloadController.SearchResults[_selectedCell], VideoLoader.GetLevelPath(_currentLevel));
+			VideoConfig config = new VideoConfig(_searchController.SearchResults[_selectedCell], VideoLoader.GetLevelPath(_currentLevel));
 			config.NeedsToSave = true;
 			VideoLoader.AddConfigToCache(config, _currentLevel);
+			_searchController.StopSearch();
 			_downloadController.StartDownload(config, SettingsStore.Instance.QualityMode);
 			_currentVideo = config;
 			SetupVideoDetails();
