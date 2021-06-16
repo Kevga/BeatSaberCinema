@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using IPA.Utilities.Async;
 using UnityEngine;
@@ -17,6 +18,14 @@ namespace BeatSaberCinema
 
 		public event Action<VideoConfig>? DownloadProgress;
 		public event Action<VideoConfig>? DownloadFinished;
+
+		private readonly string[] _videoHosterWhitelist = {
+			"https://www.youtube.com/",
+			"https://www.dailymotion.com/",
+			"https://www.facebook.com/",
+			"https://www.bilibili.com/",
+			"https://vimeo.com/"
+		};
 
 		private static bool IsDownloadInProgress(Process? process)
 		{
@@ -42,10 +51,15 @@ namespace BeatSaberCinema
 			Log.Info($"Starting download of {video.title}");
 
 			_downloadLog = "";
+
+			var downloadProcess = StartDownloadProcess(video, quality);
+			if (downloadProcess == null)
+			{
+				yield break;
+			}
+
 			video.DownloadState = DownloadState.Downloading;
 			DownloadProgress?.Invoke(video);
-
-			Process downloadProcess = StartDownloadProcess(video, quality);
 
 			Log.Info(
 				$"youtube-dl command: \"{downloadProcess.StartInfo.FileName}\" {downloadProcess.StartInfo.Arguments}");
@@ -154,7 +168,7 @@ namespace BeatSaberCinema
 			DownloadFinished?.Invoke(video);
 		}
 
-		private Process StartDownloadProcess(VideoConfig video, VideoQuality.Mode quality)
+		private Process? StartDownloadProcess(VideoConfig video, VideoQuality.Mode quality)
 		{
 			if (video.LevelDir == null)
 			{
@@ -171,7 +185,29 @@ namespace BeatSaberCinema
 			videoFileName = Util.ShortenFilename(video.LevelDir, videoFileName);
 			video.videoFile = videoFileName + ".mp4";
 
-			var videoUrl = video.videoUrl ?? $"https://www.youtube.com/watch?v={video.videoID}";
+			string videoUrl;
+			if (video.videoUrl != null)
+			{
+				if (UrlInWhitelist(video.videoUrl))
+				{
+					videoUrl = video.videoUrl;
+				}
+				else
+				{
+					Log.Error($"Video hoster for {video.videoUrl} is not allowed");
+					return null;
+				}
+			}
+			else if (video.videoID != null)
+			{
+				videoUrl = $"https://www.youtube.com/watch?v={video.videoID}";
+			}
+			else
+			{
+				Log.Error("Video config has neither videoID or videoUrl set");
+				return null;
+			}
+
 			var videoFormat = VideoQuality.ToYoutubeDLFormat(video, quality);
 			videoFormat = videoFormat == null ? "" : $" -f \"{videoFormat}\"";
 
@@ -203,6 +239,11 @@ namespace BeatSaberCinema
 			video.DownloadState = DownloadState.Cancelled;
 			DownloadFinished?.Invoke(video);
 			VideoLoader.DeleteVideo(video);
+		}
+
+		private bool UrlInWhitelist(string url)
+		{
+			return _videoHosterWhitelist.Any(url.StartsWith);
 		}
 	}
 }

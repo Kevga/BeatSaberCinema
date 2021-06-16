@@ -23,17 +23,17 @@ namespace BeatSaberCinema
 		public static string? ToYoutubeDLFormat(VideoConfig config, Mode quality)
 		{
 			string? qualityString;
-			if (config.videoUrl == null || config.videoUrl.Contains("youtube.com/watch"))
+			if (config.videoUrl == null || config.videoUrl.StartsWith("https://www.youtube.com/watch"))
 			{
 				qualityString = $"bestvideo[height<={(int) quality}][vcodec*=avc1]+bestaudio[acodec*=mp4]";
 			}
-			else if (config.videoUrl.Contains("drive.google.com"))
+			else if (config.videoUrl.StartsWith("https://www.facebook.com"))
 			{
-				qualityString = $"best[height<={(int) quality}]";
+				qualityString = "mp4";
 			}
-			else if (config.videoUrl.Contains("dropbox.com"))
+			else if (config.videoUrl.StartsWith("https://www.bilibili.com"))
 			{
-				return null;
+				qualityString = "best";
 			}
 			else
 			{
