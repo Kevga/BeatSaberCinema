@@ -28,9 +28,9 @@ The plugin includes about 100 video configurations for custom maps for you to tr
 - [K/DA - MORE \[DACK\]](https://beatsaver.com/beatmap/1059c)
 - [BLACKPINK - Kill This Love \[aggrogahu\]](https://beatsaver.com/beatmap/46be)
 
-A playlist with all maps preconfigured by me is included with the mod. You can use a mod like **PlaylistManager** to access it in game. Please note that the playlist doesn't include maps that come with a video config made by the mappers themselves.
+The mod comes with a playlist of over 100 preconfigured maps, ready to play with a video. You can use a mod like **PlaylistManager** to access it in game.
 
-To find a list of all maps that have a video ready to go, visit [https://bsaber.org/?filter_mods=cinema&count=100](https://bsaber.org/?filter_mods=cinema&count=100).
+To find a complete list of all maps that have a video ready to go, visit https://bsaber.org/?filter_mods=cinema&sort=uploaded_desc.
 
 **Please note that you yourself can add a video to any map you like**.
 
@@ -72,7 +72,7 @@ These basic settings get set automatically when you add a video to your map.
 | Property                   		| Data Type | Default       	    | Description |
 | --------------------------------- |:---------:|:---------------------:| ----------- |
 | `videoID`                  		| string    | *none*           	 	| The YouTube video ID from the part after the `&v=` in the URL, e.g.: youtube.com/watch?v=**\_qwnHeMKbVA** |
-| `videoUrl`                  		| string    | *none*           	 	| Use this parameter instead of videoID if you want to use a video hoster other than YouTube. Provide the full video URL for this parameter. You can check the list of sites supported by youtube-dl [here](https://github.com/blackjack4494/yt-dlc/blob/master/docs/supportedsites.md), though not all will work by default in Cinema (please contact me if you want me to look into adding support for a specific site). Only use this if using YouTube is not possible. Using Dropbox links works well, though consider the download limit of 20 GB per day for individual files. |
+| `videoUrl`                  		| string    | *none*           	 	| Use this parameter instead of videoID if you want to use a video hoster other than YouTube. Provide the full video URL for this parameter. Currently supported are the following video sources: **YouTube, Facebook, Dailymotion, Vimeo, Bilibili**. |
 | `title`                    		| string    | Untitled Video   	 	| The title of the video. Will be shown to the user. |
 | `author`                   		| string    | Unknown Author   	 	| The name of the video's uploader. Will be shown to the user. |
 | `videoFile`                		| string    | *none*           	 	| Name of the video file on the local file system. Path is not included, the file is assumed to be in the map's folder. Will be set automatically after downloading and set to the title of the video, with illegal characters replaced by `_`. |
