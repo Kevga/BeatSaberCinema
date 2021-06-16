@@ -191,6 +191,7 @@ namespace BeatSaberCinema
 
 			switch (_currentVideo.DownloadState)
 			{
+				case DownloadState.Converting:
 				case DownloadState.Downloading:
 					_deleteVideoButtonText.SetText("Cancel");
 					_previewButton.interactable = false;
@@ -311,6 +312,11 @@ namespace BeatSaberCinema
 					var text = $"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress*100).ToString()}%)";
 					LevelDetailMenu.SetText(text, "Cancel", Color.yellow, Color.red);
 					break;
+				case DownloadState.Converting:
+					LevelDetailMenu.SetActive(true);
+					LevelDetailMenu.SetText($"Converting...",
+						"Cancel", Color.yellow, Color.red);
+					break;
 				case DownloadState.NotDownloaded when videoConfig.IsStreamable:
 					break;
 				case DownloadState.NotDownloaded:
@@ -341,6 +347,11 @@ namespace BeatSaberCinema
 					break;
 				case DownloadState.Downloading:
 					_videoStatusText.text = $"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress*100).ToString()}%)";
+					_videoStatusText.color = Color.yellow;
+					_previewButton.interactable = false;
+					break;
+				case DownloadState.Converting:
+					_videoStatusText.text = $"Converting...";
 					_videoStatusText.color = Color.yellow;
 					_previewButton.interactable = false;
 					break;

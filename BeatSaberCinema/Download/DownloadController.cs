@@ -150,6 +150,10 @@ namespace BeatSaberCinema
 			Match match = rx.Match(dataReceivedEventArgs.Data);
 			if (!match.Success)
 			{
+				if (dataReceivedEventArgs.Data.Contains("Converting video"))
+				{
+					video.DownloadState = DownloadState.Converting;
+				}
 				return;
 			}
 

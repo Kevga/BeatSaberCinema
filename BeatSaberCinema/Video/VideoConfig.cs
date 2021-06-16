@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace BeatSaberCinema
 {
-	public enum DownloadState { NotDownloaded, Downloading, Downloaded, Cancelled }
+	public enum DownloadState { NotDownloaded, Downloading, Converting, Downloaded, Cancelled }
 
 	[Serializable]
 	[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
