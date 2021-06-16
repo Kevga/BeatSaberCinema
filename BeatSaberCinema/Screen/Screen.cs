@@ -34,8 +34,17 @@ namespace BeatSaberCinema
 			body.transform.localPosition = new Vector3(0, 0, 0.1f); //A fixed offset is necessary for the center segments of the curved screen
 			body.transform.localScale = new Vector3(1.0015f, 1.0015f, 1.0015f);
 			Renderer bodyRenderer = body.GetComponent<Renderer>();
-			bodyRenderer.material = new Material(Resources.FindObjectsOfTypeAll<Material>()
-				.Last(x => x.name == "DarkEnvironmentSimple"));
+			var sourceMaterial = Resources.FindObjectsOfTypeAll<Material>().LastOrDefault(x => x.name.StartsWith("DarkEnvironmentSimple"));
+			if (sourceMaterial != null)
+			{
+				bodyRenderer.material = new Material(sourceMaterial);
+			}
+			else
+			{
+				Log.Error("Source material for body was not found!");
+				body.transform.localScale = Vector3.zero;
+			}
+
 			body.layer = LayerMask.NameToLayer("Environment");
 			return body;
 		}

@@ -16,7 +16,7 @@ namespace BeatSaberCinema
 		private readonly Dictionary<Camera, IBloomPrePassParams> _bloomPrePassParamsDict = new Dictionary<Camera, IBloomPrePassParams>();
 
 		private Material _additiveMaterial = null!;
-		private KawaseBlurRendererSO _kawaseBlurRenderer = null!;
+		private KawaseBlurRendererSO? _kawaseBlurRenderer;
 
 		private Renderer _renderer = null!;
 		private Mesh _mesh = null!;
@@ -34,9 +34,23 @@ namespace BeatSaberCinema
 			UpdateMesh();
 			_renderer = GetComponent<Renderer>();
 
-			_kawaseBlurRenderer = Resources.FindObjectsOfTypeAll<KawaseBlurRendererSO>().First();
-			_additiveMaterial = new Material(Shader.Find("Hidden/BlitAdd"));
-			_additiveMaterial.SetFloat(Alpha, 1f);
+			_kawaseBlurRenderer = Resources.FindObjectsOfTypeAll<KawaseBlurRendererSO>().FirstOrDefault();
+			if (_kawaseBlurRenderer == null)
+			{
+				Log.Error("KawaseBlurRendererSO not found!");
+			}
+
+			var shader = Shader.Find("Hidden/BlitAdd");
+			if (shader != null)
+			{
+				_additiveMaterial = new Material(shader);
+				_additiveMaterial.SetFloat(Alpha, 1f);
+			}
+			else
+			{
+				Log.Error("Shader 'Hidden/BlitAdd' not found");
+				_kawaseBlurRenderer = null;
+			}
 
 			BSEvents.menuSceneLoaded += UpdateMesh;
 			BSEvents.gameSceneLoaded += UpdateMesh;
@@ -118,7 +132,7 @@ namespace BeatSaberCinema
 
 		public void OnCameraPreRender(Camera camera)
 		{
-			if (camera == null)
+			if (camera == null || _kawaseBlurRenderer == null)
 			{
 				return;
 			}
@@ -253,6 +267,11 @@ namespace BeatSaberCinema
 
 		private void DoubleBlur(RenderTexture src, RenderTexture dest, KawaseBlurRendererSO.KernelSize kernelSize0, float boost0, KawaseBlurRendererSO.KernelSize kernelSize1, float boost1, float secondBlurAlpha, int downsample)
 		{
+			if (_kawaseBlurRenderer == null)
+			{
+				return;
+			}
+
 			int[] blurKernel = _kawaseBlurRenderer.GetBlurKernel(kernelSize0);
 			int[] blurKernel2 = _kawaseBlurRenderer.GetBlurKernel(kernelSize1);
 			var num = 0;

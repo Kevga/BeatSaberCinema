@@ -14,7 +14,7 @@ namespace BeatSaberCinema
 		public static void Init()
 		{
 			AudioSourceControllers = null;
-			SongPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().Last();
+			SongPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().LastOrDefault();
 		}
 
 		public static void SetFields(SongPreviewPlayer.AudioSourceVolumeController[] audioSourceControllers, int channelCount, int activeChannel,

@@ -38,7 +38,7 @@ namespace BeatSaberCinema
 				if (_additionalContentModel == null)
 				{
 					//The game has instances for AdditionalContentModels for each platform. The "true" one has (Clone) in its name.
-					_additionalContentModel = Resources.FindObjectsOfTypeAll<AdditionalContentModel>().First(x => x.name.Contains("(Clone)"));
+					_additionalContentModel = Resources.FindObjectsOfTypeAll<AdditionalContentModel>().FirstOrDefault(x => x.name.Contains("(Clone)"));
 				}
 
 				return _additionalContentModel;

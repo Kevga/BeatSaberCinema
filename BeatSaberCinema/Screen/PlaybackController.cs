@@ -284,9 +284,19 @@ namespace BeatSaberCinema
 					return;
 				}
 
-
 				_previewIgnoreNextUpdate = true;
-				SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), 1f, startTime, _currentLevel.songDuration);
+				try
+				{
+					SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), 1f, startTime, _currentLevel.songDuration);
+				}
+				catch (Exception e)
+				{
+					Log.Error(e);
+					IsPreviewPlaying = false;
+					_previewIgnoreNextUpdate = false;
+					return;
+				}
+
 				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
 				//pan hard left either. Also, it sounds a bit more comfortable.
 				SetAudioSourcePanning(0.9f);
