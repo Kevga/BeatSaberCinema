@@ -47,8 +47,9 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (_currentAudioClip.name == "LevelCleared" || _currentAudioClip.name == "Credits")
-			{
+			if (_currentAudioClip.name != null && _currentAudioClip.name != "") {
+				PlaybackController.Instance.StopPreview(false);
+				PlaybackController.Instance.VideoPlayer.FadeOut();
 				Log.Debug($"Ignoring {_currentAudioClip.name} sound");
 				return;
 			}

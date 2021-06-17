@@ -622,7 +622,7 @@ namespace BeatSaberCinema
 					break;
 				default:
 					VideoLoader.DeleteVideo(_currentVideo);
-					PlaybackController.Instance.VideoPlayer.FadeOut(0.3f);
+					PlaybackController.Instance.VideoPlayer.FadeOut(0.2f);
 					SetupLevelDetailView(_currentVideo);
 					LevelDetailMenu.RefreshContent();
 					break;

@@ -96,7 +96,6 @@ namespace BeatSaberCinema
 
 			Player = gameObject.AddComponent<VideoPlayer>();
 			Player.source = VideoSource.Url;
-			Player.isLooping = false;
 			Player.renderMode = VideoRenderMode.MaterialOverride;
 			Player.targetMaterialProperty = MAIN_TEXTURE_NAME;
 			Player.targetMaterialRenderer = _screenRenderer;
@@ -113,6 +112,7 @@ namespace BeatSaberCinema
 			Player.audioOutputMode = VideoAudioOutputMode.AudioSource;
 			Player.SetTargetAudioSource(0, _videoPlayerAudioSource);
 			Mute();
+			LoopVideo(false);
 
 			_videoPlayerAudioSource.reverbZoneMix = 0f;
 			_videoPlayerAudioSource.playOnAwake = false;
@@ -274,12 +274,17 @@ namespace BeatSaberCinema
 			_screen.SetBloomIntensity(bloomIntensity);
 		}
 
+		internal void LoopVideo(bool loop)
+		{
+			Player.isLooping = loop;
+		}
+
 		public void Show()
 		{
 			FadeIn(0);
 		}
 
-		public void FadeIn(float duration = 0.6f)
+		public void FadeIn(float duration = 0.4f)
 		{
 			_screen.Show();
 			_waitingForFadeOut = false;
@@ -291,7 +296,7 @@ namespace BeatSaberCinema
 			FadeOut(0);
 		}
 
-		public void FadeOut(float duration = 0.6f)
+		public void FadeOut(float duration = 0.4f)
 		{
 			_waitingForFadeOut = true;
 			_fadeController.EaseOut(duration);
@@ -416,6 +421,7 @@ namespace BeatSaberCinema
 			var width = ((float) texture.width / texture.height) * placement.Height;
 			placement.Width = width;
 			SetPlacement(placement);
+			FadeIn();
 		}
 
 		public void SetStaticTexture(Texture? texture)
@@ -430,7 +436,6 @@ namespace BeatSaberCinema
 			var width = ((float) texture.width / texture.height) * Placement.MenuPlacement.Height;
 			SetDefaultMenuPlacement(width);
 			SetShaderParameters(null);
-			FadeIn();
 		}
 
 		private static void VideoPlayerPrepareComplete(VideoPlayer source)

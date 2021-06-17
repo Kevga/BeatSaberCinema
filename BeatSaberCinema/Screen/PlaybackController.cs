@@ -387,7 +387,7 @@ namespace BeatSaberCinema
 			}
 			else
 			{
-				VideoPlayer.Player.isLooping = (config.loop == true);
+				VideoPlayer.LoopVideo(config.loop == true);
 				VideoPlayer.SetShaderParameters(config);
 				VideoPlayer.SetBloomIntensity(config.bloom);
 			}
@@ -437,7 +437,7 @@ namespace BeatSaberCinema
 			{
 				var coverSprite = await _currentLevel.GetCoverImageAsync(CancellationToken.None);
 				VideoPlayer.SetCoverTexture(coverSprite.texture);
-				VideoPlayer.FadeIn(0.3f);
+				VideoPlayer.FadeIn();
 			}
 			catch (Exception e)
 			{
@@ -710,7 +710,7 @@ namespace BeatSaberCinema
 				yield break;
 			}
 
-			VideoPlayer.Player.isLooping = (video.loop == true);
+			VideoPlayer.LoopVideo(video.loop == true);
 			VideoPlayer.SetShaderParameters(video);
 			VideoPlayer.SetBloomIntensity(video.bloom);
 
@@ -782,9 +782,9 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (timeRemaining <= 0 || VideoConfig == null)
+			if (VideoConfig == null)
 			{
-				VideoPlayer.FadeOut(1f);
+				VideoPlayer.FadeOut();
 				if (IsPreviewPlaying)
 				{
 					StopPreview(false);
@@ -831,9 +831,8 @@ namespace BeatSaberCinema
 			Log.Debug($"Starting song preview playback with a delay of {delaySeconds}");
 
 			_previewStartTime += delaySeconds;
-			_previewTimeRemaining -= delaySeconds;
-
-			if (_previewTimeRemaining > 2)
+			var timeRemaining = _previewTimeRemaining - delaySeconds;
+			if (timeRemaining > 2 || _previewTimeRemaining == 0)
 			{
 				PlayVideo(_previewStartTime);
 			}
