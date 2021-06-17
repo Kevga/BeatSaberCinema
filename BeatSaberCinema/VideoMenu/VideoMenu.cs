@@ -309,8 +309,7 @@ namespace BeatSaberCinema
 					break;
 				case DownloadState.Downloading:
 					LevelDetailMenu.SetActive(true);
-					var text = $"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress*100).ToString()}%)";
-					LevelDetailMenu.SetText(text, "Cancel", Color.yellow, Color.red);
+					LevelDetailMenu.SetText($"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress*100).ToString()}%)", "Cancel", Color.yellow, Color.red);
 					break;
 				case DownloadState.Converting:
 					LevelDetailMenu.SetActive(true);
@@ -325,7 +324,7 @@ namespace BeatSaberCinema
 					break;
 				case DownloadState.Cancelled:
 					LevelDetailMenu.SetActive(true);
-					LevelDetailMenu.SetText("Download cancelled", "Download Video", Color.red,Color.green);
+					LevelDetailMenu.SetText("Cancelling...", "Download Video", Color.red,Color.green);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -366,7 +365,7 @@ namespace BeatSaberCinema
 					_previewButton.interactable = false;
 					break;
 				case DownloadState.Cancelled:
-					_videoStatusText.text = "Download cancelled";
+					_videoStatusText.text = "Cancelling...";
 					_videoStatusText.color = Color.red;
 					_previewButton.interactable = false;
 					break;

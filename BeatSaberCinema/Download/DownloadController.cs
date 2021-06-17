@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -13,7 +13,7 @@ namespace BeatSaberCinema
 {
 	public class DownloadController: YoutubeDLController
 	{
-		private readonly Dictionary<VideoConfig, Process> _downloadProcesses = new Dictionary<VideoConfig, Process>();
+		private readonly ConcurrentDictionary<VideoConfig, Process> _downloadProcesses = new ConcurrentDictionary<VideoConfig, Process>();
 		private string _downloadLog = "";
 
 		public event Action<VideoConfig>? DownloadProgress;
@@ -73,7 +73,9 @@ namespace BeatSaberCinema
 				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadErrorDataReceived(e); });
 
 			downloadProcess.Exited += (sender, e) =>
-				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadProcessExited(((Process) sender).ExitCode, video); });
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadProcessExited((Process) sender, video); });
+
+			downloadProcess.Disposed += DownloadProcessDisposed;
 
 			yield return downloadProcess.Start();
 
@@ -94,7 +96,6 @@ namespace BeatSaberCinema
 			timeout.Stop();
 			_downloadLog = "";
 			DisposeProcess(downloadProcess);
-			_downloadProcesses.Remove(video);
 		}
 
 		private void DownloadOutputDataReceived(DataReceivedEventArgs eventArgs, VideoConfig video)
@@ -110,8 +111,9 @@ namespace BeatSaberCinema
 			Log.Error(eventArgs.Data);
 		}
 
-		private void DownloadProcessExited(int exitCode, VideoConfig video)
+		private void DownloadProcessExited(Process process, VideoConfig video)
 		{
+			var exitCode = process.ExitCode;
 			if (exitCode != 0)
 			{
 				Log.Warn(_downloadLog.Length > 0 ? _downloadLog : "Empty youtube-dl log");
@@ -132,10 +134,31 @@ namespace BeatSaberCinema
 			}
 			else
 			{
+				process.Disposed -= DownloadProcessDisposed;
+				_downloadProcesses.TryRemove(video, out _);
 				video.DownloadState = DownloadState.Downloaded;
 				video.NeedsToSave = true;
 				SharedCoroutineStarter.instance.StartCoroutine(WaitForDownloadToFinishCoroutine(video));
 				Log.Info("Download finished");
+			}
+		}
+
+		private void DownloadProcessDisposed(object sender, EventArgs eventArgs)
+		{
+			var disposedProcess = (Process) sender;
+			foreach(var dictionaryEntry in _downloadProcesses.Where(keyValuePair => keyValuePair.Value == disposedProcess).ToList())
+			{
+				var video = dictionaryEntry.Key;
+				var success = _downloadProcesses.TryRemove(dictionaryEntry.Key, out _);
+				if (!success)
+				{
+					Log.Error("Failed to remove disposed process from list of processes!");
+				}
+				else
+				{
+					video.DownloadState = DownloadState.NotDownloaded;
+					DownloadFinished?.Invoke(video);
+				}
 			}
 		}
 
@@ -176,7 +199,15 @@ namespace BeatSaberCinema
 		{
 			if (video.LevelDir == null)
 			{
-				throw new Exception("LevelDir was null during download");
+				Log.Error("LevelDir was null during download");
+				return null;
+			}
+
+			var success = _downloadProcesses.TryGetValue(video, out _);
+			if (success)
+			{
+				Log.Warn("Existing process not cleaned up yet. Cancelling download attempt.");
+				return null;
 			}
 
 			if (!Directory.Exists(video.LevelDir))
@@ -226,22 +257,21 @@ namespace BeatSaberCinema
 			                               " --socket-timeout 10"; //Retry if no response in 10 seconds Note: Not if download takes more than 10 seconds but if the time between any 2 messages from the server is 10 seconds
 
 			var process = StartProcess(downloadProcessArguments, video.LevelDir);
-			_downloadProcesses.Add(video, process);
+			_downloadProcesses.TryAdd(video, process);
 			return process;
 		}
 
 		public void CancelDownload(VideoConfig video)
 		{
 			Log.Debug("Cancelling download");
+			video.DownloadState = DownloadState.Cancelled;
+			DownloadProgress?.Invoke(video);
+
 			var success = _downloadProcesses.TryGetValue(video, out var process);
 			if (success)
 			{
 				DisposeProcess(process);
-				_downloadProcesses.Remove(video);
 			}
-
-			video.DownloadState = DownloadState.Cancelled;
-			DownloadFinished?.Invoke(video);
 			VideoLoader.DeleteVideo(video);
 		}
 

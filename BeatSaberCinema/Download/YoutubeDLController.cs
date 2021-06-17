@@ -67,7 +67,7 @@ namespace BeatSaberCinema
 			//Use config file in UserData instead of the global yt-dl one
 			arguments += GetConfigFileArgument(_youtubeDLConfigFilepath);
 
-			return new Process
+			var process = new Process
 			{
 				StartInfo =
 				{
@@ -82,6 +82,15 @@ namespace BeatSaberCinema
 				EnableRaisingEvents = true,
 				PriorityBoostEnabled = true
 			};
+			process.Disposed += OnProcessDisposed;
+
+			return process;
+		}
+
+
+		private void OnProcessDisposed(object sender, EventArgs eventArgs)
+		{
+			Log.Debug("Process disposed event fired");
 		}
 	}
 }
