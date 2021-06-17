@@ -13,4 +13,15 @@ namespace BeatSaberCinema
 			Events.SetSelectedLevel(level);
 		}
 	}
+
+	[HarmonyPatch(typeof(LevelCollectionViewController), nameof(LevelCollectionViewController.HandleLevelCollectionTableViewDidSelectPack))]
+	[UsedImplicitly]
+	public class PackSelectionPatch
+	{
+		[UsedImplicitly]
+		public static void Prefix()
+		{
+			Events.SetSelectedLevel(null);
+		}
+	}
 }

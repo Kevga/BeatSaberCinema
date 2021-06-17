@@ -431,6 +431,7 @@ namespace BeatSaberCinema
 
 			if (level == null)
 			{
+				Log.Debug("Set selected level to null");
 				_currentLevel = null;
 				_currentVideo = null;
 				PlaybackController.Instance.SetSelectedLevel(level, _currentVideo);
