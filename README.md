@@ -49,7 +49,7 @@ You can of course add videos to any song you like, even if they are not preconfi
 
 If you want to add a video to your map, you can simply set it up in the game from the WIP maps section. Refer to the section [Downloading Videos](https://github.com/Kevga/BeatSaberCinema#3-downloading-videos) for details on how to do that. The video configuration will be stored in the same folder as the map itself, in a file called **cinema-video.json**. You can include the json file in the zip file you upload to BeatSaver. **Please do not include the actual video file, the users will download that themselves from YouTube.**
 
-If you include a video config, please **add "Cinema" as a suggestion** in your map editor, same as you would do with Chroma. Don't set Cinema as a requirement though, since your map will always be playable without it.
+If you include a video config, please **add "Cinema" as a suggestion** in your map editor, same as you would do with Chroma. Don't set Cinema as a requirement though, since your map should always be playable without it.
 
 You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments (**Big Mirror, Origins, KDA, Rocket, BTS, Dragons, Linkin Park, Kaleidoscope, Monstercat**) to make the video screen fit in seamlessly. If your chosen environment is not yet supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
 
