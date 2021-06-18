@@ -817,6 +817,7 @@ namespace BeatSaberCinema
 			//This allows the short 3-second-preview for the practice offset to play
 			if ((_previewWaitingForPreviewPlayer || _previewWaitingForVideoPlayer) && Math.Abs(_previewTimeRemaining - 2.5f) > 0.001f)
 			{
+				VideoPlayer.FadeOut();
 				return;
 			}
 

@@ -47,7 +47,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (_currentAudioClip.name != null && _currentAudioClip.name != "") {
+			if (PlaybackController.Instance != null && _currentAudioClip.name != null && _currentAudioClip.name != "") {
 				PlaybackController.Instance.StopPreview(false);
 				PlaybackController.Instance.VideoPlayer.FadeOut();
 				Log.Debug($"Ignoring {_currentAudioClip.name} sound");
