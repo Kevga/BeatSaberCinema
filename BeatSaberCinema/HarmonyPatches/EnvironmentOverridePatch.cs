@@ -38,13 +38,6 @@ namespace BeatSaberCinema
 					}
 				}
 
-				if (video.EnvironmentModified)
-				{
-					Log.Debug("Environment is modified, disabling environment override");
-					overrideEnvironmentSettings = null!;
-					return;
-				}
-
 				var overrideEnvironmentEnabled = SettingsStore.Instance.OverrideEnvironment;
 				if (!overrideEnvironmentEnabled)
 				{
@@ -62,6 +55,7 @@ namespace BeatSaberCinema
 					"DragonsEnvironment",
 					"LinkinParkEnvironment",
 					"KaleidoscopeEnvironment",
+					"InterscopeEnvironment",
 					"GlassDesertEnvironment",
 					"MonstercatEnvironment",
 					"CrabRaveEnvironment"
