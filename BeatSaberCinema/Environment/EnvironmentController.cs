@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using BS_Utils.Utilities;
@@ -18,8 +19,8 @@ namespace BeatSaberCinema
 
 		private static bool _environmentModified;
 		private static string _currentEnvironment = "Menu";
-		private static List<GameObject>? _environmentObjectList;
-		private static IEnumerable<GameObject> EnvironmentObjects
+		private static List<EnvironmentObject>? _environmentObjectList;
+		private static IEnumerable<EnvironmentObject> EnvironmentObjects
 		{
 			get
 			{
@@ -28,8 +29,25 @@ namespace BeatSaberCinema
 					return _environmentObjectList;
 				}
 
-				var environmentObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-				_environmentObjectList = environmentObjects.ToList();
+				//Cache the state of all GameObjects
+				_environmentObjectList = new List<EnvironmentObject>(10000);
+				var stopwatch = new Stopwatch();
+				stopwatch.Start();
+				var gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+				Log.Debug($"Resource call finished after {stopwatch.ElapsedMilliseconds} ms");
+				var activeScene = SceneManager.GetActiveScene();
+				foreach (var gameObject in gameObjects)
+				{
+					//Relevant GameObjects are mostly in "GameCore" or the scene of the current environment, so filter out everything else
+					if (gameObject.scene != activeScene && gameObject.scene.name != _currentEnvironment)
+					{
+						continue;
+					}
+					_environmentObjectList.Add(new EnvironmentObject(gameObject, false));
+				}
+
+				stopwatch.Stop();
+				Log.Debug($"Created environment object list in {stopwatch.ElapsedMilliseconds} ms, items: {_environmentObjectList.Count}");
 
 				return _environmentObjectList;
 			}
@@ -89,6 +107,9 @@ namespace BeatSaberCinema
 			_environmentModified = true;
 			Log.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName);
 
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
+
 			CloneObjects(videoConfig);
 
 			try
@@ -112,7 +133,8 @@ namespace BeatSaberCinema
 				Log.Error(e);
 			}
 
-			Log.Debug("Modified environment");
+			stopwatch.Stop();
+			Log.Debug($"Modified environment in {stopwatch.ElapsedMilliseconds} ms");
 		}
 
 		private static void Reset()
@@ -788,10 +810,10 @@ namespace BeatSaberCinema
 
 			foreach (var environmentModification in config.environment)
 			{
-				List<GameObject>? selectedObjectsList;
-				if (environmentModification.clonedObject != null)
+				List<EnvironmentObject>? selectedObjectsList;
+				if (environmentModification.gameObjectClone != null)
 				{
-					selectedObjectsList = new List<GameObject> {environmentModification.clonedObject};
+					selectedObjectsList = new List<EnvironmentObject> {environmentModification.gameObjectClone};
 				}
 				else
 				{
@@ -828,7 +850,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private static List<GameObject> SelectObjectsFromScene(EnvironmentModification modification, bool clone)
+		private static List<EnvironmentObject> SelectObjectsFromScene(EnvironmentModification modification, bool clone)
 		{
 			modification = TranslateNameForBackwardsCompatibility(modification, clone);
 			var name = clone ? modification.cloneFrom! : modification.name;
@@ -838,19 +860,19 @@ namespace BeatSaberCinema
 				name += CLONED_OBJECT_NAME_SUFFIX;
 			}
 
-			IEnumerable<GameObject>? environmentObjects = null;
+			IEnumerable<EnvironmentObject>? environmentObjects = null;
 			try
 			{
 				environmentObjects = EnvironmentObjects.Where(x =>
-					x.name == name &&
-					(parentName == null || x.transform.parent.name == parentName));
+					x.gameObject.name == name &&
+					(parentName == null || x.gameObject.transform.parent.name == parentName));
 			}
 			catch (Exception e)
 			{
 				Log.Warn(e);
 			}
 
-			return environmentObjects?.ToList() ?? new List<GameObject>();
+			return environmentObjects?.ToList() ?? new List<EnvironmentObject>();
 		}
 
 		public static void CloneObjects(VideoConfig? config)
@@ -882,10 +904,9 @@ namespace BeatSaberCinema
 					continue;
 				}
 
-				var originalObject = environmentObjectList.Last();
+				var originalObject = environmentObjectList.Last().gameObject;
 
 				var clone = Object.Instantiate(originalObject, originalObject.transform.parent);
-				objectToBeCloned.clonedObject = clone;
 
 				//Move the new object far away to prevent changing the prop IDs that chroma assigns, but only if "mergePropGroups" is not set
 				var position = clone.transform.position;
@@ -911,6 +932,9 @@ namespace BeatSaberCinema
 				{
 					Log.Error(e);
 				}
+
+				var cloneEnvironmentObject = new EnvironmentObject(clone, true);
+				objectToBeCloned.gameObjectClone = cloneEnvironmentObject;
 
 				cloneCounter++;
 			}

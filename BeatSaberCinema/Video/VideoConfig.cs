@@ -153,8 +153,8 @@ namespace BeatSaberCinema
 			public string? parentName;
 			public string? cloneFrom;
 
-			[JsonIgnore]
-			public GameObject? clonedObject;
+			[JsonIgnore] public GameObject? gameObject;
+			[JsonIgnore] public EnvironmentObject? gameObjectClone;
 
 			public bool? active;
 			public SerializableVector3? position;
