@@ -786,7 +786,7 @@ namespace BeatSaberCinema
 
 					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
 					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 5.46f, 40f);
-					placement.Rotation = videoConfig?.screenRotation ?? new Vector3(-5f, 0f, 0f);;
+					placement.Rotation = videoConfig?.screenRotation ?? new Vector3(-5f, 0f, 0f);
 					placement.Height = videoConfig?.screenHeight ?? 13f;
 					placement.Curvature = videoConfig?.screenCurvature;
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
@@ -810,19 +810,11 @@ namespace BeatSaberCinema
 
 			foreach (var environmentModification in config.environment)
 			{
-				List<EnvironmentObject>? selectedObjectsList;
-				if (environmentModification.gameObjectClone != null)
+				var selectedObjectsList = SelectObjectsFromScene(environmentModification, false);
+				if (!selectedObjectsList.Any())
 				{
-					selectedObjectsList = new List<EnvironmentObject> {environmentModification.gameObjectClone};
-				}
-				else
-				{
-					selectedObjectsList = SelectObjectsFromScene(environmentModification, false);
-					if (!selectedObjectsList.Any())
-					{
-						Log.Error($"Failed to find object: name={environmentModification.name}, parentName={environmentModification.parentName ?? "null"}");
-						continue;
-					}
+					Log.Error($"Failed to find object: name={environmentModification.name}, parentName={environmentModification.parentName ?? "null"}, cloneFrom={environmentModification.cloneFrom ?? "null"}");
+					continue;
 				}
 
 				foreach (var environmentObject in selectedObjectsList)
@@ -834,28 +826,28 @@ namespace BeatSaberCinema
 
 					if (environmentModification.position.HasValue)
 					{
-						environmentObject.gameObject.transform.position = environmentModification.position.Value;
+						environmentObject.transform.position = environmentModification.position.Value;
 					}
 
 					if (environmentModification.rotation.HasValue)
 					{
-						environmentObject.gameObject.transform.eulerAngles = environmentModification.rotation.Value;
+						environmentObject.transform.eulerAngles = environmentModification.rotation.Value;
 					}
 
 					if (environmentModification.scale.HasValue)
 					{
-						environmentObject.gameObject.transform.localScale = environmentModification.scale.Value;
+						environmentObject.transform.localScale = environmentModification.scale.Value;
 					}
 				}
 			}
 		}
 
-		private static List<EnvironmentObject> SelectObjectsFromScene(EnvironmentModification modification, bool clone)
+		private static List<EnvironmentObject> SelectObjectsFromScene(EnvironmentModification modification, bool selectByCloneFrom)
 		{
-			modification = TranslateNameForBackwardsCompatibility(modification, clone);
-			var name = clone ? modification.cloneFrom! : modification.name;
+			modification = TranslateNameForBackwardsCompatibility(modification);
+			var name = selectByCloneFrom ? modification.cloneFrom! : modification.name;
 			var parentName = modification.parentName;
-			if (!clone && modification.cloneFrom != null)
+			if (!selectByCloneFrom && modification.cloneFrom != null)
 			{
 				name += CLONED_OBJECT_NAME_SUFFIX;
 			}
@@ -864,15 +856,16 @@ namespace BeatSaberCinema
 			try
 			{
 				environmentObjects = EnvironmentObjects.Where(x =>
-					x.gameObject.name == name &&
-					(parentName == null || x.gameObject.transform.parent.name == parentName));
+					x.name == name &&
+					(parentName == null || x.transform.parent.name == parentName));
 			}
 			catch (Exception e)
 			{
 				Log.Warn(e);
 			}
 
-			return environmentObjects?.ToList() ?? new List<EnvironmentObject>();
+			var environmentObjectList = (environmentObjects ?? Array.Empty<EnvironmentObject>()).ToList();
+			return environmentObjectList;
 		}
 
 		public static void CloneObjects(VideoConfig? config)
@@ -935,6 +928,7 @@ namespace BeatSaberCinema
 
 				var cloneEnvironmentObject = new EnvironmentObject(clone, true);
 				objectToBeCloned.gameObjectClone = cloneEnvironmentObject;
+				_environmentObjectList?.Add(cloneEnvironmentObject);
 
 				cloneCounter++;
 			}
@@ -998,9 +992,10 @@ namespace BeatSaberCinema
 			component.SetField("_meshRenderers", meshRendererList.ToArray());
 		}
 
-		private static EnvironmentModification TranslateNameForBackwardsCompatibility(EnvironmentModification modification, bool clone)
+		private static EnvironmentModification TranslateNameForBackwardsCompatibility(EnvironmentModification modification)
 		{
-			var name = clone ? modification.cloneFrom! : modification.name;
+			var selectByCloneFrom = modification.cloneFrom != null;
+			var name = selectByCloneFrom ? modification.cloneFrom! : modification.name;
 			string newName = name;
 
 			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
@@ -1034,7 +1029,7 @@ namespace BeatSaberCinema
 				}
 			}
 
-			if (modification.cloneFrom != null)
+			if (selectByCloneFrom)
 			{
 				modification.cloneFrom = newName;
 			}
