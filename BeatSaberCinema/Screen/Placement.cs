@@ -18,9 +18,9 @@ namespace BeatSaberCinema
 		);
 
 		public static Placement MultiplayerPlacement => new Placement(
-			new Vector3(0, 11f, 27f),
-			new Vector3(-18, 0, 0),
-			10f
+			new Vector3(0, 5f, 67f),
+			new Vector3(-5, 0, 0),
+			17f
 		);
 
 		public static Placement MenuPlacement => new Placement(
