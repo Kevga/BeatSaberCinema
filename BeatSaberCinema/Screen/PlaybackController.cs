@@ -7,6 +7,7 @@ using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Video;
 
 namespace BeatSaberCinema
@@ -17,7 +18,6 @@ namespace BeatSaberCinema
 		private Scene _activeScene = Scene.Other;
 
 		public static PlaybackController Instance { get; private set; } = null!;
-		private static GameObject _playbackControllerGameObject = null!;
 		private IPreviewBeatmapLevel? _currentLevel;
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
@@ -43,11 +43,11 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			_playbackControllerGameObject = new GameObject("CinemaPlaybackController");
-			_playbackControllerGameObject.AddComponent<PlaybackController>();
+			var playbackControllerGameObject = new GameObject("CinemaPlaybackController");
+			playbackControllerGameObject.AddComponent<PlaybackController>();
 		}
 
-		public static void Destroy()
+		public void Destroy()
 		{
 			if (Instance == null)
 			{
@@ -55,8 +55,7 @@ namespace BeatSaberCinema
 			}
 			Instance.StopPreview(true);
 
-			Destroy(Instance);
-			Destroy(_playbackControllerGameObject);
+			Destroy(gameObject);
 		}
 
 		private void Start()
@@ -71,6 +70,7 @@ namespace BeatSaberCinema
 			VideoPlayer = gameObject.AddComponent<CustomVideoPlayer>();
 			VideoPlayer.Player.frameReady += FrameReady;
 			VideoPlayer.Player.sendFrameReadyEvents = true;
+			BSEvents.gameSceneActive += GameSceneActive;
 			BSEvents.gameSceneLoaded += GameSceneLoaded;
 			BSEvents.songPaused += PauseVideo;
 			BSEvents.songUnpaused += ResumeVideo;
@@ -87,6 +87,7 @@ namespace BeatSaberCinema
 		private void OnDestroy()
 		{
 			VideoPlayer.Player.frameReady -= FrameReady;
+			BSEvents.gameSceneActive -= GameSceneActive;
 			BSEvents.gameSceneLoaded -= GameSceneLoaded;
 			BSEvents.songPaused -= PauseVideo;
 			BSEvents.songUnpaused -= ResumeVideo;
@@ -445,8 +446,19 @@ namespace BeatSaberCinema
 			}
 		}
 
+		private void GameSceneActive()
+		{
+			//Move to the environment scene to be picked up by Chroma
+			var sceneName = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.sceneInfo.sceneName;
+			var scene = SceneManager.GetSceneByName(sceneName);
+			SceneManager.MoveGameObjectToScene(gameObject, scene);
+		}
+
 		private void GameSceneLoaded()
 		{
+			//Move back to the DontDestroyOnLoad scene
+			DontDestroyOnLoad(this);
+
 			StopAllCoroutines();
 			Log.Debug("GameSceneLoaded");
 
