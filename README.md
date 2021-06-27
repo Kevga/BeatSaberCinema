@@ -82,16 +82,16 @@ These basic settings get set automatically when you add a video to your map.
 
 ### Advanced settings
 
-Optional settings which you can set to fine tune the form and function of the video player.
+Optional settings which you can set to fine tune the form and function of the video player. Please note that modifying `screenHeight`, `screenPosition` and/or using environment modifications makes the config specific to the environment that was selected by the mapper, since overriding the default means it can no longer be guaranteed that all supported environments look correctly.
 
 | Property                   		| Data Type | Default       	    				| Description |
 | --------------------------------- |:---------:|:------------------------------------:	| ----------- |
-| `environmentName`          		| string    | *none*           	 					| The environment that is supposed to be loaded. This allows you to force a specific environment that is only used if the user has Cinema installed and the video downloaded. This also disables the user's choice in the Override Environment setting of the base game. |
+| `environmentName`          		| string    | *none*           	 					| The environment that is supposed to be loaded. This allows you to force a specific environment that is only used if the user has Cinema installed and the video downloaded. This also disables the user's choice in the Override Environment setting of the base game, so please only use it if you have a good reason to do so. The internal names of all the environments are listed as `Info.dat Name` [here](https://bsmg.wiki/mapping/basic-lighting.html#environment-previews). |
 | `loop`                     		| bool      | false            	 					| Whether the video should loop if it ends before the map does. |
 | `endVideoAt`				 		| float     | *none*			 					| This parameter allows you to let a video end early (e.g. to hide sponsor segments, credits, logos etc.). The time references the video time, not the map time. The video will be paused at that time, and the last displayed frame stays until the map ends. Value is in seconds (e.g.: 296.5 would be 4 minutes and 56.5 seconds)  |
-| `screenPosition`           		| Vector3   | `{"x": 0.0,"y": 12.4,"z": 67.8}`	 	| This setting can be used to create a custom positioning of the video player. **x** is the deviation from the center, **y** is up/down and **z** controls the distance. **y** should usually be about half of the video height minus 0.1 if you want the video to be above the track. |
+| `screenPosition`           		| Vector3   | `{"x": 0.0,"y": 12.4,"z": 67.8}`	 	| This setting can be used to create a custom positioning of the video player. **x** is the deviation from the center, **y** is up/down and **z** controls the distance. **y** should usually be about half of the video height minus 0.1 if you want the video to be above the track.<br>**This setting prevents the user from overriding the environment.** |
 | `screenRotation`           		| Vector3   | `{"x": -8.0,"y": 0.0,"z": 0.0}`     	| Rotates the video screen. By default, it tilts down by 8 degrees for better visibility. |
-| `screenHeight`             		| float     | 25.0             	 					| Determines the size of the screen. There is no setting for the width, since that is calculated automatically by the height and the aspect ratio of the video. If you change the height, you might want to also change the **y** positioning of the screen so it doesn't float above the ground. |
+| `screenHeight`             		| float     | 25.0             	 					| Determines the size of the screen. There is no setting for the width, since that is calculated automatically by the height and the aspect ratio of the video. If you change the height, you might want to also change the **y** positioning of the screen so it doesn't float above the ground.<br>**This setting prevents the user from overriding the environment.** |
 | `screenCurvature`			 		| float     | *automatic*		 					| Use this setting to force a specific curvature of the screen. The allowed range of values is 0-180 (degrees). Setting this to 0 forces curvature to be disabled. If this parameter is not included and the user has curvature enabled, the curvature is calculated automatically based on the distance and the width of the screen.|
 | `allowCustomPlatform` 		    | bool      | false (user's choice) 				| When set to `false`, will prevent the CustomPlatforms mod from loading a custom platform for this map if the video is playing. Can be used to override the user setting if the user set it to `true` for all maps. |
 | `disableDefaultModifications`	    | bool      | false              					| If set to `true`, will disable any environment modifications Cinema does by default for the selected environment. Only use this if you plan on modifying the environment in a different way to make the video player fit in. |
@@ -145,7 +145,7 @@ Example:
 
 ### Modifying the environment
 
-There is an additional property called `environment` which can be used to alter other objects in the game scene. The `environment` parameter is an array that contains `EnvironmentModification` objects, which currently can have the following parameters:
+There is an additional property called `environment` which can be used to alter other objects in the game scene. Using this disables player overrides for the environment, since these modifications are specific to the mapper-chosen environment. The `environment` parameter is an array that contains `EnvironmentModification` objects, which currently can have the following parameters:
 
 | Property                   		| Data Type | Example 	| Description |
 | --------------------------------- |:---------:| ---------	| ----------- |
