@@ -701,6 +701,8 @@ namespace BeatSaberCinema
 		private IEnumerator? _prepareVideoCoroutine;
 		public void PrepareVideo(VideoConfig video)
 		{
+			_previewWaitingForVideoPlayer = true;
+
 			if (_prepareVideoCoroutine != null)
 			{
 				StopCoroutine(_prepareVideoCoroutine);
@@ -757,11 +759,13 @@ namespace BeatSaberCinema
 
 		private void OnPrepareComplete(VideoPlayer player)
 		{
-			if (_activeScene == Scene.Menu)
+			if (_activeScene != Scene.Menu)
 			{
-				_previewWaitingForVideoPlayer = false;
-				StartSongPreview();
+				return;
 			}
+
+			_previewWaitingForVideoPlayer = false;
+			StartSongPreview();
 		}
 
 		public void StopPlayback()
@@ -789,20 +793,18 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (_activeScene != Scene.Menu)
+			//This allows the short 3-second-preview for the practice offset to play
+			if (!_previewWaitingForPreviewPlayer && Math.Abs(timeRemaining - 2.5f) > 0.001f)
 			{
+				StopPreview(true);
+				VideoPlayer.FadeOut();
+
+				Log.Debug("Unexpected SongPreviewPlayer update, ignoring.");
 				return;
 			}
 
-			if (VideoConfig == null)
+			if (_activeScene != Scene.Menu)
 			{
-				VideoPlayer.FadeOut();
-				if (IsPreviewPlaying)
-				{
-					StopPreview(false);
-					Log.Debug("Detected end of SongPreviewPlayer during preview");
-				}
-
 				return;
 			}
 
@@ -826,10 +828,8 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			//This allows the short 3-second-preview for the practice offset to play
-			if ((_previewWaitingForPreviewPlayer || _previewWaitingForVideoPlayer) && Math.Abs(_previewTimeRemaining - 2.5f) > 0.001f)
+			if ((_previewWaitingForPreviewPlayer || _previewWaitingForVideoPlayer || IsPreviewPlaying))
 			{
-				VideoPlayer.FadeOut();
 				return;
 			}
 
@@ -853,9 +853,6 @@ namespace BeatSaberCinema
 			{
 				Log.Debug($"Not playing song preview, because delay was too long. Remaining preview time: {_previewTimeRemaining}");
 			}
-
-			_previewWaitingForPreviewPlayer = true;
-			_previewWaitingForVideoPlayer = true;
 		}
 	}
 }
