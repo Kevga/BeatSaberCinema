@@ -28,7 +28,7 @@ namespace BeatSaberCinema
 		private float _previewStartTime;
 		private float _previewTimeRemaining;
 		private bool _previewWaitingForVideoPlayer = true;
-		private bool _previewWaitingForPreviewPlayer = true;
+		private bool _previewWaitingForPreviewPlayer;
 		private DateTime _previewSyncStartTime;
 		private bool _previewIgnoreNextUpdate;
 
@@ -338,8 +338,6 @@ namespace BeatSaberCinema
 			_activeScene = Scene.Menu;
 			VideoPlayer.Hide();
 			StopAllCoroutines();
-			_previewWaitingForPreviewPlayer = true;
-			_previewWaitingForVideoPlayer = true;
 
 			if (VideoConfig != null)
 			{
