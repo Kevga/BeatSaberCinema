@@ -459,9 +459,9 @@ namespace BeatSaberCinema
 			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " - " + _currentLevel.songAuthorName : "");
 		}
 
-		private void HandleDidSelectPlaylistSong(BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong)
+		private void HandleDidSelectPlaylistSong(IPreviewBeatmapLevel previewBeatmapLevel)
 		{
-			if (!Plugin.Enabled)
+			if (!Plugin.Enabled || !(previewBeatmapLevel is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong))
 			{
 				return;
 			}

@@ -261,9 +261,9 @@ namespace BeatSaberCinema
 			return videoConfig;
 		}
 
-		public static VideoConfig? GetConfigForPlaylistSong(BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong)
+		public static VideoConfig? GetConfigForPlaylistSong(IPreviewBeatmapLevel previewBeatmapLevel)
 		{
-			if (playlistSong == null || playlistSong.PreviewBeatmapLevel == null)
+			if (!(previewBeatmapLevel is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong) || playlistSong == null || playlistSong.PreviewBeatmapLevel == null)
 			{
 				Log.Debug($"PlaylistSong is null");
 				return null;
@@ -490,8 +490,13 @@ namespace BeatSaberCinema
 			return videoConfig;
 		}
 
-		private static VideoConfig? LoadConfigFromPlaylistSong(BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong, string levelPath)
+		private static VideoConfig? LoadConfigFromPlaylistSong(IPreviewBeatmapLevel previewBeatmapLevel, string levelPath)
 		{
+			if (!(previewBeatmapLevel is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong))
+			{
+				return null;
+			}
+
 			if (playlistSong.TryGetCustomData("cinema", out var cinemaData))
 			{
 				VideoConfig? videoConfig;
