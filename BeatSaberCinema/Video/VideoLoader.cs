@@ -206,8 +206,19 @@ namespace BeatSaberCinema
 			return AdditionalContentModel.EntitlementStatus.Owned;
 		}
 
-		public static VideoConfig? GetConfigForLevel(IPreviewBeatmapLevel level)
+		public static VideoConfig? GetConfigForLevel(IPreviewBeatmapLevel? level, bool isPlaylistSong = false)
 		{
+			var playlistSong = level;
+			if (isPlaylistSong)
+			{
+				level = GetBeatmapLevelFromPlaylistSong(level);
+			}
+
+			if (playlistSong == null || level == null)
+			{
+				return null;
+			}
+
 			var cachedConfig = GetConfigFromCache(level);
 			if (cachedConfig != null)
 			{
@@ -247,6 +258,10 @@ namespace BeatSaberCinema
 					bundledConfig.NeedsToSave = true;
 					videoConfig = bundledConfig;
 				}
+			}
+			else if (isPlaylistSong && PlaylistSongHasConfig(playlistSong))
+			{
+				videoConfig = LoadConfigFromPlaylistSong(playlistSong, levelPath);
 			}
 			else
 			{
@@ -261,83 +276,21 @@ namespace BeatSaberCinema
 			return videoConfig;
 		}
 
-		public static VideoConfig? GetConfigForPlaylistSong(IPreviewBeatmapLevel previewBeatmapLevel)
+		private static bool PlaylistSongHasConfig(IPreviewBeatmapLevel level)
 		{
-			if (!(previewBeatmapLevel is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong) || playlistSong == null || playlistSong.PreviewBeatmapLevel == null)
+			var playlistSong = level as BeatSaberPlaylistsLib.Types.IPlaylistSong;
+			return playlistSong?.TryGetCustomData("cinema", out _) ?? false;
+		}
+
+		public static IPreviewBeatmapLevel? GetBeatmapLevelFromPlaylistSong(IPreviewBeatmapLevel? level)
+		{
+			IPreviewBeatmapLevel? unwrappedLevel = null!;
+			if (level is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong)
 			{
-				Log.Debug($"PlaylistSong is null");
-				return null;
+				unwrappedLevel = playlistSong.PreviewBeatmapLevel;
 			}
 
-			IPreviewBeatmapLevel level = playlistSong.PreviewBeatmapLevel;
-
-			var cachedConfig = GetConfigFromCache(level);
-			if (cachedConfig != null)
-			{
-				if (cachedConfig.DownloadState == DownloadState.Downloaded)
-				{
-					RemoveConfigFromCache(level);
-				}
-				return cachedConfig;
-			}
-
-			var levelPath = GetLevelPath(level);
-			if (!Directory.Exists(levelPath))
-			{
-				Log.Debug($"Path does not exist: {levelPath}");
-				return null;
-			}
-
-			VideoConfig? videoConfig;
-			var results = Directory.GetFiles(levelPath, CONFIG_FILENAME, SearchOption.AllDirectories);
-			if (results.Length == 0 && !Util.IsModInstalled(MOD_ID_MVP))
-			{
-				//Back compatiblity with MVP configs, but only if MVP is not installed
-				results = Directory.GetFiles(levelPath, CONFIG_FILENAME_MVP, SearchOption.AllDirectories);
-			}
-
-			if (results.Length != 0)
-			{
-				videoConfig = LoadConfig(results[0]);
-
-				//Update bundled configs with new environmentName parameter to fix broken configs
-				var bundledConfig = GetConfigFromBundledConfigs(level);
-				if (bundledConfig != null && videoConfig?.videoID == bundledConfig.videoID && bundledConfig.environmentName != null)
-				{
-					Log.Info($"Updating existing config for video {videoConfig?.title}");
-					bundledConfig.videoFile = videoConfig?.videoFile;
-					bundledConfig.UpdateDownloadState();
-					bundledConfig.NeedsToSave = true;
-					videoConfig = bundledConfig;
-				}
-			}
-			else if (playlistSong.TryGetCustomData("cinema", out _))
-			{
-				videoConfig = LoadConfigFromPlaylistSong(playlistSong, levelPath);
-
-				//Update bundled configs with new environmentName parameter to fix broken configs
-				var bundledConfig = GetConfigFromBundledConfigs(level);
-				if (bundledConfig != null && videoConfig?.videoID == bundledConfig.videoID && bundledConfig.environmentName != null)
-				{
-					Log.Info($"Updating existing config for video {videoConfig?.title}");
-					bundledConfig.videoFile = videoConfig?.videoFile;
-					bundledConfig.UpdateDownloadState();
-					bundledConfig.NeedsToSave = false;
-					bundledConfig.bundledConfig = true;
-					videoConfig = bundledConfig;
-				}
-			}
-			else
-			{
-				videoConfig = GetConfigFromBundledConfigs(level);
-				if (videoConfig == null)
-				{
-					return videoConfig;
-				}
-				Log.Debug("Loaded from bundled configs");
-			}
-
-			return videoConfig;
+			return unwrappedLevel ?? level;
 		}
 
 		public static string GetLevelPath(IPreviewBeatmapLevel level)
@@ -448,24 +401,11 @@ namespace BeatSaberCinema
 				return null;
 			}
 
-			string json;
-			try
-			{
-				json = File.ReadAllText(configPath);
-			}
-			catch (Exception e)
-			{
-				Log.Error(e);
-				return null;
-			}
-
 			VideoConfig? videoConfig;
 			try
 			{
-				if (configPath.EndsWith("\\" + CONFIG_FILENAME))
-				{
-					videoConfig = JsonConvert.DeserializeObject<VideoConfig>(json);
-				} else if (configPath.EndsWith("\\" + CONFIG_FILENAME_MVP))
+				string json = File.ReadAllText(configPath);
+				if (configPath.EndsWith("\\" + CONFIG_FILENAME_MVP))
 				{
 					//Back compatiblity with MVP configs
 					var videoConfigListBackCompat = JsonConvert.DeserializeObject<VideoConfigListBackCompat>(json);
@@ -473,8 +413,7 @@ namespace BeatSaberCinema
 				}
 				else
 				{
-					Log.Error($"jsonPath {configPath} did not match Cinema or MVP formats");
-					return null;
+					videoConfig = JsonConvert.DeserializeObject<VideoConfig>(json);
 				}
 			}
 			catch (Exception e)
@@ -516,11 +455,9 @@ namespace BeatSaberCinema
 
 				return videoConfig;
 			}
-			else
-			{
-				Log.Error($"No config exists for {playlistSong.Name}:");
-				return null;
-			}
+
+			Log.Error($"No config exists for {playlistSong.Name}:");
+			return null;
 		}
 
 		private static IEnumerable<BundledConfig> LoadBundledConfigs()

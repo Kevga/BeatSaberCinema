@@ -8,7 +8,6 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.Parser;
 using HMUI;
-using IPA.Loader;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -96,7 +95,7 @@ namespace BeatSaberCinema
 			_videoDetailsViewRect.gameObject.SetActive(false);
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
 
-			Events.LevelSelected += HandleDidSelectLevel;
+			Events.LevelSelected += OnLevelSelected;
 
 			_searchController.SearchProgress += SearchProgress;
 			_searchController.SearchFinished += SearchFinished;
@@ -104,8 +103,7 @@ namespace BeatSaberCinema
 			_downloadController.DownloadFinished += OnDownloadFinished;
 			VideoLoader.ConfigChanged += OnConfigChanged;
 
-			PluginMetadata playlistManager = PluginManager.GetPluginFromId("PlaylistManager");
-			if (playlistManager != null && playlistManager.Assembly.GetName().Version >= new Version("1.0.0"))
+			if (Util.IsModInstalled("PlaylistManager", "1.0.0"))
 			{
 				SubToPlaylistSongSelected();
 			}
@@ -118,7 +116,7 @@ namespace BeatSaberCinema
 
 		private void SubToPlaylistSongSelected()
 		{
-			PlaylistManager.Utilities.Events.playlistSongSelected += HandleDidSelectPlaylistSong;
+			PlaylistManager.Utilities.Events.playlistSongSelected += OnPlaylistSongSelected;
 		}
 
 		public void CreateStatusListener()
@@ -427,11 +425,17 @@ namespace BeatSaberCinema
 			HandleDidSelectLevel(level);
 		}
 
-		public void HandleDidSelectLevel(IPreviewBeatmapLevel? level)
+		public void HandleDidSelectLevel(IPreviewBeatmapLevel? level, bool isPlaylistSong = false)
 		{
-			if (!Plugin.Enabled || level == _currentLevel)
+			if (!Plugin.Enabled || level == _currentLevel || (isPlaylistSong && level == null))
 			{
 				return;
+			}
+
+			var playlistSong = level;
+			if (isPlaylistSong)
+			{
+				level = VideoLoader.GetBeatmapLevelFromPlaylistSong(level);
 			}
 
 			PlaybackController.Instance.StopPreview(true);
@@ -446,12 +450,14 @@ namespace BeatSaberCinema
 				Log.Debug("Set selected level to null");
 				_currentLevel = null;
 				_currentVideo = null;
-				PlaybackController.Instance.SetSelectedLevel(level, _currentVideo);
+				PlaybackController.Instance.SetSelectedLevel(null, null);
+				SetupVideoDetails();
 				return;
 			}
 
 			_currentLevel = level;
-			_currentVideo = VideoLoader.GetConfigForLevel(level);
+			_currentVideo =  VideoLoader.GetConfigForLevel(isPlaylistSong ? playlistSong : level, isPlaylistSong);
+
 			VideoLoader.ListenForConfigChanges(level);
 			PlaybackController.Instance.SetSelectedLevel(level, _currentVideo);
 			SetupVideoDetails();
@@ -459,36 +465,14 @@ namespace BeatSaberCinema
 			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " - " + _currentLevel.songAuthorName : "");
 		}
 
-		private void HandleDidSelectPlaylistSong(IPreviewBeatmapLevel previewBeatmapLevel)
+		private void OnLevelSelected(IPreviewBeatmapLevel? level)
 		{
-			if (!Plugin.Enabled || !(previewBeatmapLevel is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong))
-			{
-				return;
-			}
+			HandleDidSelectLevel(level);
+		}
 
-			PlaybackController.Instance.StopPreview(true);
-
-			if (_currentVideo?.NeedsToSave == true)
-			{
-				VideoLoader.SaveVideoConfig(_currentVideo);
-			}
-
-			if (playlistSong.PreviewBeatmapLevel == null)
-			{
-				Log.Debug("Set selected level to null");
-				_currentLevel = null;
-				_currentVideo = null;
-				PlaybackController.Instance.SetSelectedLevel(null, _currentVideo);
-				return;
-			}
-
-			_currentLevel = playlistSong.PreviewBeatmapLevel;
-			_currentVideo = VideoLoader.GetConfigForPlaylistSong(playlistSong);
-			VideoLoader.ListenForConfigChanges(_currentLevel);
-			PlaybackController.Instance.SetSelectedLevel(_currentLevel, _currentVideo);
-			SetupVideoDetails();
-
-			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " - " + _currentLevel.songAuthorName : "");
+		private void OnPlaylistSongSelected(IPreviewBeatmapLevel? level)
+		{
+			HandleDidSelectLevel(level, true);
 		}
 
 		public void OnConfigChanged(VideoConfig? config)
