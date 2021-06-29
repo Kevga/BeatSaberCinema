@@ -8,6 +8,7 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.Parser;
 using HMUI;
+using IPA.Loader;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -103,10 +104,21 @@ namespace BeatSaberCinema
 			_downloadController.DownloadFinished += OnDownloadFinished;
 			VideoLoader.ConfigChanged += OnConfigChanged;
 
+			PluginMetadata playlistManager = PluginManager.GetPluginFromId("PlaylistManager");
+			if (playlistManager != null && playlistManager.Assembly.GetName().Version >= new Version("1.0.0"))
+			{
+				SubToPlaylistSongSelected();
+			}
+
 			if (!_downloadController.LibrariesAvailable())
 			{
 				Log.Warn("One or more of the libraries are missing. Downloading videos will not work.");
 			}
+		}
+
+		private void SubToPlaylistSongSelected()
+		{
+			PlaylistManager.Utilities.Events.playlistSongSelected += HandleDidSelectPlaylistSong;
 		}
 
 		public void CreateStatusListener()
@@ -417,7 +429,7 @@ namespace BeatSaberCinema
 
 		public void HandleDidSelectLevel(IPreviewBeatmapLevel? level)
 		{
-			if (!Plugin.Enabled)
+			if (!Plugin.Enabled || level == _currentLevel)
 			{
 				return;
 			}
@@ -442,6 +454,38 @@ namespace BeatSaberCinema
 			_currentVideo = VideoLoader.GetConfigForLevel(level);
 			VideoLoader.ListenForConfigChanges(level);
 			PlaybackController.Instance.SetSelectedLevel(level, _currentVideo);
+			SetupVideoDetails();
+
+			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " - " + _currentLevel.songAuthorName : "");
+		}
+
+		private void HandleDidSelectPlaylistSong(BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong)
+		{
+			if (!Plugin.Enabled)
+			{
+				return;
+			}
+
+			PlaybackController.Instance.StopPreview(true);
+
+			if (_currentVideo?.NeedsToSave == true)
+			{
+				VideoLoader.SaveVideoConfig(_currentVideo);
+			}
+
+			if (playlistSong.PreviewBeatmapLevel == null)
+			{
+				Log.Debug("Set selected level to null");
+				_currentLevel = null;
+				_currentVideo = null;
+				PlaybackController.Instance.SetSelectedLevel(null, _currentVideo);
+				return;
+			}
+
+			_currentLevel = playlistSong.PreviewBeatmapLevel;
+			_currentVideo = VideoLoader.GetConfigForPlaylistSong(playlistSong);
+			VideoLoader.ListenForConfigChanges(_currentLevel);
+			PlaybackController.Instance.SetSelectedLevel(_currentLevel, _currentVideo);
 			SetupVideoDetails();
 
 			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " - " + _currentLevel.songAuthorName : "");

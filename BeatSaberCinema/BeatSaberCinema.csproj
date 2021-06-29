@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
+		<TargetFramework>net48</TargetFramework>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -91,6 +91,14 @@
 		</Reference>
 		<Reference Include="BSML">
 			<HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="PlaylistManager">
+			<HintPath>$(BeatSaberDir)\Plugins\PlaylistManager.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="BeatSaberPlaylistsLib">
+			<HintPath>$(BeatSaberDir)\Libs\BeatSaberPlaylistsLib.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="HMLib">
