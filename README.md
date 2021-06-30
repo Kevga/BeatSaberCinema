@@ -116,7 +116,7 @@ When adjusting these values, you can make use of the hot reloading capability of
 | `hue`				 				| float		| 0.0				 					| Valid range: -360 to +360 (in degrees) |
 
 Example:
-```
+```json
 "colorCorrection": {
   "gamma": 0.9,
   "contrast": 1.05,
@@ -135,7 +135,7 @@ Using the vignette effect you can change the shape of the video player or soften
 | `softness`				 		| float		| 0.005				 					| Valid range: 0 to 1. Defines the sharpness of the cutout. If you only want to soften the edges, leave the radius at 1 and only slightly increase the softness. By default, videos have a very slight vignette which basically serves as antialiasing for the screen borders. |
 
 Example:
-```
+```json
 "vignette": {
   "type": "elliptical",
   "radius": 0.5,
@@ -180,7 +180,7 @@ The workaround for all of these is to simply restart the map, which will reset t
 
 Here is an example config that uses some of the more advanced settings, including `colorCorrection` and `environment` modifications:
 
-```
+```json
 {
   "videoID": "_qwnHeMKbVA",
   "title": "Madeon - The Prince (Visual Video)",
@@ -224,7 +224,24 @@ Here is an example config that uses some of the more advanced settings, includin
 
 ## Playlist support
 
-Cinema supports loading video configs directly from a playlist file. To add video configs to a playlist, edit the playlist in a text editor and copy the contents of the `cinema-video.json` file into a key called `cinema` inside of the map that you want to attach the video to. The [PlaylistManager wiki](https://github.com/rithik-b/PlaylistManager/wiki) has examples on how to add settings like this to the playlist.
+Cinema supports loading video configs directly from a playlist file. To add video configs to a playlist, edit the playlist in a text editor and copy the contents of the `cinema-video.json` file into a key called `cinema` inside of another key called `customData` in the map that you want to attach the video to. The [PlaylistManager wiki](https://github.com/rithik-b/PlaylistManager/wiki) has more info on customData properties in playlists.
+Example:
+```json
+{
+      "levelAuthorName": "Joetastic",
+      "hash": "CCAAD4BBCD7B646C02141ABEE270FA7C1D9D702F",
+      "levelid": "custom_level_CCAAD4BBCD7B646C02141ABEE270FA7C1D9D702F",
+      "customData": {
+        "cinema": {
+          "videoID": "EP69zYnelKs",
+          "title": "Bakemonogatari  Opening 1 | HD 720p subs",
+          "author": "zmigueeee",
+          "duration": 81,
+          "offset": -4760
+        }
+      }
+    }
+```
 
 ## Playing local files not found on YouTube
 
@@ -239,7 +256,7 @@ The video file will need to be in the folder of the map. For the supported video
 [H.265 / HEVC Video Decoder - Format constraints](https://docs.microsoft.com/en-us/windows/win32/medfound/h-265---hevc-video-decoder#format-constraints)
 
 Template for local videos:
-```
+```json
 {
   "videoID": "Please read above",
   "title": "Video title goes here",
