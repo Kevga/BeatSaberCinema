@@ -222,6 +222,10 @@ Here is an example config that uses some of the more advanced settings, includin
 }
 ```
 
+## Playlist support
+
+Cinema supports loading video configs directly from a playlist file. To add video configs to a playlist, edit the playlist in a text editor and copy the contents of the `cinema-video.json` file into a key called `cinema` inside of the map that you want to attach the video to. The [PlaylistManager wiki](https://github.com/rithik-b/PlaylistManager/wiki) has examples on how to add settings like this to the playlist.
+
 ## Playing local files not found on YouTube
 
 If you want to play videos that are not found on YouTube in a map (*a certain ogre comes to mind*), you'll have to create a config by hand. You can use the template below and edit the entries, see the section about the JSON format above for reference. Make sure to use a JSON validator afterwards to find errors if there are any.
