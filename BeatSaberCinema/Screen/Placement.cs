@@ -10,6 +10,7 @@ namespace BeatSaberCinema
 		public float Height;
 		public float Width;
 		public float? Curvature;
+		public int? Subsurfaces;
 
 		public static Placement SoloGameplayPlacement => new Placement(
 			new Vector3(0, 12.4f, 67.8f),
@@ -35,7 +36,7 @@ namespace BeatSaberCinema
 			12f
 		);
 
-		public Placement(Vector3 position, Vector3 rotation, float height, float? width = null, float? curvature = null)
+		public Placement(Vector3 position, Vector3 rotation, float height, float? width = null)
 		{
 			Position = position;
 			Rotation = rotation;
@@ -51,6 +52,7 @@ namespace BeatSaberCinema
 			Height = config?.screenHeight ?? defaultPlacement.Height;
 			Width = Height * aspectRatio;
 			Curvature = config?.screenCurvature;
+			Subsurfaces = config?.screenSubsurfaces;
 		}
 
 		public static Placement GetDefaultPlacementForScene(PlaybackController.Scene scene)

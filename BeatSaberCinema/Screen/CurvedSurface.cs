@@ -48,9 +48,9 @@ namespace BeatSaberCinema
 		private float _curvatureDegreesAutomatic;
 		private float CurvatureDegrees => _curvatureDegreesFixed ?? _curvatureDegreesAutomatic;
 
-		private const int SUBSURFACE_COUNT = 32;
+		private int _subsurfaceCount = 32;
 
-		public void Initialize(float width, float height, float distance, float? curvatureDegrees)
+		public void Initialize(float width, float height, float distance, float? curvatureDegrees, int? subsurfaces)
 		{
 			if (curvatureDegrees != null)
 			{
@@ -58,8 +58,11 @@ namespace BeatSaberCinema
 				curvatureDegrees = Math.Max(MIN_CURVATURE, curvatureDegrees.Value);
 				curvatureDegrees = Math.Min(360, curvatureDegrees.Value);
 			}
-
 			_curvatureDegreesFixed = curvatureDegrees;
+
+			_subsurfaceCount = subsurfaces ?? 32;
+			_subsurfaceCount = Mathf.Clamp(_subsurfaceCount, 1, 256);
+
 			_width = width;
 			Height = height;
 			_distance = distance;
@@ -112,17 +115,17 @@ namespace BeatSaberCinema
 		{
 			var surface = new MeshData
 			{
-				Vertices = new Vector3[(SUBSURFACE_COUNT + 2)*2],
-				UVs = new Vector2[(SUBSURFACE_COUNT + 2)*2],
-				Triangles = new int[SUBSURFACE_COUNT*6]
+				Vertices = new Vector3[(_subsurfaceCount + 2)*2],
+				UVs = new Vector2[(_subsurfaceCount + 2)*2],
+				Triangles = new int[_subsurfaceCount*6]
 			};
 
 			int i,j;
-			for (i = j = 0; i < SUBSURFACE_COUNT+1; i++)
+			for (i = j = 0; i < _subsurfaceCount+1; i++)
 			{
 				GenerateVertexPair(surface, i);
 
-				if (i >= SUBSURFACE_COUNT)
+				if (i >= _subsurfaceCount)
 				{
 					continue;
 				}
@@ -149,7 +152,7 @@ namespace BeatSaberCinema
 
 		private void GenerateVertexPair(MeshData surface, int i)
 		{
-			var segmentDistance = ((float)i) / SUBSURFACE_COUNT;
+			var segmentDistance = ((float)i) / _subsurfaceCount;
 			var arcDegrees = CurvatureDegrees  * Mathf.Deg2Rad;
 			var theta = -0.5f + segmentDistance;
 
@@ -157,22 +160,22 @@ namespace BeatSaberCinema
 			var z = (Mathf.Cos(theta * arcDegrees) * _radius) - _radius;
 
 			surface.Vertices[i] = new Vector3(x, Height / 2f, z);
-			surface.Vertices[i + SUBSURFACE_COUNT + 1] = new Vector3(x, -Height / 2f, z);
-			surface.UVs[i] = new Vector2(i / (float)SUBSURFACE_COUNT, 1);
-			surface.UVs[i + SUBSURFACE_COUNT + 1] = new Vector2(i / (float)SUBSURFACE_COUNT, 0);
+			surface.Vertices[i + _subsurfaceCount + 1] = new Vector3(x, -Height / 2f, z);
+			surface.UVs[i] = new Vector2(i / (float)_subsurfaceCount, 1);
+			surface.UVs[i + _subsurfaceCount + 1] = new Vector2(i / (float)_subsurfaceCount, 0);
 		}
 
-		private static void ConnectVertices(MeshData surface, int i, ref int j)
+		private void ConnectVertices(MeshData surface, int i, ref int j)
 		{
 			//Left triangle
 			surface.Triangles[j++] = i;
 			surface.Triangles[j++] = i + 1;
-			surface.Triangles[j++] = i + SUBSURFACE_COUNT + 1;
+			surface.Triangles[j++] = i + _subsurfaceCount + 1;
 
 			//Right triangle
 			surface.Triangles[j++] = i + 1;
-			surface.Triangles[j++] = i + SUBSURFACE_COUNT + 2;
-			surface.Triangles[j++] = i + SUBSURFACE_COUNT + 1;
+			surface.Triangles[j++] = i + _subsurfaceCount + 2;
+			surface.Triangles[j++] = i + _subsurfaceCount + 1;
 		}
 	}
 }

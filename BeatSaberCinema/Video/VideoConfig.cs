@@ -34,6 +34,7 @@ namespace BeatSaberCinema
 		public SerializableVector3? screenRotation;
 		public float? screenHeight;
 		public float? screenCurvature;
+		public int? screenSubsurfaces;
 		public float? bloom;
 		public bool? disableDefaultModifications;
 		public string? environmentName;

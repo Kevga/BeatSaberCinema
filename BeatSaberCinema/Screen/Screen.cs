@@ -81,22 +81,22 @@ namespace BeatSaberCinema
 
 		public void SetPlacement(Placement placement)
 		{
-			SetPlacement(placement.Position, placement.Rotation, placement.Width, placement.Height, placement.Curvature);
+			SetPlacement(placement.Position, placement.Rotation, placement.Width, placement.Height, placement.Curvature, placement.Subsurfaces);
 		}
 
-		public void SetPlacement(Vector3 pos, Vector3 rot, float width, float height, float? curvatureDegrees = null)
+		public void SetPlacement(Vector3 pos, Vector3 rot, float width, float height, float? curvatureDegrees = null, int? subsurfaces = null)
 		{
 			_screenGameObject.transform.position = pos;
 			_screenGameObject.transform.eulerAngles = rot;
 			_screenGameObject.transform.localScale = Vector3.one;
-			InitializeSurfaces(width, height, pos.z, curvatureDegrees);
+			InitializeSurfaces(width, height, pos.z, curvatureDegrees, subsurfaces);
 			RegenerateScreenSurfaces();
 		}
 
-		public void InitializeSurfaces(float width, float height, float distance, float? curvatureDegrees)
+		public void InitializeSurfaces(float width, float height, float distance, float? curvatureDegrees, int? subsurfaces)
 		{
-			_screenSurface.Initialize(width, height, distance, curvatureDegrees);
-			_screenBodySurface.Initialize(width, height, distance, curvatureDegrees);
+			_screenSurface.Initialize(width, height, distance, curvatureDegrees, subsurfaces);
+			_screenBodySurface.Initialize(width, height, distance, curvatureDegrees, subsurfaces);
 			_screenBloomPrePass.UpdateScreenDimensions(width, height);
 		}
 
