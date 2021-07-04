@@ -31,8 +31,8 @@ namespace BeatSaberCinema
 			GameObject body = new GameObject("CinemaScreenBody");
 			_screenBodySurface = body.AddComponent<CurvedSurface>();
 			body.transform.parent = _screenGameObject.transform;
-			body.transform.localPosition = new Vector3(0, 0, 0.1f); //A fixed offset is necessary for the center segments of the curved screen
-			body.transform.localScale = new Vector3(1.0015f, 1.0015f, 1.0015f);
+			body.transform.localPosition = new Vector3(0, 0, 0.4f); //A fixed offset is necessary for the center segments of the curved screen
+			body.transform.localScale = new Vector3(1.01f, 1.01f, 1.01f);
 			Renderer bodyRenderer = body.GetComponent<Renderer>();
 			var sourceMaterial = Resources.FindObjectsOfTypeAll<Material>().LastOrDefault(x => x.name.StartsWith("DarkEnvironmentSimple"));
 			if (sourceMaterial != null)
