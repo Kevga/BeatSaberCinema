@@ -20,6 +20,12 @@ namespace BeatSaberCinema
 				PlaybackController.Instance.SceneTransitionInitCalled();
 				VideoMenu.instance.SetSelectedLevel(difficultyBeatmap.level);
 
+				if (!SettingsStore.Instance.PluginEnabled || SettingsStore.Instance.ForceDisableEnvironmentOverrides)
+				{
+					Log.Info($"Cinema disabled: {!SettingsStore.Instance.PluginEnabled}, environment override force disabled: {SettingsStore.Instance.ForceDisableEnvironmentOverrides}");
+					return;
+				}
+
 				var video = PlaybackController.Instance.VideoConfig;
 				if (video == null || (!video.IsPlayable && video.forceEnvironmentModifications != true))
 				{
