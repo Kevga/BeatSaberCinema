@@ -92,6 +92,10 @@ namespace BeatSaberCinema
 
 		public static void ModifyGameScene(VideoConfig? videoConfig)
 		{
+			//Move back to the DontDestroyOnLoad scene
+			Object.DontDestroyOnLoad(PlaybackController.Instance);
+			Log.Debug("Moving back to DontDestroyOnLoad");
+
 			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || videoConfig == null || Util.IsMultiplayer() ||
 			    (!videoConfig.IsPlayable && (videoConfig.forceEnvironmentModifications == null || videoConfig.forceEnvironmentModifications == false)))
 			{
@@ -110,6 +114,7 @@ namespace BeatSaberCinema
 			var stopwatch = new Stopwatch();
 			stopwatch.Start();
 
+			PrepareClonedScreens(videoConfig);
 			CloneObjects(videoConfig);
 
 			try
@@ -139,6 +144,49 @@ namespace BeatSaberCinema
 
 		private static void Reset()
 		{
+			if (!PlaybackController.Instance)
+			{
+				return;
+			}
+
+			if (PlaybackController.Instance.VideoPlayer.screenController.screens.Count > 1)
+			{
+				foreach (var screen in PlaybackController.Instance.VideoPlayer.screenController.screens.Where(screen => screen.name.Contains("Clone")))
+				{
+					Object.Destroy(screen);
+					Log.Debug("Destroyed screen");
+				}
+
+				PlaybackController.Instance.VideoPlayer.screenController.screens.RemoveRange(1, PlaybackController.Instance.VideoPlayer.screenController.screens.Count - 1);
+
+				var mainScreen = PlaybackController.Instance.VideoPlayer.screenController.screens[0];
+				mainScreen.gameObject.GetComponent<CustomBloomPrePass>().enabled = true;
+				if (Util.IsModInstalled("_Heck"))
+				{
+					const string typeName = "Chroma.GameObjectTrackController";
+
+					try
+					{
+						var trackControllerType = Util.FindType(typeName, "Chroma");
+						if (trackControllerType != null)
+						{
+							Object.Destroy(mainScreen.GetComponent(trackControllerType));
+							Log.Debug($"Destroyed {typeName}");
+						}
+						else
+						{
+							Log.Warn($"Failed to find type {typeName}");
+						}
+					}
+					catch (Exception)
+					{
+						Log.Warn($"Failed to remove {typeName} from screen");
+					}
+				}
+
+				Log.Debug($"Screen count: {PlaybackController.Instance.VideoPlayer.screenController.screens.Count}");
+			}
+
 			_environmentModified = false;
 			_environmentObjectList?.Clear();
 			if (PlaybackController.Instance != null && PlaybackController.Instance.VideoPlayer != null)
@@ -868,7 +916,30 @@ namespace BeatSaberCinema
 			return environmentObjectList;
 		}
 
-		public static void CloneObjects(VideoConfig? config)
+		private static void PrepareClonedScreens(VideoConfig videoConfig)
+		{
+			Log.Debug($"Screens found: {PlaybackController.GO.transform.childCount}");
+			if (PlaybackController.GO.transform.childCount > 1)
+			{
+				foreach (Transform screen in PlaybackController.GO.transform)
+				{
+					if (screen.name.Contains("(Clone)"))
+					{
+						PlaybackController.Instance.VideoPlayer.screenController.screens.Add(screen.gameObject);
+						screen.GetComponent<Renderer>().material = PlaybackController.Instance.VideoPlayer.screenController.screens[0].GetComponent<Renderer>().material;
+					}
+
+					screen.gameObject.GetComponent<CustomBloomPrePass>().enabled = false;
+					Log.Debug("Disabled bloom prepass");
+				}
+
+				PlaybackController.Instance.VideoPlayer.SetPlacement(
+					new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio()));
+				PlaybackController.Instance.VideoPlayer.screenController.SetShaderParameters(videoConfig);
+			}
+		}
+
+		private static void CloneObjects(VideoConfig? config)
 		{
 			if (config?.environment == null || config.environment.Length == 0 || Util.IsMultiplayer())
 			{

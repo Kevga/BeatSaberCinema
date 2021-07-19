@@ -451,13 +451,11 @@ namespace BeatSaberCinema
 			var sceneName = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.sceneInfo.sceneName;
 			var scene = SceneManager.GetSceneByName(sceneName);
 			SceneManager.MoveGameObjectToScene(gameObject, scene);
+			Log.Debug("Moving to game scene");
 		}
 
 		private void GameSceneLoaded()
 		{
-			//Move back to the DontDestroyOnLoad scene
-			DontDestroyOnLoad(this);
-
 			StopAllCoroutines();
 			Log.Debug("GameSceneLoaded");
 

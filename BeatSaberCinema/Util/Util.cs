@@ -81,21 +81,41 @@ namespace BeatSaberCinema
 			return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName && (minimumVersion == null || x.Version >= new SemVer.Version(minimumVersion)));
 		}
 
-		public static Texture? LoadPNGFromResources(string resourcePath) {
-				byte[] fileData = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), resourcePath);
-				if (fileData.Length <= 0)
-				{
-					return null;
-				}
+		public static Texture? LoadPNGFromResources(string resourcePath)
+		{
+			byte[] fileData = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), resourcePath);
+			if (fileData.Length <= 0)
+			{
+				return null;
+			}
 
-				var tex = new Texture2D(2, 2);
-				tex.LoadImage(fileData);
-				return tex;
+			var tex = new Texture2D(2, 2);
+			tex.LoadImage(fileData);
+			return tex;
 		}
 
 		public static bool IsMultiplayer()
 		{
 			return MultiplayerPatch.IsMultiplayer;
+		}
+
+		public static Type? FindType(string qualifiedTypeName, string? assemblyName)
+		{
+			foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+			{
+				if (assemblyName != null && asm.GetName().Name != assemblyName)
+				{
+					continue;
+				}
+
+				var t = asm.GetType(qualifiedTypeName);
+				if (t != null)
+				{
+					return t;
+				}
+			}
+
+			return null;
 		}
 	}
 }
