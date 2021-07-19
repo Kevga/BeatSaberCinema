@@ -67,7 +67,7 @@ namespace BeatSaberCinema
 	        set
 	        {
 		        SettingsStore.Instance.CornerRoundness = value / 100f;
-		        PlaybackController.Instance.VideoPlayer.SetVignette();
+		        PlaybackController.Instance.VideoPlayer.screenController.SetVignette();
 	        }
         }
 

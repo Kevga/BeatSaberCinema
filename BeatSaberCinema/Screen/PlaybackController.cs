@@ -18,6 +18,7 @@ namespace BeatSaberCinema
 		private Scene _activeScene = Scene.Other;
 
 		public static PlaybackController Instance { get; private set; } = null!;
+		public static GameObject GO = null!;
 		private IPreviewBeatmapLevel? _currentLevel;
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
@@ -43,8 +44,8 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			var playbackControllerGameObject = new GameObject("CinemaPlaybackController");
-			playbackControllerGameObject.AddComponent<PlaybackController>();
+			GO = new GameObject("CinemaPlaybackController");
+			GO.AddComponent<PlaybackController>();
 		}
 
 		public void Destroy()
@@ -387,7 +388,7 @@ namespace BeatSaberCinema
 			else
 			{
 				VideoPlayer.LoopVideo(config.loop == true);
-				VideoPlayer.SetShaderParameters(config);
+				VideoPlayer.screenController.SetShaderParameters(config);
 				VideoPlayer.SetBloomIntensity(config.bloom);
 			}
 
@@ -723,7 +724,7 @@ namespace BeatSaberCinema
 			}
 
 			VideoPlayer.LoopVideo(video.loop == true);
-			VideoPlayer.SetShaderParameters(video);
+			VideoPlayer.screenController.SetShaderParameters(video);
 			VideoPlayer.SetBloomIntensity(video.bloom);
 
 			if (video.VideoPath == null)

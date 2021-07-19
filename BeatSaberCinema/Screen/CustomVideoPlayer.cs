@@ -13,26 +13,16 @@ namespace BeatSaberCinema
 	{
 		public VideoPlayer Player { get; }
 		private readonly AudioSource _videoPlayerAudioSource;
-		private Screen _screen = null!;
+		internal ScreenController screenController = null!;
 		private readonly Renderer _screenRenderer;
 		private readonly EasingController _fadeController;
 
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
 
 		private const float MAX_BRIGHTNESS = 0.92f;
-		public readonly Color ScreenColorOn = Color.white.ColorWithAlpha(0f) * MAX_BRIGHTNESS;
+		private readonly Color _screenColorOn = Color.white.ColorWithAlpha(0f) * MAX_BRIGHTNESS;
 		private readonly Color _screenColorOff = Color.clear;
-		private readonly MaterialPropertyBlock _materialPropertyBlock;
 		private static readonly int MainTex = Shader.PropertyToID(MAIN_TEXTURE_NAME);
-		private static readonly int Brightness = Shader.PropertyToID("_Brightness");
-		private static readonly int Contrast = Shader.PropertyToID("_Contrast");
-		private static readonly int Saturation = Shader.PropertyToID("_Saturation");
-		private static readonly int Hue = Shader.PropertyToID("_Hue");
-		private static readonly int Gamma = Shader.PropertyToID("_Gamma");
-		private static readonly int Exposure = Shader.PropertyToID("_Exposure");
-		private static readonly int VignetteRadius = Shader.PropertyToID("_VignetteRadius");
-		private static readonly int VignetteSoftness = Shader.PropertyToID("_VignetteSoftness");
-		private static readonly int VignetteElliptical = Shader.PropertyToID("_VignetteOval");
 		private bool _waitForFirstFrame;
 		private string _currentlyPlayingVideo = "";
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
@@ -90,9 +80,8 @@ namespace BeatSaberCinema
 		public CustomVideoPlayer()
 		{
 			CreateScreen();
-			_screenRenderer = _screen.GetRenderer();
+			_screenRenderer = screenController.GetRenderer();
 			_screenRenderer.material = new Material(GetShader()) {color = _screenColorOff};
-			_materialPropertyBlock = new MaterialPropertyBlock();
 
 			Player = gameObject.AddComponent<VideoPlayer>();
 			Player.source = VideoSource.Url;
@@ -167,9 +156,9 @@ namespace BeatSaberCinema
 
 		private void CreateScreen()
 		{
-			_screen =  gameObject.AddComponent<Screen>();
-			_screen.SetTransform(transform);
-			_screen.Show();
+			screenController = new ScreenController();
+			screenController.CreateScreen(transform);
+			screenController.SetScreensActive(true);
 			SetDefaultMenuPlacement();
 		}
 
@@ -211,7 +200,7 @@ namespace BeatSaberCinema
 
 		public void FadeControllerUpdate(float value)
 		{
-			ScreenColor = ScreenColorOn * value;
+			ScreenColor = _screenColorOn * value;
 			if (!_muted)
 			{
 				Volume = MAX_VOLUME * VolumeScale * value;
@@ -219,11 +208,11 @@ namespace BeatSaberCinema
 
 			if (value >= 1 && _bodyVisible)
 			{
-				_screen.ShowBody();
+				screenController.SetScreenBodiesActive(true);
 			}
 			else
 			{
-				_screen.HideBody();
+				screenController.SetScreenBodiesActive(false);
 			}
 
 			if (value == 0 && Player.url == _currentlyPlayingVideo && _waitingForFadeOut)
@@ -246,7 +235,7 @@ namespace BeatSaberCinema
 
 		public void SetPlacement(Placement placement)
 		{
-			_screen.SetPlacement(placement);
+			screenController.SetPlacement(placement);
 		}
 
 		private void FirstFrameReady(VideoPlayer player, long frame)
@@ -265,13 +254,13 @@ namespace BeatSaberCinema
 			_firstFrameStopwatch.Stop();
 			Log.Debug("Delay from Play() to first frame: "+_firstFrameStopwatch.ElapsedMilliseconds+" ms");
 			_firstFrameStopwatch.Reset();
-			_screen.SetAspectRatio(GetVideoAspectRatio());
+			screenController.SetAspectRatio(GetVideoAspectRatio());
 			Player.frameReady -= FirstFrameReady;
 		}
 
 		public void SetBloomIntensity(float? bloomIntensity)
 		{
-			_screen.SetBloomIntensity(bloomIntensity);
+			screenController.SetBloomIntensity(bloomIntensity);
 		}
 
 		internal void LoopVideo(bool loop)
@@ -286,7 +275,7 @@ namespace BeatSaberCinema
 
 		public void FadeIn(float duration = 0.4f)
 		{
-			_screen.Show();
+			screenController.SetScreensActive(true);
 			_waitingForFadeOut = false;
 			_fadeController.EaseIn(duration);
 		}
@@ -307,7 +296,7 @@ namespace BeatSaberCinema
 			_bodyVisible = true;
 			if (!_fadeController.IsFading && _fadeController.IsOne)
 			{
-				_screen.ShowBody();
+				screenController.SetScreenBodiesActive(true);
 			}
 		}
 
@@ -316,7 +305,7 @@ namespace BeatSaberCinema
 			_bodyVisible = false;
 			if (!_fadeController.IsFading)
 			{
-				_screen.HideBody();
+				screenController.SetScreenBodiesActive(false);
 			}
 		}
 
@@ -348,52 +337,6 @@ namespace BeatSaberCinema
 			Player.Prepare();
 		}
 
-		public void SetShaderParameters(VideoConfig? config)
-		{
-			var colorCorrection = config?.colorCorrection;
-			var vignette = config?.vignette;
-
-			_screenRenderer.GetPropertyBlock(_materialPropertyBlock);
-
-			SetShaderFloat(Brightness, colorCorrection?.brightness, 0f,   2f, 1f);
-			SetShaderFloat(Contrast,   colorCorrection?.contrast,   0f,   5f, 1f);
-			SetShaderFloat(Saturation, colorCorrection?.saturation, 0f,   5f, 1f);
-			SetShaderFloat(Hue,        colorCorrection?.hue,     -360f, 360f, 0f);
-			SetShaderFloat(Exposure,   colorCorrection?.exposure,   0f,   5f, 1f);
-			SetShaderFloat(Gamma,      colorCorrection?.gamma,      0f,   5f, 1f);
-
-			SetVignette(vignette, _materialPropertyBlock);
-
-			_screenRenderer.SetPropertyBlock(_materialPropertyBlock);
-		}
-
-		public void SetVignette(VideoConfig.Vignette? vignette = null, MaterialPropertyBlock? materialPropertyBlock = null)
-		{
-			var setPropertyBlock = materialPropertyBlock == null;
-			if (setPropertyBlock)
-			{
-				_screenRenderer.GetPropertyBlock(_materialPropertyBlock);
-				materialPropertyBlock = _materialPropertyBlock;
-			}
-
-			var elliptical = SettingsStore.Instance.CornerRoundness > 0 && vignette == null;
-			SetShaderFloat(VignetteRadius,   vignette?.radius,      0f,   1f, (elliptical ? 1 - SettingsStore.Instance.CornerRoundness : 1f));
-			SetShaderFloat(VignetteSoftness, vignette?.softness,    0f,   1f, (elliptical ? 0.02f : 0.005f));
-			materialPropertyBlock!.SetInt(VignetteElliptical,
-				vignette?.type == "oval" || vignette?.type == "elliptical" || vignette?.type == "ellipse" || (vignette?.type == null && elliptical)
-					? 1 : 0);
-
-			if (setPropertyBlock)
-			{
-				_screenRenderer.SetPropertyBlock(_materialPropertyBlock);
-			}
-		}
-
-		private void SetShaderFloat(int nameID, float? value, float min, float max, float defaultValue)
-		{
-			_materialPropertyBlock.SetFloat(nameID, Math.Min(max, Math.Max(min, value ?? defaultValue)));
-		}
-
 		public void Update()
 		{
 			if (Player.isPlaying)
@@ -404,7 +347,7 @@ namespace BeatSaberCinema
 
 		private void SetTexture(Texture? texture)
 		{
-			_screen.GetRenderer().material.SetTexture(MainTex, texture);
+			_screenRenderer.material.SetTexture(MainTex, texture);
 		}
 
 		public void SetCoverTexture(Texture? texture)
@@ -435,7 +378,7 @@ namespace BeatSaberCinema
 			SetTexture(texture);
 			var width = ((float) texture.width / texture.height) * Placement.MenuPlacement.Height;
 			SetDefaultMenuPlacement(width);
-			SetShaderParameters(null);
+			screenController.SetShaderParameters(null);
 		}
 
 		private static void VideoPlayerPrepareComplete(VideoPlayer source)
@@ -497,7 +440,7 @@ namespace BeatSaberCinema
 		{
 			if (SettingsStore.Instance.Enable360Rotation)
 			{
-				_screen.SetSoftParent(parent);
+				screenController.SetSoftParent(parent);
 			}
 		}
 	}
