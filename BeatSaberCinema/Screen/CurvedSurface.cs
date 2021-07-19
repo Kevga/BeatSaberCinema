@@ -17,6 +17,9 @@ namespace BeatSaberCinema
 		}
 
 		private const float MIN_CURVATURE = 0.0001f;
+		private const int SUBSURFACE_COUNT_DEFAULT = 32;
+		private const int SUBSURFACE_COUNT_MIN= 1;
+		private const int SUBSURFACE_COUNT_MAX= 512;
 
 		private float _radius;
 		private float _distance;
@@ -48,7 +51,7 @@ namespace BeatSaberCinema
 		private float _curvatureDegreesAutomatic;
 		private float CurvatureDegrees => _curvatureDegreesFixed ?? _curvatureDegreesAutomatic;
 
-		private int _subsurfaceCount = 32;
+		private int _subsurfaceCount;
 
 		public void Initialize(float width, float height, float distance, float? curvatureDegrees, int? subsurfaces)
 		{
@@ -60,8 +63,8 @@ namespace BeatSaberCinema
 			}
 			_curvatureDegreesFixed = curvatureDegrees;
 
-			_subsurfaceCount = subsurfaces ?? 32;
-			_subsurfaceCount = Mathf.Clamp(_subsurfaceCount, 1, 256);
+			_subsurfaceCount = subsurfaces ?? SUBSURFACE_COUNT_DEFAULT;
+			_subsurfaceCount = Mathf.Clamp(_subsurfaceCount, SUBSURFACE_COUNT_MIN, SUBSURFACE_COUNT_MAX);
 
 			_width = width;
 			Height = height;
