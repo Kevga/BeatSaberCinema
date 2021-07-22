@@ -339,6 +339,7 @@ namespace BeatSaberCinema
 			_activeScene = Scene.Menu;
 			VideoPlayer.Hide();
 			StopAllCoroutines();
+			_previewWaitingForPreviewPlayer = false;
 
 			if (VideoConfig != null)
 			{
@@ -447,6 +448,11 @@ namespace BeatSaberCinema
 
 		private void GameSceneActive()
 		{
+			if (Util.IsMultiplayer())
+			{
+				return;
+			}
+
 			//Move to the environment scene to be picked up by Chroma
 			var sceneName = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.sceneInfo.sceneName;
 			var scene = SceneManager.GetSceneByName(sceneName);
