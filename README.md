@@ -93,6 +93,7 @@ Optional settings which you can set to fine tune the form and function of the vi
 | `screenRotation`           		| Vector3   | `{"x": -8.0,"y": 0.0,"z": 0.0}`     	| Rotates the video screen. By default, it tilts down by 8 degrees for better visibility. |
 | `screenHeight`             		| float     | 25.0             	 					| Determines the size of the screen. There is no setting for the width, since that is calculated automatically by the height and the aspect ratio of the video. If you change the height, you might want to also change the **y** positioning of the screen so it doesn't float above the ground.<br>**This setting prevents the user from overriding the environment.** |
 | `screenCurvature`			 		| float     | *automatic*		 					| Use this setting to force a specific curvature of the screen. The allowed range of values is 0-180 (degrees). Setting this to 0 forces curvature to be disabled. If this parameter is not included and the user has curvature enabled, the curvature is calculated automatically based on the distance and the width of the screen.|
+| `screenSubsurfaces`		 		| int	    | 32	  		 						| This allows you to specify how many sub-surfaces the curved screen uses, which lets you control the smoothness of the curvature. Valid range is 1 to 256. The default of 32 looks great in most cases and doesn't cost much performance. |
 | `allowCustomPlatform` 		    | bool      | false (user's choice) 				| When set to `false`, will prevent the CustomPlatforms mod from loading a custom platform for this map if the video is playing. Can be used to override the user setting if the user set it to `true` for all maps. |
 | `disableDefaultModifications`	    | bool      | false              					| If set to `true`, will disable any environment modifications Cinema does by default for the selected environment. Only use this if you plan on modifying the environment in a different way to make the video player fit in. |
 | `forceEnvironmentModifications`   | bool      | false              					| Set this to `true` to have your environment modifications applied even if no video is defined or downloaded by the user. |
@@ -118,8 +119,8 @@ When adjusting these values, you can make use of the hot reloading capability of
 Example:
 ```json
 "colorCorrection": {
-  "gamma": 0.9,
-  "contrast": 1.05,
+  "gamma": 0.95,
+  "exposure": 1.15,
   "saturation": 1.2
 }
 ```
