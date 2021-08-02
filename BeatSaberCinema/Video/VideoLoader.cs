@@ -300,7 +300,7 @@ namespace BeatSaberCinema
 				return customlevel.customLevelPath;
 			}
 
-			var songName = level.songName;
+			var songName = level.songName.Trim();
 			songName = Util.ReplaceIllegalFilesystemChars(songName);
 			return Path.Combine(Environment.CurrentDirectory, "Beat Saber_Data", "CustomLevels", OST_DIRECTORY_NAME, songName);
 		}

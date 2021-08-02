@@ -50,7 +50,7 @@ namespace BeatSaberCinema
 
 		public static string ReplaceIllegalFilesystemChars(string s)
 		{
-			string regexSearch = new string(Path.GetInvalidFileNameChars());
+			string regexSearch = new string(Path.GetInvalidFileNameChars()) + ".";
 			Regex regex = new Regex($"[{Regex.Escape(regexSearch)}]");
 			var result = regex.Replace(s, "_");
 			return result;
