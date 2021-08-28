@@ -462,7 +462,7 @@ namespace BeatSaberCinema
 			PlaybackController.Instance.SetSelectedLevel(level, _currentVideo);
 			SetupVideoDetails();
 
-			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " - " + _currentLevel.songAuthorName : "");
+			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? _currentLevel.songAuthorName : "");
 		}
 
 		private void OnLevelSelected(IPreviewBeatmapLevel? level)
