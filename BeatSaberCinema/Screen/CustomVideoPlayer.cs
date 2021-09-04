@@ -28,7 +28,7 @@ namespace BeatSaberCinema
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
 		private float _correctPlaybackSpeed = 1.0f;
-		private const float MAX_VOLUME = 0.5f;
+		private const float MAX_VOLUME = 0.28f; //Don't ask, I don't know either.
 		[NonSerialized] public float VolumeScale = 1.0f;
 		private bool _muted = true;
 		private bool _bodyVisible;

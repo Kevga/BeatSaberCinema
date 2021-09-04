@@ -289,7 +289,7 @@ namespace BeatSaberCinema
 				_previewIgnoreNextUpdate = true;
 				try
 				{
-					SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), 1f, startTime, _currentLevel.songDuration);
+					SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), -5f, startTime, _currentLevel.songDuration);
 				}
 				catch (Exception e)
 				{
