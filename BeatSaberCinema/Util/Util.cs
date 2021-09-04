@@ -78,7 +78,7 @@ namespace BeatSaberCinema
 
 		public static bool IsModInstalled(string modName, string? minimumVersion = null)
 		{
-			return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName && (minimumVersion == null || x.Version >= new SemVer.Version(minimumVersion)));
+			return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName && (minimumVersion == null || x.HVersion >= new Hive.Versioning.Version(minimumVersion)));
 		}
 
 		public static Texture? LoadPNGFromResources(string resourcePath)

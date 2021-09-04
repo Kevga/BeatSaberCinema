@@ -7,7 +7,7 @@
 	"gameVersion": "1.16.3",
 	"version": "1.4.11",
 	"dependsOn": {
-		"BSIPA": "^4.1.6",
+		"BSIPA": "^4.2.0",
 		"BeatSaberMarkupLanguage": "^1.5.3",
 		"BS Utils": "^1.10.0",
 		"SongCore": "^3.4.0"
