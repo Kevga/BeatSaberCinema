@@ -11,14 +11,14 @@ namespace BeatSaberCinema
 {
 	public class CustomVideoPlayer: MonoBehaviour
 	{
-		public VideoPlayer Player { get; }
-		private readonly AudioSource _videoPlayerAudioSource;
+		//Initialized by Awake()
+		[NonSerialized] public VideoPlayer Player = null!;
+		private AudioSource _videoPlayerAudioSource = null!;
 		internal ScreenController screenController = null!;
-		private readonly Renderer _screenRenderer;
-		private readonly EasingController _fadeController;
+		private Renderer _screenRenderer  = null!;
+		private EasingController _fadeController = null!;
 
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
-
 		private const float MAX_BRIGHTNESS = 0.92f;
 		private readonly Color _screenColorOn = Color.white.ColorWithAlpha(0f) * MAX_BRIGHTNESS;
 		private readonly Color _screenColorOff = Color.clear;
@@ -77,7 +77,7 @@ namespace BeatSaberCinema
 		public bool IsPrepared => Player.isPrepared;
 		[NonSerialized] public bool IsSyncing;
 
-		public CustomVideoPlayer()
+		public void Awake()
 		{
 			CreateScreen();
 			_screenRenderer = screenController.GetRenderer();
