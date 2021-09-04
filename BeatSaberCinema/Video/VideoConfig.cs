@@ -50,6 +50,7 @@ namespace BeatSaberCinema
 		[JsonIgnore, NonSerialized] public DownloadState DownloadState;
 		[JsonIgnore, NonSerialized] public bool BackCompat;
 		[JsonIgnore, NonSerialized] public bool NeedsToSave;
+		[JsonIgnore, NonSerialized] public bool PlaybackDisabledByMissingSuggestion;
 		[JsonIgnore, NonSerialized] public float DownloadProgress;
 		[JsonIgnore, NonSerialized] public string? LevelDir;
 		[JsonIgnore] public string? VideoPath
@@ -72,7 +73,7 @@ namespace BeatSaberCinema
 
 		[JsonIgnore] public bool IsStreamable => videoFile != null && (videoFile.StartsWith("http://") || videoFile.StartsWith("https://"));
 		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
-		[JsonIgnore] public bool IsPlayable => DownloadState == DownloadState.Downloaded || IsStreamable;
+		[JsonIgnore] public bool IsPlayable => (DownloadState == DownloadState.Downloaded || IsStreamable) && !PlaybackDisabledByMissingSuggestion;
 		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains("WIPLevels");
 		[JsonIgnore] public bool EnvironmentModified => (environment != null && environment.Length > 0) || screenPosition != null || screenHeight != null;
 

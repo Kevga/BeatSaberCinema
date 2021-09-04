@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
+using SongCore.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
@@ -79,6 +80,7 @@ namespace BeatSaberCinema
 			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
 			VideoLoader.ConfigChanged += OnConfigChanged;
 			VideoPlayer.Player.prepareCompleted += OnPrepareComplete;
+			Events.DifficultySelected += DifficultySelected;
 			DontDestroyOnLoad(gameObject);
 
 			//The event handler is registered after the event is first fired, so we'll have to call the handler ourselves
@@ -95,6 +97,8 @@ namespace BeatSaberCinema
 			BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoadedFresh;
 			BSEvents.menuSceneLoaded -= OnMenuSceneLoaded;
 			VideoLoader.ConfigChanged -= OnConfigChanged;
+			VideoPlayer.Player.prepareCompleted -= OnPrepareComplete;
+			Events.DifficultySelected -= DifficultySelected;
 		}
 
 		public void PauseVideo()
@@ -446,6 +450,42 @@ namespace BeatSaberCinema
 			}
 		}
 
+		private void DifficultySelected(ExtraSongData? songData, ExtraSongData.DifficultyData? difficultyData)
+		{
+			if (VideoConfig == null)
+			{
+				return;
+			}
+
+			//If there is any difficulty that has a Cinema suggestion but the current one doesn't, disable playback. The current difficulty most likely has the suggestion missing on purpose.
+			//If there are no difficulties that have the suggestion set, play the video. It might be a video added by the user.
+			//Otherwise, if the map is WIP, disable playback even when no difficulty has the suggestion, to convince the mapper to add it.
+			if (difficultyData?.HasCinema() == false && songData?.HasCinemaInAnyDifficulty() == true)
+			{
+				VideoConfig.PlaybackDisabledByMissingSuggestion = true;
+			}
+			else if (VideoConfig.IsWIPLevel && difficultyData?.HasCinema() == false)
+			{
+				VideoConfig.PlaybackDisabledByMissingSuggestion = true;
+			}
+			else
+			{
+				VideoConfig.PlaybackDisabledByMissingSuggestion = false;
+			}
+
+			if (VideoConfig.PlaybackDisabledByMissingSuggestion)
+			{
+				VideoPlayer.FadeOut(0.1f);
+			}
+			else
+			{
+				if (!VideoPlayer.IsPlaying)
+				{
+					StartSongPreview();
+				}
+			}
+		}
+
 		private void GameSceneActive()
 		{
 			if (Util.IsMultiplayer())
@@ -720,7 +760,7 @@ namespace BeatSaberCinema
 			VideoConfig = video;
 
 			VideoPlayer.Pause();
-			if (!video.IsPlayable)
+			if (!(VideoConfig.DownloadState == DownloadState.Downloaded || VideoConfig.IsStreamable))
 			{
 				Log.Debug("Video is not downloaded, stopping prepare");
 				VideoPlayer.FadeOut();
@@ -846,11 +886,10 @@ namespace BeatSaberCinema
 
 			Log.Debug($"Starting song preview playback with a delay of {delaySeconds}");
 
-			_previewStartTime += delaySeconds;
 			var timeRemaining = _previewTimeRemaining - delaySeconds;
-			if (timeRemaining > 2 || _previewTimeRemaining == 0)
+			if (timeRemaining > 1 || _previewTimeRemaining == 0)
 			{
-				PlayVideo(_previewStartTime);
+				PlayVideo(_previewStartTime + delaySeconds);
 			}
 			else
 			{
