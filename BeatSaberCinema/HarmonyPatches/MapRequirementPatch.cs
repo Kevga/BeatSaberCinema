@@ -40,6 +40,21 @@ namespace BeatSaberCinema
 
 				var diffData = Collections.RetrieveDifficultyData(____selectedDifficultyBeatmap);
 				Events.SetExtraSongData(songData, diffData);
+
+				if (diffData?.HasCinemaRequirement() != true)
+				{
+					return;
+				}
+
+				if (PlaybackController.Instance.VideoConfig?.IsPlayable == true || PlaybackController.Instance.VideoConfig?.forceEnvironmentModifications == true)
+				{
+					Log.Debug("Requirement fulfilled");
+					return;
+				}
+
+				Log.Info("Cinema requirement not met for "+level.songName);
+				____actionButton.interactable = false;
+				____practiceButton.interactable = false;
 			}
 			catch (Exception e)
 			{

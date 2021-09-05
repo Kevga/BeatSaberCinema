@@ -324,7 +324,7 @@ namespace BeatSaberCinema
 					if (videoConfig.IsWIPLevel && _difficultyData?.HasCinema() == false && _extraSongData?.HasCinemaInAnyDifficulty() == false)
 					{
 						LevelDetailMenu.SetActive(true);
-						LevelDetailMenu.SetText("Please add Cinema as a suggestion!", null, Color.red);
+						LevelDetailMenu.SetText("Please add Cinema as a suggestion", null, Color.red);
 					}
 					else
 					{
@@ -347,7 +347,7 @@ namespace BeatSaberCinema
 					LevelDetailMenu.SetActive(true);
 					if (_difficultyData?.HasCinemaRequirement() == true)
 					{
-						LevelDetailMenu.SetText("Video highly recommended!", "Download", Color.red, Color.green);
+						LevelDetailMenu.SetText("Video required to play this map", "Download", Color.red, Color.green);
 					}
 					else
 					{
