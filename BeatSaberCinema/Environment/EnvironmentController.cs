@@ -114,6 +114,7 @@ namespace BeatSaberCinema
 			var stopwatch = new Stopwatch();
 			stopwatch.Start();
 
+			CreateAdditionalScreens(videoConfig);
 			PrepareClonedScreens(videoConfig);
 			CloneObjects(videoConfig);
 
@@ -149,6 +150,9 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			var mainScreen = PlaybackController.Instance.VideoPlayer.screenController.screens[0];
+			mainScreen.gameObject.GetComponent<CustomBloomPrePass>().enabled = true;
+
 			if (PlaybackController.Instance.VideoPlayer.screenController.screens.Count > 1)
 			{
 				foreach (var screen in PlaybackController.Instance.VideoPlayer.screenController.screens.Where(screen => screen.name.Contains("Clone")))
@@ -159,8 +163,7 @@ namespace BeatSaberCinema
 
 				PlaybackController.Instance.VideoPlayer.screenController.screens.RemoveRange(1, PlaybackController.Instance.VideoPlayer.screenController.screens.Count - 1);
 
-				var mainScreen = PlaybackController.Instance.VideoPlayer.screenController.screens[0];
-				mainScreen.gameObject.GetComponent<CustomBloomPrePass>().enabled = true;
+
 				if (Util.IsModInstalled("_Heck"))
 				{
 					const string typeName = "Chroma.GameObjectTrackController";
@@ -846,12 +849,48 @@ namespace BeatSaberCinema
 
 		public static void VideoConfigSceneModifications(VideoConfig? config)
 		{
-			if (config?.environment == null || config.environment.Length == 0)
+			if (config == null)
 			{
 				return;
 			}
 
 			if (!config.IsPlayable && (config.forceEnvironmentModifications == null || config.forceEnvironmentModifications == false))
+			{
+				return;
+			}
+
+			if (config.additionalScreens != null)
+			{
+				var screenController = PlaybackController.Instance.VideoPlayer.screenController;
+				var i = 0;
+				foreach (var screenConfig in config.additionalScreens)
+				{
+					var clone = screenController.screens.Find(screen => screen.name.EndsWith("(" + (i) + ")"));
+					if (!clone)
+					{
+						Log.Error($"Couldn't find a screen ending with {"(" + (i) + ")"}");
+						continue;
+					}
+					if (screenConfig.position.HasValue)
+					{
+						clone.transform.position = screenConfig.position.Value;
+					}
+
+					if (screenConfig.rotation.HasValue)
+					{
+						clone.transform.eulerAngles = screenConfig.rotation.Value;
+					}
+
+					if (screenConfig.scale.HasValue)
+					{
+						clone.transform.localScale = screenConfig.scale.Value;
+					}
+
+					i++;
+				}
+			}
+
+			if (config.environment == null || config.environment.Length == 0)
 			{
 				return;
 			}
@@ -916,27 +955,46 @@ namespace BeatSaberCinema
 			return environmentObjectList;
 		}
 
+		private static void CreateAdditionalScreens(VideoConfig videoConfig)
+		{
+			if (videoConfig.additionalScreens == null)
+			{
+				return;
+			}
+
+			var screenController = PlaybackController.Instance.VideoPlayer.screenController;
+			var i = 0;
+			foreach (var _ in videoConfig.additionalScreens)
+			{
+				var clone = Object.Instantiate(screenController.screens[0], screenController.screens[0].transform.parent);
+				clone.name += $" ({i++.ToString()})";
+			}
+		}
+
 		private static void PrepareClonedScreens(VideoConfig videoConfig)
 		{
-			Log.Debug($"Screens found: {PlaybackController.GO.transform.childCount}");
-			if (PlaybackController.GO.transform.childCount > 1)
+			var screenCount = PlaybackController.GO.transform.childCount;
+			if (screenCount <= 1)
 			{
-				foreach (Transform screen in PlaybackController.GO.transform)
-				{
-					if (screen.name.Contains("(Clone)"))
-					{
-						PlaybackController.Instance.VideoPlayer.screenController.screens.Add(screen.gameObject);
-						screen.GetComponent<Renderer>().material = PlaybackController.Instance.VideoPlayer.screenController.screens[0].GetComponent<Renderer>().material;
-					}
+				return;
+			}
 
-					screen.gameObject.GetComponent<CustomBloomPrePass>().enabled = false;
-					Log.Debug("Disabled bloom prepass");
+			Log.Debug($"Screens found: {screenCount}");
+			foreach (Transform screen in PlaybackController.GO.transform)
+			{
+				if (screen.name.Contains("Clone"))
+				{
+					PlaybackController.Instance.VideoPlayer.screenController.screens.Add(screen.gameObject);
+					screen.GetComponent<Renderer>().material = PlaybackController.Instance.VideoPlayer.screenController.screens[0].GetComponent<Renderer>().material;
 				}
 
-				PlaybackController.Instance.VideoPlayer.SetPlacement(
-					new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio()));
-				PlaybackController.Instance.VideoPlayer.screenController.SetShaderParameters(videoConfig);
+				screen.gameObject.GetComponent<CustomBloomPrePass>().enabled = false;
+				Log.Debug("Disabled bloom prepass");
 			}
+
+			PlaybackController.Instance.VideoPlayer.SetPlacement(
+				new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio()));
+			PlaybackController.Instance.VideoPlayer.screenController.SetShaderParameters(videoConfig);
 		}
 
 		private static void CloneObjects(VideoConfig? config)

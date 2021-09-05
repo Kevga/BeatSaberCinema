@@ -46,6 +46,7 @@ namespace BeatSaberCinema
 		public Vignette? vignette;
 		public UserSettings? userSettings;
 		public EnvironmentModification[]? environment;
+		public ScreenConfig[]? additionalScreens;
 
 		[JsonIgnore, NonSerialized] public DownloadState DownloadState;
 		[JsonIgnore, NonSerialized] public bool BackCompat;
@@ -181,6 +182,14 @@ namespace BeatSaberCinema
 			public string? type;
 			public float? radius;
 			public float? softness;
+		}
+
+		[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+		public class ScreenConfig
+		{
+			public SerializableVector3? position;
+			public SerializableVector3? rotation;
+			public SerializableVector3? scale;
 		}
 
 		[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]

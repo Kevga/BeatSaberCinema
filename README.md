@@ -144,6 +144,42 @@ Example:
 }
 ```
 
+### Additional screens
+
+You can create clones of the "main screen" by using the `additionalScreens` property. You can place, rotate and scale these screens independently from each other, but all other properties like color correction, vignetting, curvature and, most importantly, the video that is playing, are cloned from the main screen. You can also use Chroma's environment enhancement to duplicate the screen, in that case use the regex lookup `CinemaScreen$`.
+**Please note**: Adding additional screens currently disables the bloom effect on all screens, even the main one. Hot reload support is limited to changing the parameters of existing screens, but to add or remove screens you will need to restart the map.
+
+Example:
+```json
+"additionalScreens": [
+    {
+      "position": {
+        "x": -50.0,
+        "y": 12.4,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 270.0,
+        "z": 0.0
+      }
+    },
+    {
+      "position": {
+        "x": 50.0,
+        "y": 12.4,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 90.0,
+        "z": 0.0
+      }
+    }
+]
+```
+This example would create two additional screens to the sides of the player with a distance of 50 units. If you want a screen behind the player, use a rotation of y=180 and a negative z-position.
+
 ### Modifying the environment
 
 There is an additional property called `environment` which can be used to alter other objects in the game scene. Using this disables player overrides for the environment, since these modifications are specific to the mapper-chosen environment. The `environment` parameter is an array that contains `EnvironmentModification` objects, which currently can have the following parameters:
