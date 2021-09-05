@@ -74,7 +74,7 @@ namespace BeatSaberCinema
 
 		private void Update()
 		{
-			var distance = transform.position.z;
+			var distance = Vector3.Distance(transform.position, Vector3.zero);
 			if (Math.Abs(_distance - distance) < 0.01f)
 			{
 				return;
