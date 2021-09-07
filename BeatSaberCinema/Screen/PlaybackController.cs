@@ -32,6 +32,8 @@ namespace BeatSaberCinema
 		private bool _previewWaitingForVideoPlayer = true;
 		private bool _previewWaitingForPreviewPlayer;
 		private DateTime _previewSyncStartTime;
+		private DateTime _audioSourceStartTime;
+		private float _offsetAfterPrepare;
 		private bool _previewIgnoreNextUpdate;
 
 		public VideoConfig? VideoConfig { get; private set; }
@@ -280,7 +282,6 @@ namespace BeatSaberCinema
 				var startTime = 0f;
 				if (VideoConfig.offset < 0)
 				{
-					Log.Debug("Set preview start time to "+startTime);
 					startTime = -VideoConfig.GetOffsetInSec();
 				}
 
@@ -293,6 +294,7 @@ namespace BeatSaberCinema
 				_previewIgnoreNextUpdate = true;
 				try
 				{
+					Log.Debug($"Preview start time: {startTime}, offset: {VideoConfig.GetOffsetInSec()}");
 					SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), -5f, startTime, _currentLevel.songDuration);
 				}
 				catch (Exception e)
@@ -718,7 +720,15 @@ namespace BeatSaberCinema
 			else
 			{
 				VideoPlayer.Play();
-				VideoPlayer.Player.time = totalOffset;
+				if (!VideoPlayer.Player.isPrepared)
+				{
+					_audioSourceStartTime = DateTime.Now;
+					_offsetAfterPrepare = totalOffset;
+				}
+				else
+				{
+					VideoPlayer.Player.time = totalOffset;
+				}
 			}
 		}
 
@@ -802,6 +812,14 @@ namespace BeatSaberCinema
 
 		private void OnPrepareComplete(VideoPlayer player)
 		{
+			if (_offsetAfterPrepare > 0)
+			{
+				var offset = (DateTime.Now - _audioSourceStartTime).TotalSeconds + _offsetAfterPrepare;
+				Log.Debug($"Adjusting offset after prepare to {offset}");
+				VideoPlayer.Player.time = offset;
+			}
+			_offsetAfterPrepare = 0;
+
 			if (_activeScene != Scene.Menu)
 			{
 				return;

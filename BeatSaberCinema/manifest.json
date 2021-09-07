@@ -5,7 +5,7 @@
 	"description": "Sync up videos to play in the background of your beatmaps",
 	"author": "Dakari",
 	"gameVersion": "1.16.3",
-	"version": "1.4.12",
+	"version": "1.4.13",
 	"dependsOn": {
 		"BSIPA": "^4.2.0",
 		"BeatSaberMarkupLanguage": "^1.5.3",
