@@ -59,7 +59,7 @@ namespace BeatSaberCinema
 			Log.Info($"{nameof(BeatSaberCinema)} enabled");
 			if (File.Exists(Path.Combine(UnityGame.InstallPath, "dxgi.dll")))
 			{
-				Log.Warn("dxgi.dll is present, video may fail to play");
+				Log.Warn("dxgi.dll is present, video may fail to play. To fix this, delete the file dxgi.dll from your main Beat Saber folder (not in Plugins).");
 			}
 		}
 

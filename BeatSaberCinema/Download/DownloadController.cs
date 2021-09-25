@@ -123,7 +123,7 @@ namespace BeatSaberCinema
 			Log.Info($"Download process exited with code {exitCode}");
 			if (exitCode == -1073741515)
 			{
-				Log.Error("youtube-dl did not run. Possibly missing vc++ 2010 redist: https://www.microsoft.com/en-US/download/details.aspx?id=5555");
+				Log.Error("youtube-dl did not run. Possibly missing vc++ 2010 redist: https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x86.exe");
 			}
 
 			if (video.DownloadState == DownloadState.Cancelled)

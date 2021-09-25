@@ -7,7 +7,7 @@ namespace BeatSaberCinema
 {
 	public abstract class YoutubeDLController
 	{
-		private readonly string _youtubeDLFilepath = Path.Combine(UnityGame.LibraryPath, "youtube-dl.exe");
+		private readonly string _youtubeDLFilepath = Path.Combine(UnityGame.LibraryPath, "yt-dlp.exe");
 		private readonly string _ffmpegFilepath = Path.Combine(UnityGame.LibraryPath, "ffmpeg.exe");
 		private readonly string _youtubeDLConfigFilepath = Path.Combine(UnityGame.UserDataPath, "youtube-dl.conf");
 

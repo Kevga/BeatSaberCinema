@@ -8,6 +8,7 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.Parser;
 using HMUI;
+using IPA.Utilities;
 using JetBrains.Annotations;
 using SongCore.Data;
 using TMPro;
@@ -115,7 +116,7 @@ namespace BeatSaberCinema
 
 			if (!_downloadController.LibrariesAvailable())
 			{
-				Log.Warn("One or more of the libraries are missing. Downloading videos will not work.");
+				Log.Warn($"One or more of the libraries are missing. Downloading videos will not work. To fix this, reinstall Cinema and make sure yt-dlp and ffmpeg are in the Libs folder of Beat Saber, which is located at {UnityGame.LibraryPath}.");
 			}
 		}
 
