@@ -70,7 +70,8 @@ namespace BeatSaberCinema
 					"KaleidoscopeEnvironment",
 					"GlassDesertEnvironment",
 					"MonstercatEnvironment",
-					"CrabRaveEnvironment"
+					"CrabRaveEnvironment",
+					"SkrillexEnvironment"
 				};
 
 				var mapEnvironmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();

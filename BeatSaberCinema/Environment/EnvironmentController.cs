@@ -844,6 +844,28 @@ namespace BeatSaberCinema
 
 					break;
 				}
+				case "SkrillexEnvironment":
+				{
+					var skrillexLogoTop = EnvironmentObjects.LastOrDefault(x => x.name == "SkrillexLogo" && x.activeInHierarchy);
+					if (skrillexLogoTop != null)
+					{
+						skrillexLogoTop.transform.position = new Vector3(-0.23f, 15.5f, 60f);
+					}
+
+					var skrillexLogoBottom = EnvironmentObjects.LastOrDefault(x => x.name == "SkrillexLogo (1)" && x.activeInHierarchy);
+					if (skrillexLogoBottom != null)
+					{
+						skrillexLogoBottom.transform.position = new Vector3(-0.23f, -15.5f, 60f);
+					}
+
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
+					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 1.5f, 30f);
+					placement.Rotation = videoConfig?.screenRotation ?? new Vector3(0f, 0f, 0f);
+					placement.Height = videoConfig?.screenHeight ?? 12f;
+					placement.Curvature = videoConfig?.screenCurvature;
+					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
+					break;
+				}
 			}
 		}
 
