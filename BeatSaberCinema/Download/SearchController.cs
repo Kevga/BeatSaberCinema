@@ -48,7 +48,7 @@ namespace BeatSaberCinema
 			_searchCoroutine = SharedCoroutineStarter.instance.StartCoroutine(SearchCoroutine(query));
 		}
 
-		private IEnumerator SearchCoroutine(string query, int expectedResultCount = 10)
+		private IEnumerator SearchCoroutine(string query, int expectedResultCount = 20)
 		{
 			if (SearchInProgress)
 			{
@@ -76,7 +76,7 @@ namespace BeatSaberCinema
 			Log.Info($"Starting youtube-dl process with arguments: \"{_searchProcess.StartInfo.FileName}\" {_searchProcess.StartInfo.Arguments}");
 			yield return _searchProcess.Start();
 
-			var timeout = new Timeout(15);
+			var timeout = new Timeout(45);
 			_searchProcess.BeginErrorReadLine();
 			_searchProcess.BeginOutputReadLine();
 			// var outputs = searchProcess.StandardOutput.ReadToEnd().Split('\n');
