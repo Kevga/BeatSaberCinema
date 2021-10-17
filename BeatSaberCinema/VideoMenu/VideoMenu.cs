@@ -539,6 +539,8 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			_searchController.StopSearch();
+
 			try
 			{
 				PlaybackController.Instance.StopPreview(true);
@@ -574,6 +576,8 @@ namespace BeatSaberCinema
 			}
 
 			OnQueryAction(_searchText);
+			_customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+			_customListTableData.tableView.ClearSelection();
 		}
 
 		private IEnumerator UpdateSearchResults(YTResult result)
@@ -618,16 +622,10 @@ namespace BeatSaberCinema
 			}
 
 			_customListTableData.data.Add(item);
-			_customListTableData.tableView.ReloadData();
+			_customListTableData.tableView.ReloadDataKeepingPosition();
 
 			_downloadButton.interactable = (_selectedCell != -1);
 			_downloadButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.green;
-			if (_selectedCell == -1)
-			{
-				_customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
-				_customListTableData.tableView.ClearSelection();
-			}
-
 			_searchResultsLoadingText.gameObject.SetActive(false);
 		}
 
