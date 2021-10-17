@@ -495,10 +495,15 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			//Move to the environment scene to be picked up by Chroma
-			var sceneName = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.sceneInfo.sceneName;
-			var scene = SceneManager.GetSceneByName(sceneName);
-			SceneManager.MoveGameObjectToScene(gameObject, scene);
+			//If BSUtils has no level data, we're probably in the tutorial
+			if (BS_Utils.Plugin.LevelData.IsSet)
+			{
+				//Move to the environment scene to be picked up by Chroma
+				var sceneName = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.sceneInfo.sceneName;
+				var scene = SceneManager.GetSceneByName(sceneName);
+				SceneManager.MoveGameObjectToScene(gameObject, scene);
+			}
+
 			Log.Debug("Moving to game scene");
 		}
 
