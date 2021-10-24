@@ -27,20 +27,6 @@ namespace BeatSaberCinema
 			"https://vimeo.com/"
 		};
 
-		private static bool IsDownloadInProgress(Process? process)
-		{
-			try
-			{
-				return process != null && !process.HasExited;
-			}
-			catch (Exception e)
-			{
-				Log.Debug(e);
-			}
-
-			return false;
-		}
-
 		public void StartDownload(VideoConfig video, VideoQuality.Mode quality)
 		{
 			SharedCoroutineStarter.instance.StartCoroutine(DownloadVideoCoroutine(video, quality));
@@ -52,7 +38,7 @@ namespace BeatSaberCinema
 
 			_downloadLog = "";
 
-			var downloadProcess = StartDownloadProcess(video, quality);
+			var downloadProcess = CreateDownloadProcess(video, quality);
 			if (downloadProcess == null)
 			{
 				yield break;
@@ -77,12 +63,12 @@ namespace BeatSaberCinema
 
 			downloadProcess.Disposed += DownloadProcessDisposed;
 
-			yield return downloadProcess.Start();
+			StartProcessThreaded(downloadProcess);
+			var startProcessTimeout = new Timeout(10);
+			yield return new WaitUntil(() => IsProcessRunning(downloadProcess) || startProcessTimeout.HasTimedOut);
+			startProcessTimeout.Stop();
 
-			downloadProcess.BeginOutputReadLine();
-			downloadProcess.BeginErrorReadLine();
-
-			yield return new WaitUntil(() => !IsDownloadInProgress(downloadProcess) || timeout.HasTimedOut);
+			yield return new WaitUntil(() => !IsProcessRunning(downloadProcess)|| timeout.HasTimedOut);
 			if (timeout.HasTimedOut)
 			{
 				Log.Warn("Timeout reached, disposing download process");
@@ -123,6 +109,7 @@ namespace BeatSaberCinema
 			Log.Info($"Download process exited with code {exitCode}");
 			if (exitCode == -1073741515)
 			{
+				//TODO ty-dlp uses vc++14 and it's apparently embedded in the exe
 				Log.Error("youtube-dl did not run. Possibly missing vc++ 2010 redist: https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x86.exe");
 			}
 
@@ -195,7 +182,7 @@ namespace BeatSaberCinema
 			DownloadFinished?.Invoke(video);
 		}
 
-		private Process? StartDownloadProcess(VideoConfig video, VideoQuality.Mode quality)
+		private Process? CreateDownloadProcess(VideoConfig video, VideoQuality.Mode quality)
 		{
 			if (video.LevelDir == null)
 			{
@@ -256,7 +243,7 @@ namespace BeatSaberCinema
 			                               " --no-mtime" + //Video last modified will be when it was downloaded, not when it was uploaded to youtube
 			                               " --socket-timeout 10"; //Retry if no response in 10 seconds Note: Not if download takes more than 10 seconds but if the time between any 2 messages from the server is 10 seconds
 
-			var process = StartProcess(downloadProcessArguments, video.LevelDir);
+			var process = CreateProcess(downloadProcessArguments, video.LevelDir);
 			_downloadProcesses.TryAdd(video, process);
 			return process;
 		}

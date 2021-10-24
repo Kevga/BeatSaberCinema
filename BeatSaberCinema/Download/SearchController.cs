@@ -18,26 +18,6 @@ namespace BeatSaberCinema
 		public event Action<YTResult>? SearchProgress;
 		public event Action? SearchFinished;
 
-		private bool SearchInProgress
-		{
-			get
-			{
-				try
-				{
-					return _searchProcess != null && !_searchProcess.HasExited;
-				}
-				catch (Exception e)
-				{
-					if (!e.Message.Contains("No process is associated with this object."))
-					{
-						Log.Warn(e);
-					}
-				}
-
-				return false;
-			}
-		}
-
 		public void Search(string query)
 		{
 			if (_searchCoroutine != null)
@@ -50,7 +30,7 @@ namespace BeatSaberCinema
 
 		private IEnumerator SearchCoroutine(string query, int expectedResultCount = 20)
 		{
-			if (SearchInProgress)
+			if (IsProcessRunning(_searchProcess))
 			{
 				DisposeProcess(_searchProcess);
 			}
@@ -62,7 +42,7 @@ namespace BeatSaberCinema
 			                             " -j" + //Instructs yt-dl to return json data without downloading anything
 			                             " -i"; //Ignore errors
 
-			_searchProcess = StartProcess(searchProcessArguments);
+			_searchProcess = CreateProcess(searchProcessArguments);
 
 			_searchProcess.OutputDataReceived += (sender, e) =>
 				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { SearchProcessDataReceived(e); });
@@ -74,13 +54,13 @@ namespace BeatSaberCinema
 				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { SearchProcessExited(((Process) sender).ExitCode); });
 
 			Log.Info($"Starting youtube-dl process with arguments: \"{_searchProcess.StartInfo.FileName}\" {_searchProcess.StartInfo.Arguments}");
-			yield return _searchProcess.Start();
+			StartProcessThreaded(_searchProcess);
+			var startProcessTimeout = new Timeout(10);
+			yield return new WaitUntil(() => IsProcessRunning(_searchProcess) || startProcessTimeout.HasTimedOut);
+			startProcessTimeout.Stop();
 
 			var timeout = new Timeout(45);
-			_searchProcess.BeginErrorReadLine();
-			_searchProcess.BeginOutputReadLine();
-			// var outputs = searchProcess.StandardOutput.ReadToEnd().Split('\n');
-			yield return new WaitUntil(() => !SearchInProgress || timeout.HasTimedOut);
+			yield return new WaitUntil(() => !IsProcessRunning(_searchProcess) || timeout.HasTimedOut);
 			timeout.Stop();
 
 			SearchFinished?.Invoke();
