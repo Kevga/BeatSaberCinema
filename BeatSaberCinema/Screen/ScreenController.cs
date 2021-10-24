@@ -46,7 +46,7 @@ namespace BeatSaberCinema
 			body.transform.localPosition = new Vector3(0, 0, 0.4f); //A fixed offset is necessary for the center segments of the curved screen
 			body.transform.localScale = new Vector3(1.01f, 1.01f, 1.01f);
 			Renderer bodyRenderer = body.GetComponent<Renderer>();
-			var sourceMaterial = Resources.FindObjectsOfTypeAll<Material>().LastOrDefault(x => x.name.StartsWith("DarkEnvironmentSimple"));
+			var sourceMaterial = new Material(Resources.FindObjectsOfTypeAll<Shader>().LastOrDefault(x => x.name == "Custom/OpaqueNeonLight"));
 			if (sourceMaterial != null)
 			{
 				bodyRenderer.material = new Material(sourceMaterial);
@@ -56,6 +56,9 @@ namespace BeatSaberCinema
 				Log.Error("Source material for body was not found!");
 				body.transform.localScale = Vector3.zero;
 			}
+
+			bodyRenderer.material.color = new Color(0, 0, 0, 0);
+
 
 			body.layer = LayerMask.NameToLayer("Environment");
 		}
@@ -92,6 +95,12 @@ namespace BeatSaberCinema
 			screen.transform.position = pos;
 			screen.transform.eulerAngles = rot;
 			screen.transform.localScale = Vector3.one;
+
+			//Set body distance. Needs to scale up with distance from origin to prevent z-fighting
+			var distance = Vector3.Distance(screen.transform.position, Vector3.zero);
+			var bodyDistance = Math.Max(0.05f, distance / 250f);
+			screen.transform.Find("Body").localPosition = new Vector3(0, 0, bodyDistance);
+
 			InitializeSurfaces(width, height, pos.z, curvatureDegrees, subsurfaces);
 			RegenerateScreenSurfaces();
 		}
