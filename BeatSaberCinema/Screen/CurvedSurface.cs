@@ -45,15 +45,25 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public float Height { get; set; }
+		private float _height;
+		public float Height
+		{
+			get => _height;
+			set
+			{
+				_height = value;
+				UpdateRadius();
+			}
+		}
 
 		private float? _curvatureDegreesFixed;
 		private float _curvatureDegreesAutomatic;
 		private float CurvatureDegrees => _curvatureDegreesFixed ?? _curvatureDegreesAutomatic;
 
 		private int _subsurfaceCount;
+		private bool _curveYAxis;
 
-		public void Initialize(float width, float height, float distance, float? curvatureDegrees, int? subsurfaces)
+		public void Initialize(float width, float height, float distance, float? curvatureDegrees, int? subsurfaces, bool? curveYAxis)
 		{
 			if (curvatureDegrees != null)
 			{
@@ -66,8 +76,10 @@ namespace BeatSaberCinema
 			_subsurfaceCount = subsurfaces ?? SUBSURFACE_COUNT_DEFAULT;
 			_subsurfaceCount = Mathf.Clamp(_subsurfaceCount, SUBSURFACE_COUNT_MIN, SUBSURFACE_COUNT_MAX);
 
+			_curveYAxis = curveYAxis ?? false;
+
 			_width = width;
-			Height = height;
+			_height = height;
 			_distance = distance;
 			UpdateRadius();
 		}
@@ -85,15 +97,16 @@ namespace BeatSaberCinema
 
 		private void UpdateRadius()
 		{
+			var length = _curveYAxis ? Height : Width;
 			_curvatureDegreesAutomatic = MIN_CURVATURE;
 			if (_curvatureDegreesFixed != null || !SettingsStore.Instance.CurvedScreen)
 			{
-				_radius = (float) (GetCircleFraction() / (2 * Math.PI)) * Width;
+				_radius = (float) (GetCircleFraction() / (2 * Math.PI)) * length;
 			}
 			else
 			{
 				_radius = Distance;
-				_curvatureDegreesAutomatic = (float) (360/(((2 * Math.PI) * _radius) / _width));
+				_curvatureDegreesAutomatic = (float) (360/(((2 * Math.PI) * _radius) / length));
 			}
 		}
 
@@ -159,13 +172,30 @@ namespace BeatSaberCinema
 			var arcDegrees = CurvatureDegrees  * Mathf.Deg2Rad;
 			var theta = -0.5f + segmentDistance;
 
-			var x = Mathf.Sin(theta * arcDegrees) * _radius;
-			var z = (Mathf.Cos(theta * arcDegrees) * _radius) - _radius;
 
-			surface.Vertices[i] = new Vector3(x, Height / 2f, z);
-			surface.Vertices[i + _subsurfaceCount + 1] = new Vector3(x, -Height / 2f, z);
-			surface.UVs[i] = new Vector2(i / (float)_subsurfaceCount, 1);
-			surface.UVs[i + _subsurfaceCount + 1] = new Vector2(i / (float)_subsurfaceCount, 0);
+			var z = (Mathf.Cos(theta * arcDegrees) * _radius) - _radius;
+			var uv = i / (float) _subsurfaceCount;
+
+			if (_curveYAxis)
+			{
+				var x = Width / 2f;
+				var y = Mathf.Sin(theta * arcDegrees) * _radius;
+				surface.Vertices[i + _subsurfaceCount + 1] = new Vector3(x, y, z);
+				surface.Vertices[i] = new Vector3(-x, y, z);
+				surface.UVs[i + _subsurfaceCount + 1] = new Vector2(1, uv);
+				surface.UVs[i] = new Vector2(0, uv);
+			}
+			else
+			{
+				var x = Mathf.Sin(theta * arcDegrees) * _radius;
+				var y = Height / 2f;
+				surface.Vertices[i] = new Vector3(x, y, z);
+				surface.Vertices[i + _subsurfaceCount + 1] = new Vector3(x, -y, z);
+				surface.UVs[i] = new Vector2(uv, 1);
+				surface.UVs[i + _subsurfaceCount + 1] = new Vector2(uv, 0);
+			}
+
+
 		}
 
 		private void ConnectVertices(MeshData surface, int i, ref int j)

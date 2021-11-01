@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace BeatSaberCinema
 {
@@ -10,6 +9,7 @@ namespace BeatSaberCinema
 		public float Height;
 		public float Width;
 		public float? Curvature;
+		public bool? CurveYAxis;
 		public int? Subsurfaces;
 
 		public static Placement SoloGameplayPlacement => new Placement(
@@ -53,6 +53,7 @@ namespace BeatSaberCinema
 			Width = Height * aspectRatio;
 			Curvature = config?.screenCurvature;
 			Subsurfaces = config?.screenSubsurfaces;
+			CurveYAxis = config?.curveYAxis;
 		}
 
 		public static Placement GetDefaultPlacementForScene(PlaybackController.Scene scene)

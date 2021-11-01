@@ -86,10 +86,10 @@ namespace BeatSaberCinema
 
 		public void SetPlacement(Placement placement)
 		{
-			SetPlacement(placement.Position, placement.Rotation, placement.Width, placement.Height, placement.Curvature, placement.Subsurfaces);
+			SetPlacement(placement.Position, placement.Rotation, placement.Width, placement.Height, placement.Curvature, placement.Subsurfaces, placement.CurveYAxis);
 		}
 
-		private void SetPlacement(Vector3 pos, Vector3 rot, float width, float height, float? curvatureDegrees = null, int? subsurfaces = null)
+		private void SetPlacement(Vector3 pos, Vector3 rot, float width, float height, float? curvatureDegrees = null, int? subsurfaces = null, bool? curveYAxis = false)
 		{
 			var screen = screens[0];
 			screen.transform.position = pos;
@@ -101,11 +101,11 @@ namespace BeatSaberCinema
 			var bodyDistance = Math.Max(0.05f, distance / 250f);
 			screen.transform.Find("Body").localPosition = new Vector3(0, 0, bodyDistance);
 
-			InitializeSurfaces(width, height, pos.z, curvatureDegrees, subsurfaces);
+			InitializeSurfaces(width, height, pos.z, curvatureDegrees, subsurfaces, curveYAxis);
 			RegenerateScreenSurfaces();
 		}
 
-		private void InitializeSurfaces(float width, float height, float distance, float? curvatureDegrees, int? subsurfaces)
+		private void InitializeSurfaces(float width, float height, float distance, float? curvatureDegrees, int? subsurfaces, bool? curveYAxis)
 		{
 			foreach (var screen in screens)
 			{
@@ -113,8 +113,8 @@ namespace BeatSaberCinema
 				var screenBodySurface = screen.transform.GetChild(0).GetComponent<CurvedSurface>();
 				var screenBloomPrePass = screen.GetComponent<CustomBloomPrePass>();
 
-				screenSurface.Initialize(width, height, distance, curvatureDegrees, subsurfaces);
-				screenBodySurface.Initialize(width, height, distance, curvatureDegrees, subsurfaces);
+				screenSurface.Initialize(width, height, distance, curvatureDegrees, subsurfaces, curveYAxis);
+				screenBodySurface.Initialize(width, height, distance, curvatureDegrees, subsurfaces, curveYAxis);
 				screenBloomPrePass.UpdateScreenDimensions(width, height);
 			}
 		}

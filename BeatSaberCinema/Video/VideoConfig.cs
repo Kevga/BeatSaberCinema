@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using UnityEngine;
+
 // ReSharper disable InconsistentNaming
 
 namespace BeatSaberCinema
@@ -34,6 +35,7 @@ namespace BeatSaberCinema
 		public SerializableVector3? screenRotation;
 		public float? screenHeight;
 		public float? screenCurvature;
+		public bool? curveYAxis;
 		public int? screenSubsurfaces;
 		public float? bloom;
 		public bool? disableDefaultModifications;
