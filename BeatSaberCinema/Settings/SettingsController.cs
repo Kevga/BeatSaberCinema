@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using JetBrains.Annotations;
+
 // ReSharper disable UnusedMember.Global -- The getter functions are used by BSML
 
 namespace BeatSaberCinema
@@ -19,7 +20,6 @@ namespace BeatSaberCinema
             get => SettingsStore.Instance.PluginEnabled;
             set
             {
-	            SettingsStore.Instance.PluginEnabled = value;
 	            if (value)
 	            {
 		            SetSettingsTexture();
@@ -28,7 +28,9 @@ namespace BeatSaberCinema
 	            else
 	            {
 		            PlaybackController.Instance.VideoPlayer.FadeOut(_fadeDuration);
+		            VideoMenu.instance.HandleDidSelectLevel(null);
 	            }
+	            SettingsStore.Instance.PluginEnabled = value;
             }
         }
 

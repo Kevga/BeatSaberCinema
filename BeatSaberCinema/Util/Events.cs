@@ -31,7 +31,7 @@ namespace BeatSaberCinema
 
 		internal static void InvokeSceneTransitionEvents(VideoConfig? videoConfig)
 		{
-			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || videoConfig == null)
+			if (!Plugin.Enabled || videoConfig == null)
 			{
 				CinemaActivated?.Invoke(false);
 				AllowCustomPlatform?.Invoke(true);

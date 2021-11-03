@@ -114,7 +114,7 @@ namespace BeatSaberCinema
 
 		public void ResumeVideo()
 		{
-			if (!VideoPlayer.IsPlaying && VideoConfig != null && (!VideoPlayer.VideoEnded || VideoConfig.loop == true))
+			if (Plugin.Enabled && !VideoPlayer.IsPlaying && VideoConfig != null && (!VideoPlayer.VideoEnded || VideoConfig.loop == true))
 			{
 				VideoPlayer.Play();
 			}
@@ -421,7 +421,7 @@ namespace BeatSaberCinema
 
 			_currentLevel = level;
 			VideoConfig = config;
-			Log.Debug($"Selected Level: {level?.levelID}");
+			Log.Debug($"Selected Level: {level?.levelID ?? "null"}");
 
 			if (VideoConfig == null)
 			{
@@ -514,7 +514,7 @@ namespace BeatSaberCinema
 
 			_activeScene = Util.IsMultiplayer() ? Scene.MultiplayerGameplay : Scene.SoloGameplay;
 
-			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled)
+			if (!Plugin.Enabled)
 			{
 				Log.Debug("Plugin disabled");
 				VideoPlayer.Hide();

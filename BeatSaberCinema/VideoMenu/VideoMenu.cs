@@ -166,6 +166,12 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			if (!Plugin.Enabled)
+			{
+				_noVideoText.text = "Cinema is disabled.\r\nYou can re-enable it on the left side of the main menu.";
+				return;
+			}
+
 			if (_currentLevel == null)
 			{
 				_noVideoText.text = "No level selected";
@@ -473,21 +479,19 @@ namespace BeatSaberCinema
 				VideoLoader.SaveVideoConfig(_currentVideo);
 			}
 
-			if (level == null)
+			_currentLevel = level;
+			if (_currentLevel == null)
 			{
-				Log.Debug("Set selected level to null");
-				_currentLevel = null;
 				_currentVideo = null;
 				PlaybackController.Instance.SetSelectedLevel(null, null);
 				SetupVideoDetails();
 				return;
 			}
 
-			_currentLevel = level;
-			_currentVideo = VideoLoader.GetConfigForLevel(isPlaylistSong ? playlistSong : level, isPlaylistSong);
+			_currentVideo = VideoLoader.GetConfigForLevel(isPlaylistSong ? playlistSong : _currentLevel, isPlaylistSong);
 
-			VideoLoader.ListenForConfigChanges(level);
-			PlaybackController.Instance.SetSelectedLevel(level, _currentVideo);
+			VideoLoader.ListenForConfigChanges(_currentLevel);
+			PlaybackController.Instance.SetSelectedLevel(_currentLevel, _currentVideo);
 			SetupVideoDetails();
 
 			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " " + _currentLevel.songAuthorName : "");

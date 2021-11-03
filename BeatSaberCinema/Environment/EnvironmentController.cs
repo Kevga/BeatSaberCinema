@@ -96,7 +96,7 @@ namespace BeatSaberCinema
 			Object.DontDestroyOnLoad(PlaybackController.Instance);
 			Log.Debug("Moving back to DontDestroyOnLoad");
 
-			if (!SettingsStore.Instance.PluginEnabled || !Plugin.Enabled || videoConfig == null || Util.IsMultiplayer() ||
+			if (!Plugin.Enabled || videoConfig == null || Util.IsMultiplayer() ||
 			    (!videoConfig.IsPlayable && (videoConfig.forceEnvironmentModifications == null || videoConfig.forceEnvironmentModifications == false)))
 			{
 				return;
