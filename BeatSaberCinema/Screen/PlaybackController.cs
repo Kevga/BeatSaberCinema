@@ -116,7 +116,15 @@ namespace BeatSaberCinema
 		{
 			if (Plugin.Enabled && !VideoPlayer.IsPlaying && VideoConfig != null && (!VideoPlayer.VideoEnded || VideoConfig.loop == true))
 			{
-				VideoPlayer.Play();
+				var referenceTime = GetReferenceTime();
+				if (referenceTime > 0)
+				{
+					VideoPlayer.Play();
+				}
+				else
+				{
+					StartCoroutine(PlayVideoDelayedCoroutine(-referenceTime));
+				}
 			}
 		}
 
@@ -152,6 +160,16 @@ namespace BeatSaberCinema
 			}
 		}
 
+		private float GetReferenceTime()
+		{
+			if (_activeAudioSource == null || VideoConfig == null)
+			{
+				return 0;
+			}
+
+			return _activeAudioSource.time + (VideoConfig.offset / 1000f);
+		}
+
 		public void ResyncVideo()
 		{
 			if (_activeAudioSource == null || VideoConfig == null)
@@ -159,7 +177,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			var newTime = _activeAudioSource.time + (VideoConfig.offset / 1000f);
+			var newTime = GetReferenceTime();
 
 			if (newTime < 0)
 			{
@@ -737,12 +755,14 @@ namespace BeatSaberCinema
 			}
 		}
 
+		//TODO Using a stopwatch will not work properly when seeking in the map (e.g. IntroSkip, PracticePlugin)
 		private IEnumerator PlayVideoDelayedCoroutine(float delayStartTime)
 		{
 			Log.Debug("Waiting for "+delayStartTime+" seconds before playing video");
 			Stopwatch stopwatch = new Stopwatch();
 			stopwatch.Start();
 			VideoPlayer.Pause();
+			VideoPlayer.Hide();
 			VideoPlayer.Player.time = 0;
 			var ticksUntilStart = (delayStartTime) * TimeSpan.TicksPerSecond;
 			yield return new WaitUntil(() => stopwatch.ElapsedTicks >= ticksUntilStart);
