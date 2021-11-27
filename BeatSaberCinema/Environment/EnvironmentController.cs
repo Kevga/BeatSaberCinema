@@ -153,7 +153,7 @@ namespace BeatSaberCinema
 			var mainScreen = PlaybackController.Instance.VideoPlayer.screenController.screens[0];
 			mainScreen.gameObject.GetComponent<CustomBloomPrePass>().enabled = true;
 
-			if (PlaybackController.Instance.VideoPlayer.screenController.screens.Count > 1)
+			if (PlaybackController.Instance.VideoPlayer.screenController.screens.Count > 0)
 			{
 				foreach (var screen in PlaybackController.Instance.VideoPlayer.screenController.screens.Where(screen => screen.name.Contains("Clone")))
 				{
