@@ -2,18 +2,20 @@
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
+
 // ReSharper disable InconsistentNaming
 
 namespace BeatSaberCinema
 {
+	[HarmonyBefore("com.noodle.BeatSaber.ChromaCore", "com.noodle.BeatSaber.Chroma")]
 	[HarmonyPatch(typeof(LightSwitchEventEffect), nameof(LightSwitchEventEffect.Start))]
 	[UsedImplicitly]
 	internal static class LightSwitchEventEffectStart
 	{
 		[UsedImplicitly]
-		private static void Postfix(LightSwitchEventEffect __instance, BeatmapSaveData.BeatmapEventType ____event)
+		private static void Prefix(LightSwitchEventEffect __instance, BeatmapSaveData.BeatmapEventType ____event)
 		{
-			__instance.StartCoroutine(WaitThenStart());
+			SharedCoroutineStarter.instance.StartCoroutine(WaitThenStart());
 		}
 
 		private static IEnumerator WaitThenStart()

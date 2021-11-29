@@ -70,8 +70,6 @@ namespace BeatSaberCinema
 
 		private static void SceneChanged()
 		{
-			Reset();
-
 			_currentEnvironment = "MainMenu";
 			var sceneName = SceneManager.GetActiveScene().name;
 			if (sceneName == "GameCore")
@@ -81,6 +79,10 @@ namespace BeatSaberCinema
 				{
 					_currentEnvironment = environment.scene.name;
 				}
+			}
+			else
+			{
+				Reset();
 			}
 			Log.Debug($"Environment name (new method): {_currentEnvironment}");
 		}
@@ -94,7 +96,6 @@ namespace BeatSaberCinema
 		{
 			//Move back to the DontDestroyOnLoad scene
 			Object.DontDestroyOnLoad(PlaybackController.Instance);
-			Log.Debug("Moving back to DontDestroyOnLoad");
 
 			if (!Plugin.Enabled || videoConfig == null || Util.IsMultiplayer() ||
 			    (!videoConfig.IsPlayable && (videoConfig.forceEnvironmentModifications == null || videoConfig.forceEnvironmentModifications == false)))
@@ -166,24 +167,27 @@ namespace BeatSaberCinema
 
 				if (Util.IsModInstalled("_Heck"))
 				{
-					const string typeName = "Chroma.GameObjectTrackController";
+					var types = new[] {"Chroma.GameObjectTrackController", "Chroma.Lighting.EnvironmentEnhancement.GameObjectTrackController"};
 
-					try
+					foreach (var typeName in types)
 					{
-						var trackControllerType = Util.FindType(typeName, "Chroma");
-						if (trackControllerType != null)
+						try
 						{
-							Object.Destroy(mainScreen.GetComponent(trackControllerType));
-							Log.Debug($"Destroyed {typeName}");
+							var trackControllerType = Util.FindType(typeName, "Chroma");
+							if (trackControllerType != null)
+							{
+								Object.Destroy(mainScreen.GetComponent(trackControllerType));
+								Log.Debug($"Destroyed {typeName}");
+							}
+							else
+							{
+								Log.Debug($"Failed to find type {typeName}");
+							}
 						}
-						else
+						catch (Exception)
 						{
-							Log.Warn($"Failed to find type {typeName}");
+							Log.Debug($"Failed to remove {typeName} from screen");
 						}
-					}
-					catch (Exception)
-					{
-						Log.Warn($"Failed to remove {typeName} from screen");
 					}
 				}
 
