@@ -61,7 +61,8 @@ namespace BeatSaberCinema
 			downloadProcess.Exited += (sender, e) =>
 				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadProcessExited((Process) sender, video); });
 
-			downloadProcess.Disposed += DownloadProcessDisposed;
+			downloadProcess.Disposed += (sender, e) =>
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadProcessDisposed((Process) sender, e); });
 
 			StartProcessThreaded(downloadProcess);
 			var startProcessTimeout = new Timeout(10);

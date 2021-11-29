@@ -13,6 +13,7 @@ namespace BeatSaberCinema
 		private readonly string _youtubeDLConfigFilepath = Path.Combine(UnityGame.UserDataPath, "youtube-dl.conf");
 
 		private bool? _librariesAvailable;
+
 		public bool LibrariesAvailable()
 		{
 			if (_librariesAvailable != null)
@@ -38,29 +39,36 @@ namespace BeatSaberCinema
 
 			Log.Debug("Cleaning up process");
 
-			try
+			void WorkDelegate()
 			{
-				if (!process.HasExited)
+				try
 				{
-					process.Kill();
+					if (!process.HasExited)
+					{
+						process.Kill();
+					}
 				}
-			}
-			catch (Exception exception)
-			{
-				if (!exception.Message.Contains("The operation completed successfully") &&
-				    !exception.Message.Contains("No process is associated with this object."))
+				catch (Exception exception)
+				{
+					if (!exception.Message.Contains("The operation completed successfully") &&
+					    !exception.Message.Contains("No process is associated with this object."))
+					{
+						Log.Warn(exception);
+					}
+				}
+
+				try
+				{
+					process.Dispose();
+				}
+				catch (Exception exception)
 				{
 					Log.Warn(exception);
 				}
 			}
-			try
-			{
-				process.Dispose();
-			}
-			catch (Exception exception)
-			{
-				Log.Warn(exception);
-			}
+
+			Thread thread = new Thread((ThreadStart) WorkDelegate);
+			thread.Start();
 		}
 
 		protected Process CreateProcess(string arguments, string? workingDirectory = null)
