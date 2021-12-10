@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using BeatSaberMarkupLanguage;
 using System.Reflection;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using JetBrains.Annotations;
 using TMPro;
@@ -23,6 +23,7 @@ namespace BeatSaberCinema
 
 		internal event Action? ButtonPressedAction;
 
+		// ReSharper disable Unity.InefficientPropertyAccess
 		internal LevelDetailViewController()
 		{
 			_standardLevelDetailViewController = Resources.FindObjectsOfTypeAll<StandardLevelDetailViewController>().LastOrDefault();
@@ -40,26 +41,38 @@ namespace BeatSaberCinema
 
 			BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCinema.VideoMenu.Views.level-detail.bsml"), levelDetail.gameObject, this);
 			SetActive(false);
-			var rectTransform = _root.GetComponent<RectTransform>();
-			rectTransform.offsetMin = new Vector2(0.8f, -45.8f);
-			rectTransform.offsetMax = new Vector2(-2.9f, -41.2f);
+
 
 			_buttonUnderline = _button.transform.Find("Underline").gameObject.GetComponent<Image>();
 
 			//Clone background from level difficulty selection
 			var beatmapDifficulty = levelDetail.Find("BeatmapDifficulty");
-			if (beatmapDifficulty == null)
+			var beatmapCharacteristic = levelDetail.Find("BeatmapCharacteristic");
+			var actionButtons = levelDetail.Find("ActionButtons");
+			var levelDetailBackground = beatmapDifficulty.Find("BG");
+			if (beatmapDifficulty == null || beatmapCharacteristic == null || actionButtons == null || levelDetailBackground == null)
 			{
 				_standardLevelDetailViewController = null;
 				return;
 			}
 
-			var levelDetailBackground = beatmapDifficulty.Find("BG");
-			if (levelDetailBackground == null)
-			{
-				_standardLevelDetailViewController = null;
-				return;
-			}
+			var characteristicTransform = beatmapCharacteristic.GetComponent<RectTransform>();
+			var difficultyTransform = beatmapDifficulty.GetComponent<RectTransform>();
+			var actionButtonTransform = actionButtons.GetComponent<RectTransform>();
+
+			//The difference between characteristic and difficulty transforms. Using this would make it equal size to those
+			var offsetMinYDifference = difficultyTransform.offsetMin.y + (difficultyTransform.offsetMin.y - characteristicTransform.offsetMin.y);
+			//The maximum it can be without overlapping with the action buttons
+			var offsetMinYMax = actionButtonTransform.offsetMin.y + actionButtonTransform.sizeDelta.y;
+			//We take whichever is larger to make best use of the available space
+			var offsetMinY = Math.Max(offsetMinYDifference, offsetMinYMax);
+
+			var offsetMin = new Vector2(difficultyTransform.offsetMin.x, offsetMinY);
+			var offsetMax = new Vector2(difficultyTransform.offsetMax.x, difficultyTransform.offsetMax.y + (difficultyTransform.offsetMax.y - characteristicTransform.offsetMax.y));
+
+			var rectTransform = _root.GetComponent<RectTransform>();
+			rectTransform.offsetMin = offsetMin;
+			rectTransform.offsetMax = offsetMax;
 
 			Object.Instantiate(levelDetailBackground, _root.transform);
 		}
