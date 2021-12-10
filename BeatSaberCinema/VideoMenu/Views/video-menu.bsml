@@ -1,5 +1,5 @@
 <!--suppress CheckTagEmptyBody -->
-<bg id='root-object' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+<bg id='root-object' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
     <bg id='no-video-bg' height='30' vertical-fit='PreferredSize'>
         <vertical align='Center' vertical-fit='PreferredSize' child-expand-height='false'>
             <text id='no-video-text' align='Center' text="No video configured"></text>
@@ -48,12 +48,8 @@
     </bg>
 
     <bg id='video-search-results'>
-        <horizontal pad-top='-3' pad-bottom='8' pad-left="8">
-            <list pad-top='3' id='video-list' list-width='100' visible-cells='6' select-cell='on-select-cell'/>
-			<vertical pad-right="8">
-				<page-button click-event='video-list#PageUp' direction='Up' preferred-width='10' preferred-height='4'/>
-            	<page-button click-event='video-list#PageDown' direction='Down' preferred-width='10' preferred-height='4'/>
-			</vertical>
+        <horizontal pad-top='-3' pad-bottom='8' pad-left="8" pad-right="8">
+            <list pad-top='3' id='video-list' list-width='100' visible-cells='6' select-cell='on-select-cell' stick-scrolling="true" show-scrollbar="true"/>
         </horizontal>
         <text id='search-results-loading' active='false' font-size='3' text='Loading Results...' align='Center' anchor-pos-y='5'/>
         <modal-keyboard id='search-keyboard' on-enter='on-query' clear-on-open='false' show-event='show-keyboard'
