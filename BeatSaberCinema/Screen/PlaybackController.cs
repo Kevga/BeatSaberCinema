@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
+using IPA.Utilities;
 using SongCore.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -313,7 +314,15 @@ namespace BeatSaberCinema
 				try
 				{
 					Log.Debug($"Preview start time: {startTime}, offset: {VideoConfig.GetOffsetInSec()}");
-					SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(await VideoLoader.GetAudioClipForLevel(_currentLevel), -5f, startTime, _currentLevel.songDuration);
+					var audioClip = await VideoLoader.GetAudioClipForLevel(_currentLevel);
+					if (audioClip != null)
+					{
+						SongPreviewPlayerController.SongPreviewPlayer.CrossfadeTo(audioClip, -5f, startTime, _currentLevel.songDuration, null);
+					}
+					else
+					{
+						Log.Error("AudioClip for level failed to load");
+					}
 				}
 				catch (Exception e)
 				{
@@ -598,7 +607,7 @@ namespace BeatSaberCinema
 					Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First(atsc => atsc.transform.parent.parent.parent.name.Contains("(Clone)")) :
 					Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
 
-				_activeAudioSource = _timeSyncController.audioSource;
+				_activeAudioSource = _timeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
 			}
 
 			if (_activeAudioSource != null)

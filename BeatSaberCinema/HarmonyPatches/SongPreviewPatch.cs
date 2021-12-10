@@ -2,11 +2,12 @@
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
+
 // ReSharper disable InconsistentNaming
 
 namespace BeatSaberCinema
 {
-	[HarmonyPatch(typeof(SongPreviewPlayer), nameof(SongPreviewPlayer.CrossfadeTo), typeof(AudioClip), typeof(float), typeof(float), typeof(float), typeof(bool))]
+	[HarmonyPatch(typeof(SongPreviewPlayer), nameof(SongPreviewPlayer.CrossfadeTo), typeof(AudioClip), typeof(float), typeof(float), typeof(float), typeof(bool), typeof(Action))]
 	[UsedImplicitly]
 	public class SongPreviewPatch
 	{

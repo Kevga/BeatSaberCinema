@@ -10,8 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using IPA.Utilities;
 using IPA.Utilities.Async;
-using UnityEngine;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace BeatSaberCinema
 {
@@ -27,9 +27,29 @@ namespace BeatSaberCinema
 		public static event Action<VideoConfig?>? ConfigChanged;
 		private static string? _ignoreNextEventForPath;
 
+		private static AudioClipAsyncLoader? _audioClipAsyncLoader;
+
 		private static readonly ConcurrentDictionary<string, VideoConfig> CachedConfigs = new ConcurrentDictionary<string, VideoConfig>();
 		private static readonly ConcurrentDictionary<string, VideoConfig> BundledConfigs = new ConcurrentDictionary<string, VideoConfig>();
 
+		private static BeatmapLevelsModel? _beatmapLevelsModel;
+
+		private static BeatmapLevelsModel? BeatmapLevelsModel
+		{
+			get
+			{
+				if (_beatmapLevelsModel == null)
+				{
+					_beatmapLevelsModel = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault(x => x.name.Contains("(Clone)"));
+					if (_beatmapLevelsModel == null)
+					{
+						Log.Error("Failed to get a reference to BeatmapLevelsModel");
+					}
+				}
+
+				return _beatmapLevelsModel;
+			}
+		}
 		private static AdditionalContentModel? _additionalContentModel;
 		private static AdditionalContentModel? AdditionalContentModel
 		{
@@ -38,10 +58,31 @@ namespace BeatSaberCinema
 				if (_additionalContentModel == null)
 				{
 					//The game has instances for AdditionalContentModels for each platform. The "true" one has (Clone) in its name.
-					_additionalContentModel = Resources.FindObjectsOfTypeAll<AdditionalContentModel>().FirstOrDefault(x => x.name.Contains("(Clone)"));
+					_additionalContentModel = BeatmapLevelsModel!.GetField<AdditionalContentModel, BeatmapLevelsModel>("_additionalContentModel");
+					if (!_additionalContentModel)
+					{
+						Log.Error("Failed to get the AdditionalContentModel from BeatmapLevelsModel");
+					}
 				}
 
 				return _additionalContentModel;
+			}
+		}
+
+		private static AudioClipAsyncLoader? AudioClipAsyncLoader
+		{
+			get
+			{
+				if (_audioClipAsyncLoader == null)
+				{
+					_audioClipAsyncLoader = BeatmapLevelsModel!.GetField<AudioClipAsyncLoader, BeatmapLevelsModel>("_audioClipAsyncLoader");
+					if (_audioClipAsyncLoader == null)
+					{
+						Log.Error("Failed to get a reference to AudioClipAsyncLoader");
+					}
+				}
+
+				return _audioClipAsyncLoader;
 			}
 		}
 
@@ -179,21 +220,33 @@ namespace BeatSaberCinema
 			return level.GetType() == typeof(PreviewBeatmapLevelSO);
 		}
 
-		public static async Task<AudioClip> GetAudioClipForLevel(IPreviewBeatmapLevel level)
+		public static async Task<AudioClip?> GetAudioClipForLevel(IPreviewBeatmapLevel level)
 		{
 			if (!IsDlcSong(level) || BeatmapLevelAsyncCache == null)
 			{
-				return await level.GetPreviewAudioClipAsync(CancellationToken.None);
+				return await LoadAudioClipAsync(level);
 			}
 
-			Log.Debug("Getting audio clip from async cache");
 			var levelData = await BeatmapLevelAsyncCache[level.levelID];
 			if (levelData != null)
 			{
+				Log.Debug("Getting audio clip from async cache");
 				return levelData.beatmapLevelData.audioClip;
 			}
 
-			return await level.GetPreviewAudioClipAsync(CancellationToken.None);
+			return await LoadAudioClipAsync(level);
+		}
+
+		private static async Task<AudioClip?> LoadAudioClipAsync(IPreviewBeatmapLevel level)
+		{
+			var loaderTask = AudioClipAsyncLoader?.LoadPreview(level);
+			if (loaderTask == null)
+			{
+				Log.Error("AudioClipAsyncLoader.LoadPreview() failed");
+				return null;
+			}
+
+			return await loaderTask;
 		}
 
 		public static async Task<AdditionalContentModel.EntitlementStatus> GetEntitlementForLevel(IPreviewBeatmapLevel level)
