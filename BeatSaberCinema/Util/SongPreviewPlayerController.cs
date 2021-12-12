@@ -18,16 +18,16 @@ namespace BeatSaberCinema
 		}
 
 		public static void SetFields(SongPreviewPlayer.AudioSourceVolumeController[] audioSourceControllers, int channelCount, int activeChannel,
-				AudioClip? audioClip, float startTime, float timeToDefault)
+				AudioClip? audioClip, float startTime, float timeToDefault, bool isDefault)
 		{
 			AudioSourceControllers = audioSourceControllers;
 			_channelCount = channelCount;
 			_activeChannel = activeChannel;
 			_currentAudioClip = audioClip;
-			UpdatePlaybackController(startTime, timeToDefault);
+			UpdatePlaybackController(startTime, timeToDefault, isDefault);
 		}
 
-		private static void UpdatePlaybackController(float startTime, float timeToDefault)
+		private static void UpdatePlaybackController(float startTime, float timeToDefault, bool isDefault)
 		{
 			if (_currentAudioClip == null)
 			{
@@ -51,7 +51,7 @@ namespace BeatSaberCinema
 			Log.Debug($"SongPreviewPatch -- channel {_activeChannel} -- startTime {startTime} -- timeRemaining {timeToDefault} -- audioclip {_currentAudioClip.name}");
 			if (PlaybackController.Instance != null)
 			{
-				PlaybackController.Instance.UpdateSongPreviewPlayer(ActiveAudioSource, startTime, timeToDefault);
+				PlaybackController.Instance.UpdateSongPreviewPlayer(ActiveAudioSource, startTime, timeToDefault, isDefault);
 			}
 		}
 	}

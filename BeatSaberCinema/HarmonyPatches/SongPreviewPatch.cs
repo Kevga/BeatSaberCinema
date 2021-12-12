@@ -13,11 +13,11 @@ namespace BeatSaberCinema
 	{
 		[UsedImplicitly]
 		public static void Postfix(int ____activeChannel, float ____timeToDefaultAudioTransition,
-			SongPreviewPlayer.AudioSourceVolumeController[] ____audioSourceControllers, int ____channelsCount, AudioClip audioClip, float startTime)
+			SongPreviewPlayer.AudioSourceVolumeController[] ____audioSourceControllers, int ____channelsCount, AudioClip audioClip, float startTime, bool isDefault)
 		{
 			try
 			{
-				SongPreviewPlayerController.SetFields(____audioSourceControllers, ____channelsCount, ____activeChannel, audioClip, startTime, ____timeToDefaultAudioTransition);
+				SongPreviewPlayerController.SetFields(____audioSourceControllers, ____channelsCount, ____activeChannel, audioClip, startTime, ____timeToDefaultAudioTransition, isDefault);
 			}
 			catch (Exception e)
 			{

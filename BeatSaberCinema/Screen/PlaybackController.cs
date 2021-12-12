@@ -35,7 +35,6 @@ namespace BeatSaberCinema
 		private DateTime _previewSyncStartTime;
 		private DateTime _audioSourceStartTime;
 		private float _offsetAfterPrepare;
-		private bool _previewIgnoreNextUpdate;
 
 		public VideoConfig? VideoConfig { get; private set; }
 
@@ -310,7 +309,6 @@ namespace BeatSaberCinema
 					return;
 				}
 
-				_previewIgnoreNextUpdate = true;
 				try
 				{
 					Log.Debug($"Preview start time: {startTime}, offset: {VideoConfig.GetOffsetInSec()}");
@@ -328,7 +326,6 @@ namespace BeatSaberCinema
 				{
 					Log.Error(e);
 					IsPreviewPlaying = false;
-					_previewIgnoreNextUpdate = false;
 					return;
 				}
 
@@ -873,7 +870,7 @@ namespace BeatSaberCinema
 			Events.InvokeSceneTransitionEvents(VideoConfig);
 		}
 
-		public void UpdateSongPreviewPlayer(AudioSource? activeAudioSource, float startTime, float timeRemaining)
+		public void UpdateSongPreviewPlayer(AudioSource? activeAudioSource, float startTime, float timeRemaining, bool isDefault)
 		{
 			_activeAudioSource = activeAudioSource;
 			if (_activeAudioSource == null)
@@ -881,14 +878,22 @@ namespace BeatSaberCinema
 				Log.Debug("Active AudioSource null in SongPreviewPlayer update");
 			}
 
-			if (_previewIgnoreNextUpdate)
+			if (IsPreviewPlaying)
 			{
-				Log.Debug("Ignoring SongPreviewPlayer update");
-				_previewIgnoreNextUpdate = false;
+				Log.Debug($"Ignoring SongPreviewPlayer update");
 				return;
 			}
 
-			//This allows the short 3-second-preview for the practice offset to play
+			if (isDefault)
+			{
+				StopPreview(true);
+				VideoPlayer.FadeOut();
+
+				Log.Debug("SongPreviewPlayer reverting to default loop");
+				return;
+			}
+
+			//This allows the short preview for the practice offset to play
 			if (!_previewWaitingForPreviewPlayer && Math.Abs(timeRemaining - 2.5f) > 0.001f)
 			{
 				StopPreview(true);

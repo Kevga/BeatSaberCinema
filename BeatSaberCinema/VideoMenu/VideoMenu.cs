@@ -461,7 +461,7 @@ namespace BeatSaberCinema
 			_extraSongData = null;
 			_difficultyData = null;
 
-			if (!Plugin.Enabled || level == _currentLevel || (isPlaylistSong && level == null))
+			if (!Plugin.Enabled || (isPlaylistSong && level == null))
 			{
 				return;
 			}
