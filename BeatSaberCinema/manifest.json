@@ -4,12 +4,16 @@
 	"name": "Cinema",
 	"description": "Sync up videos to play in the background of your beatmaps",
 	"author": "Dakari",
-	"gameVersion": "1.16.3",
-	"version": "1.4.15",
+	"gameVersion": "1.19.0",
+	"version": "1.4.16",
 	"dependsOn": {
-		"BSIPA": "^4.2.0",
-		"BeatSaberMarkupLanguage": "^1.5.3",
-		"BS Utils": "^1.10.0",
-		"SongCore": "^3.4.0"
+		"BSIPA": "^4.2.1",
+		"BeatSaberMarkupLanguage": "^1.6.0",
+		"BS Utils": "^1.11.1",
+		"SongCore": "^3.9.0"
+	},
+	"links": {
+		"project-source": "https://github.com/Kevga/BeatSaberCinema",
+		"donate": "https://ko-fi.com/dakari"
 	}
 }
