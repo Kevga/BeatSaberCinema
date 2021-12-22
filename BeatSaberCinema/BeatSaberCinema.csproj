@@ -97,10 +97,6 @@
 			<HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="PlaylistManager">
-			<HintPath>$(BeatSaberDir)\Plugins\PlaylistManager.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
 		<Reference Include="BeatSaberPlaylistsLib">
 			<HintPath>$(BeatSaberDir)\Libs\BeatSaberPlaylistsLib.dll</HintPath>
 			<Private>False</Private>

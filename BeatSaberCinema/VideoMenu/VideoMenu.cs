@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
@@ -71,6 +72,7 @@ namespace BeatSaberCinema
 		private bool _videoMenuInitialized;
 
 		private IPreviewBeatmapLevel? _currentLevel;
+		private bool _currentLevelIsPlaylistSong;
 		private ExtraSongData? _extraSongData;
 		private ExtraSongData.DifficultyData? _difficultyData;
 		private VideoConfig? _currentVideo;
@@ -122,7 +124,27 @@ namespace BeatSaberCinema
 
 		private void SubToPlaylistSongSelected()
 		{
-			PlaylistManager.Utilities.Events.playlistSongSelected += OnPlaylistSongSelected;
+			var eventInfo = ReflectionUtil.FindEvent("PlaylistManager", "PlaylistManager.Utilities.Events", "playlistSongSelected");
+			if (eventInfo == null)
+			{
+				Log.Warn("Could not find PlaylistManager's playlistSongSelected event");
+				return;
+			}
+
+			var delegateType = eventInfo.EventHandlerType;
+			var handler = typeof(VideoMenu).GetMethod("OnPlaylistSongSelected", BindingFlags.NonPublic | BindingFlags.Instance);
+			if (handler == null)
+			{
+				Log.Warn("Could not find VideoMenu.OnPlaylistSongSelected");
+				return;
+			}
+
+			var handlerDelegate = Delegate.CreateDelegate(delegateType, this, handler);
+			var returnValue = ReflectionUtil.AddDelegateToStaticType(eventInfo, handlerDelegate);
+			Log.Debug("Added event");
+
+			//All this to remove this reference to PlaylistManager
+			//PlaylistManager.Utilities.Events.playlistSongSelected += OnPlaylistSongSelected;
 		}
 
 		public void CreateStatusListener()
@@ -461,7 +483,9 @@ namespace BeatSaberCinema
 			_extraSongData = null;
 			_difficultyData = null;
 
-			if (!Plugin.Enabled || (isPlaylistSong && level == null))
+			if (!Plugin.Enabled ||
+			    (isPlaylistSong && level == null) ||
+			    (_currentLevel == level && _currentLevelIsPlaylistSong)) //Ignores the duplicate event that occurs when selecting a playlist song
 			{
 				return;
 			}
@@ -479,6 +503,7 @@ namespace BeatSaberCinema
 				VideoLoader.SaveVideoConfig(_currentVideo);
 			}
 
+			_currentLevelIsPlaylistSong = isPlaylistSong;
 			_currentLevel = level;
 			if (_currentLevel == null)
 			{
@@ -512,6 +537,7 @@ namespace BeatSaberCinema
 			}
 		}
 
+		[UsedImplicitly]
 		private void OnPlaylistSongSelected(IPreviewBeatmapLevel? level)
 		{
 			HandleDidSelectLevel(level, true);

@@ -173,7 +173,7 @@ namespace BeatSaberCinema
 					{
 						try
 						{
-							var trackControllerType = Util.FindType(typeName, "Chroma");
+							var trackControllerType = ReflectionUtil.FindType("Chroma", typeName);
 							if (trackControllerType != null)
 							{
 								Object.Destroy(mainScreen.GetComponent(trackControllerType));

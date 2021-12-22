@@ -98,24 +98,5 @@ namespace BeatSaberCinema
 		{
 			return MultiplayerPatch.IsMultiplayer;
 		}
-
-		public static Type? FindType(string qualifiedTypeName, string? assemblyName)
-		{
-			foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
-			{
-				if (assemblyName != null && asm.GetName().Name != assemblyName)
-				{
-					continue;
-				}
-
-				var t = asm.GetType(qualifiedTypeName);
-				if (t != null)
-				{
-					return t;
-				}
-			}
-
-			return null;
-		}
 	}
 }
