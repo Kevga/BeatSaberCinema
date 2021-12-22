@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using BS_Utils.Utilities;
 using UnityEngine;
 
 namespace BeatSaberCinema
@@ -83,7 +82,7 @@ namespace BeatSaberCinema
 
 		public static Texture? LoadPNGFromResources(string resourcePath)
 		{
-			byte[] fileData = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), resourcePath);
+			byte[] fileData = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), resourcePath);
 			if (fileData.Length <= 0)
 			{
 				return null;

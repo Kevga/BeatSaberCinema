@@ -167,7 +167,7 @@ namespace BeatSaberCinema
 			AssetBundle myLoadedAssetBundle;
 			if (path == null)
 			{
-				var bundle = UIUtilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.bscinema.bundle");
+				var bundle = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.bscinema.bundle");
 				if (bundle == null || bundle.Length == 0)
 				{
 					Log.Error("GetResource failed");

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using HarmonyLib;
 using JetBrains.Annotations;
 using SongCore;
-using UnityEngine;
 
 // ReSharper disable InconsistentNaming
 
@@ -32,7 +30,7 @@ namespace BeatSaberCinema
 					return;
 				}
 
-				var songData = Collections.RetrieveExtraSongData(SongCore.Utilities.Hashing.GetCustomLevelHash(level), level.customLevelPath);
+				var songData = Collections.RetrieveExtraSongData(SongCore.Utilities.Hashing.GetCustomLevelHash(level));
 				if (songData == null)
 				{
 					return;

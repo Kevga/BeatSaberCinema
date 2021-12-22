@@ -515,7 +515,7 @@ namespace BeatSaberCinema
 
 		private static IEnumerable<BundledConfig> LoadBundledConfigs()
 		{
-			var buffer = BS_Utils.Utilities.UIUtilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.configs.json");
+			var buffer = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.configs.json");
 			string jsonString = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
 			var configs = JsonConvert.DeserializeObject<BundledConfig[]>(jsonString);
 			return configs;

@@ -106,7 +106,7 @@ namespace BeatSaberCinema
 			try
 			{
 				Log.Debug("Removing Harmony patches");
-				_harmonyInstance.UnpatchAll(HARMONY_ID);
+				_harmonyInstance.UnpatchSelf();
 			}
 			catch (Exception ex)
 			{
