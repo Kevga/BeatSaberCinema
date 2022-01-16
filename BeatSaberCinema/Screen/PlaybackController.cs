@@ -20,7 +20,6 @@ namespace BeatSaberCinema
 		private Scene _activeScene = Scene.Other;
 
 		public static PlaybackController Instance { get; private set; } = null!;
-		public static GameObject GO = null!;
 		private IPreviewBeatmapLevel? _currentLevel;
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
@@ -47,8 +46,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			GO = new GameObject("CinemaPlaybackController");
-			GO.AddComponent<PlaybackController>();
+			new GameObject("CinemaPlaybackController").AddComponent<PlaybackController>();
 		}
 
 		public void Destroy()
@@ -765,7 +763,7 @@ namespace BeatSaberCinema
 		private IEnumerator PlayVideoDelayedCoroutine(float delayStartTime)
 		{
 			Log.Debug("Waiting for "+delayStartTime+" seconds before playing video");
-			Stopwatch stopwatch = new Stopwatch();
+			var stopwatch = new Stopwatch();
 			stopwatch.Start();
 			VideoPlayer.Pause();
 			VideoPlayer.Hide();

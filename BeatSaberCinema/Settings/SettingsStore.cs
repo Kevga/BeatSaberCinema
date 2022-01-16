@@ -17,7 +17,7 @@ namespace BeatSaberCinema
         public virtual bool TransparencyEnabled { get; set; } = true;
         public virtual bool CoverEnabled { get; set; }
         public virtual int BloomIntensity { get; set; } = 100;
-        public virtual float CornerRoundness { get; set; } = 0;
+        public virtual float CornerRoundness { get; set; }
         public virtual VideoQuality.Mode QualityMode { get; set; } = VideoQuality.Mode.Q720P;
         public virtual bool ForceDisableEnvironmentOverrides { get; set; } = false;
     }

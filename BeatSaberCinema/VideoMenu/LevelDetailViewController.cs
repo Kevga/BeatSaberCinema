@@ -14,10 +14,13 @@ namespace BeatSaberCinema
 	[UsedImplicitly]
 	public class LevelDetailViewController
 	{
+		// ReSharper disable MemberInitializerValueIgnored
 		[UIObject("level-detail-root")] private readonly GameObject _root = null!;
 		[UIComponent("level-detail-button")] private readonly Button _button = null!;
 		[UIComponent("level-detail-button")] private readonly TextMeshProUGUI _buttonText = null!;
 		[UIComponent("level-detail-text")] private readonly TextMeshProUGUI _label = null!;
+		// ReSharper restore MemberInitializerValueIgnored
+
 		private readonly Image? _buttonUnderline;
 		private readonly StandardLevelDetailViewController? _standardLevelDetailViewController;
 

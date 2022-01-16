@@ -186,7 +186,7 @@ namespace BeatSaberCinema
 				myLoadedAssetBundle = AssetBundle.LoadFromFile(path);
 			}
 
-			Shader shader = myLoadedAssetBundle.LoadAsset<Shader>("ScreenShader");
+			var shader = myLoadedAssetBundle.LoadAsset<Shader>("ScreenShader");
 			myLoadedAssetBundle.Unload(false);
 
 			return shader;

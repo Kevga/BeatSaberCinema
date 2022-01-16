@@ -108,11 +108,6 @@ namespace BeatSaberCinema
 				video.DownloadState = DownloadState.Cancelled;
 			}
 			Log.Info($"Download process exited with code {exitCode}");
-			if (exitCode == -1073741515)
-			{
-				//TODO ty-dlp uses vc++14 and it's apparently embedded in the exe
-				Log.Error("youtube-dl did not run. Possibly missing vc++ 2010 redist: https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x86.exe");
-			}
 
 			if (video.DownloadState == DownloadState.Cancelled)
 			{
@@ -157,8 +152,8 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			Regex rx = new Regex(@"(\d*).\d%+");
-			Match match = rx.Match(dataReceivedEventArgs.Data);
+			var rx = new Regex(@"(\d*).\d%+");
+			var match = rx.Match(dataReceivedEventArgs.Data);
 			if (!match.Success)
 			{
 				if (dataReceivedEventArgs.Data.Contains("Converting video"))
@@ -168,7 +163,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+			var ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
 			ci.NumberFormat.NumberDecimalSeparator = ".";
 
 			video.DownloadProgress =
@@ -232,7 +227,7 @@ namespace BeatSaberCinema
 			}
 
 			var videoFormat = VideoQuality.ToYoutubeDLFormat(video, quality);
-			videoFormat = videoFormat == null ? "" : $" -f \"{videoFormat}\"";
+			videoFormat = $" -f \"{videoFormat}\"";
 
 			var downloadProcessArguments = videoUrl +
 			                               videoFormat +

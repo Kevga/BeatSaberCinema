@@ -6,7 +6,7 @@ namespace BeatSaberCinema
 	public static class SongPreviewPlayerController
 	{
 		public static SongPreviewPlayer? SongPreviewPlayer;
-		public static AudioSource? ActiveAudioSource;
+		private static AudioSource? _activeAudioSource;
 		public static SongPreviewPlayer.AudioSourceVolumeController[]? AudioSourceControllers;
 		private static int _channelCount;
 		private static int _activeChannel;
@@ -47,11 +47,11 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			ActiveAudioSource = AudioSourceControllers[_activeChannel].audioSource;
+			_activeAudioSource = AudioSourceControllers[_activeChannel].audioSource;
 			Log.Debug($"SongPreviewPatch -- channel {_activeChannel} -- startTime {startTime} -- timeRemaining {timeToDefault} -- audioclip {_currentAudioClip.name}");
 			if (PlaybackController.Instance != null)
 			{
-				PlaybackController.Instance.UpdateSongPreviewPlayer(ActiveAudioSource, startTime, timeToDefault, isDefault);
+				PlaybackController.Instance.UpdateSongPreviewPlayer(_activeAudioSource, startTime, timeToDefault, isDefault);
 			}
 		}
 	}

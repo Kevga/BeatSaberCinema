@@ -17,8 +17,8 @@ namespace BeatSaberCinema
 {
 	public static class VideoLoader
 	{
-		public const string OST_DIRECTORY_NAME = "CinemaOSTVideos";
-		private const string WIP_DIRECTORY_NAME = "CustomWIPLevels";
+		private const string OST_DIRECTORY_NAME = "CinemaOSTVideos";
+		internal const string WIP_DIRECTORY_NAME = "CustomWIPLevels";
 		private const string CONFIG_FILENAME = "cinema-video.json";
 		private const string CONFIG_FILENAME_MVP = "video.json";
 		private const string MOD_ID_MVP = "Music Video Player";
@@ -457,7 +457,7 @@ namespace BeatSaberCinema
 			VideoConfig? videoConfig;
 			try
 			{
-				string json = File.ReadAllText(configPath);
+				var json = File.ReadAllText(configPath);
 				if (configPath.EndsWith("\\" + CONFIG_FILENAME_MVP))
 				{
 					//Back compatiblity with MVP configs
@@ -516,7 +516,7 @@ namespace BeatSaberCinema
 		private static IEnumerable<BundledConfig> LoadBundledConfigs()
 		{
 			var buffer = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.configs.json");
-			string jsonString = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+			var jsonString = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
 			var configs = JsonConvert.DeserializeObject<BundledConfig[]>(jsonString);
 			return configs;
 		}
@@ -527,10 +527,5 @@ namespace BeatSaberCinema
 	{
 		public string levelID = null!;
 		public VideoConfig config = null!;
-
-		public BundledConfig()
-		{
-			//Intentionally empty
-		}
 	}
 }

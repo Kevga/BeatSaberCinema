@@ -75,8 +75,7 @@ namespace BeatSaberCinema
 				};
 
 				var mapEnvironmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();
-				// ReSharper disable once ConditionIsAlwaysTrueOrFalse
-				if (overrideEnvironmentSettings != null && overrideEnvironmentSettings.overrideEnvironments)
+				if (overrideEnvironmentSettings is { overrideEnvironments: true })
 				{
 					var overrideEnvironmentInfo = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(mapEnvironmentInfoSo.environmentType);
 					if (environmentWhitelist.Contains(overrideEnvironmentInfo.serializedName))

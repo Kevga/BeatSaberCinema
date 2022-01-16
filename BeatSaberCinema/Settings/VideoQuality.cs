@@ -20,7 +20,7 @@ namespace BeatSaberCinema
 			return (int) mode + "p";
 		}
 
-		public static string? ToYoutubeDLFormat(VideoConfig config, Mode quality)
+		public static string ToYoutubeDLFormat(VideoConfig config, Mode quality)
 		{
 			string? qualityString;
 			if (config.videoUrl == null || config.videoUrl.StartsWith("https://www.youtube.com/watch"))

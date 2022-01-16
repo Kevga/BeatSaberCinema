@@ -50,8 +50,8 @@ namespace BeatSaberCinema
 
 		public static string ReplaceIllegalFilesystemChars(string s)
 		{
-			string regexSearch = new string(Path.GetInvalidFileNameChars()) + ".";
-			Regex regex = new Regex($"[{Regex.Escape(regexSearch)}]");
+			var regexSearch = new string(Path.GetInvalidFileNameChars()) + ".";
+			var regex = new Regex($"[{Regex.Escape(regexSearch)}]");
 			var result = regex.Replace(s, "_");
 			return result;
 		}
@@ -83,7 +83,7 @@ namespace BeatSaberCinema
 
 		public static Texture? LoadPNGFromResources(string resourcePath)
 		{
-			byte[] fileData = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), resourcePath);
+			var fileData = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), resourcePath);
 			if (fileData.Length <= 0)
 			{
 				return null;

@@ -7,7 +7,7 @@ namespace BeatSaberCinema
 {
 	public class ScreenController
 	{
-		internal readonly List<GameObject> screens = new List<GameObject>();
+		internal readonly List<GameObject> Screens = new List<GameObject>();
 
 		private readonly MaterialPropertyBlock _materialPropertyBlock;
 		private static readonly int Brightness = Shader.PropertyToID("_Brightness");
@@ -35,17 +35,17 @@ namespace BeatSaberCinema
 			CreateScreenBody(newScreen.transform);
 			newScreen.AddComponent<CustomBloomPrePass>();
 			newScreen.AddComponent<SoftParent>();
-			screens.Add(newScreen);
+			Screens.Add(newScreen);
 		}
 
-		private static void CreateScreenBody(Transform parent)
+		private static void CreateScreenBody(Component parent)
 		{
-			GameObject body = new GameObject("Body");
+			var body = new GameObject("Body");
 			body.AddComponent<CurvedSurface>();
 			body.transform.parent = parent.transform;
 			body.transform.localPosition = new Vector3(0, 0, 0.4f); //A fixed offset is necessary for the center segments of the curved screen
 			body.transform.localScale = new Vector3(1.01f, 1.01f, 1.01f);
-			Renderer bodyRenderer = body.GetComponent<Renderer>();
+			var bodyRenderer = body.GetComponent<Renderer>();
 			var sourceMaterial = new Material(Resources.FindObjectsOfTypeAll<Shader>().LastOrDefault(x => x.name == "Custom/OpaqueNeonLight"));
 			if (sourceMaterial != null)
 			{
@@ -65,7 +65,7 @@ namespace BeatSaberCinema
 
 		public void SetScreensActive(bool active)
 		{
-			foreach (var screen in screens)
+			foreach (var screen in Screens)
 			{
 				screen.SetActive(active);
 			}
@@ -73,7 +73,7 @@ namespace BeatSaberCinema
 
 		public void SetScreenBodiesActive(bool active)
 		{
-			foreach (var screen in screens)
+			foreach (var screen in Screens)
 			{
 				screen.transform.GetChild(0).gameObject.SetActive(active);
 			}
@@ -81,7 +81,7 @@ namespace BeatSaberCinema
 
 		public Renderer GetRenderer()
 		{
-			return screens[0].GetComponent<Renderer>();
+			return Screens[0].GetComponent<Renderer>();
 		}
 
 		public void SetPlacement(Placement placement)
@@ -91,7 +91,7 @@ namespace BeatSaberCinema
 
 		private void SetPlacement(Vector3 pos, Vector3 rot, float width, float height, float? curvatureDegrees = null, int? subsurfaces = null, bool? curveYAxis = false)
 		{
-			var screen = screens[0];
+			var screen = Screens[0];
 			screen.transform.position = pos;
 			screen.transform.eulerAngles = rot;
 			screen.transform.localScale = Vector3.one;
@@ -107,7 +107,7 @@ namespace BeatSaberCinema
 
 		private void InitializeSurfaces(float width, float height, float distance, float? curvatureDegrees, int? subsurfaces, bool? curveYAxis)
 		{
-			foreach (var screen in screens)
+			foreach (var screen in Screens)
 			{
 				var screenSurface = screen.GetComponent<CurvedSurface>();
 				var screenBodySurface = screen.transform.GetChild(0).GetComponent<CurvedSurface>();
@@ -121,7 +121,7 @@ namespace BeatSaberCinema
 
 		private void RegenerateScreenSurfaces()
 		{
-			foreach (var screen in screens)
+			foreach (var screen in Screens)
 			{
 				screen.GetComponent<CurvedSurface>().Generate();
 				screen.transform.GetChild(0).GetComponent<CurvedSurface>().Generate(); //screen body
@@ -131,7 +131,7 @@ namespace BeatSaberCinema
 
 		public void SetBloomIntensity(float? bloomIntensity)
 		{
-			foreach (var screen in screens)
+			foreach (var screen in Screens)
 			{
 				screen.GetComponent<CustomBloomPrePass>().SetBloomIntensityConfigSetting(bloomIntensity);
 			}
@@ -139,7 +139,7 @@ namespace BeatSaberCinema
 
 		public void SetAspectRatio(float ratio)
 		{
-			foreach (var screen in screens)
+			foreach (var screen in Screens)
 			{
 				var screenSurface = screen.GetComponent<CurvedSurface>();
 				var screenBodySurface = screen.transform.GetChild(0).GetComponent<CurvedSurface>();
@@ -155,14 +155,14 @@ namespace BeatSaberCinema
 
 		public void SetSoftParent(Transform? parent)
 		{
-			var softParent = screens[0].GetComponent<SoftParent>();
+			var softParent = Screens[0].GetComponent<SoftParent>();
 			softParent.enabled = parent != null;
 			softParent.AssignParent(parent);
 		}
 
 		public void SetShaderParameters(VideoConfig? config)
 		{
-			foreach (var screen in screens)
+			foreach (var screen in Screens)
 			{
 				var screenRenderer = screen.GetComponent<Renderer>();
 
@@ -186,7 +186,7 @@ namespace BeatSaberCinema
 
 		public void SetVignette(VideoConfig.Vignette? vignette = null, MaterialPropertyBlock? materialPropertyBlock = null)
 		{
-			foreach (var screen in screens)
+			foreach (var screen in Screens)
 			{
 				var screenRenderer = screen.GetComponent<Renderer>();
 				var setPropertyBlock = materialPropertyBlock == null;

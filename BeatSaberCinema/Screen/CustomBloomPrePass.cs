@@ -203,12 +203,12 @@ namespace BeatSaberCinema
 			var sRGBWrite = GL.sRGBWrite;
 			GL.sRGBWrite = false;
 
-			bloomPrePassRenderer.GetCameraParams(camera, out var projectionMatrix, out _, out var stereoCameraEyeOffset);
+			bloomPrePassRenderer!.GetCameraParams(camera, out var projectionMatrix, out _, out var stereoCameraEyeOffset);
 
 			//The next few lines are taken from bloomPrePassRenderer.RenderAndSetData()
 			var textureToScreenRatio = new Vector2
 			{
-				x = Mathf.Clamp01((float) (1.0 / ((double) Mathf.Tan((float) (bloomPrePassParams.fov.x * 0.5 * (Math.PI / 180.0))) * projectionMatrix.m00))),
+				x = Mathf.Clamp01((float) (1.0 / ((double) Mathf.Tan((float) (bloomPrePassParams!.fov.x * 0.5 * (Math.PI / 180.0))) * projectionMatrix.m00))),
 				y = Mathf.Clamp01((float) (1.0 / ((double) Mathf.Tan((float) (bloomPrePassParams.fov.y * 0.5 * (Math.PI / 180.0))) * projectionMatrix.m11)))
 			};
 			projectionMatrix.m00 *= textureToScreenRatio.x;
@@ -216,7 +216,7 @@ namespace BeatSaberCinema
 			projectionMatrix.m11 *= textureToScreenRatio.y;
 			projectionMatrix.m12 *= textureToScreenRatio.y;
 
-			RenderTexture temporary = RenderTexture.GetTemporary(bloomPrePassParams.textureWidth, bloomPrePassParams.textureHeight, 0, RenderTextureFormat.RGB111110Float, RenderTextureReadWrite.Linear);
+			var temporary = RenderTexture.GetTemporary(bloomPrePassParams.textureWidth, bloomPrePassParams.textureHeight, 0, RenderTextureFormat.RGB111110Float, RenderTextureReadWrite.Linear);
 			Graphics.SetRenderTarget(temporary);
 			GL.Clear(true, true, Color.black);
 
@@ -228,13 +228,13 @@ namespace BeatSaberCinema
 			GL.PopMatrix();
 
 			var boost = GetBloomBoost(camera);
-			RenderTexture blur2 = RenderTexture.GetTemporary(bloomPrePassParams.textureWidth >> DOWNSAMPLE, bloomPrePassParams.textureHeight >> DOWNSAMPLE,
+			var blur2 = RenderTexture.GetTemporary(bloomPrePassParams.textureWidth >> DOWNSAMPLE, bloomPrePassParams.textureHeight >> DOWNSAMPLE,
 				0, RenderTextureFormat.RGB111110Float, RenderTextureReadWrite.Linear);
 			DoubleBlur(temporary, blur2,
 				KawaseBlurRendererSO.KernelSize.Kernel127, boost,
 				KawaseBlurRendererSO.KernelSize.Kernel35, boost, 0.5f, DOWNSAMPLE);
 
-			Graphics.Blit(blur2, bloomPrePassRenderData.bloomPrePassRenderTexture, _additiveMaterial);
+			Graphics.Blit(blur2, bloomPrePassRenderData!.bloomPrePassRenderTexture, _additiveMaterial);
 
 			RenderTexture.ReleaseTemporary(temporary);
 			RenderTexture.ReleaseTemporary(blur2);
@@ -272,8 +272,8 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			int[] blurKernel = _kawaseBlurRenderer.GetBlurKernel(kernelSize0);
-			int[] blurKernel2 = _kawaseBlurRenderer.GetBlurKernel(kernelSize1);
+			var blurKernel = _kawaseBlurRenderer.GetBlurKernel(kernelSize0);
+			var blurKernel2 = _kawaseBlurRenderer.GetBlurKernel(kernelSize1);
 			var num = 0;
 			while (num < blurKernel.Length && num < blurKernel2.Length && blurKernel[num] == blurKernel2[num])
 			{
@@ -285,7 +285,7 @@ namespace BeatSaberCinema
 			descriptor.depthBufferBits = 0;
 			descriptor.width = width;
 			descriptor.height = height;
-			RenderTexture temporary = RenderTexture.GetTemporary(descriptor);
+			var temporary = RenderTexture.GetTemporary(descriptor);
 			_kawaseBlurRenderer.Blur(src, temporary, blurKernel, 0f, downsample, 0, num, 0f, 1f, false, true, KawaseBlurRendererSO.WeightsType.None);
 			_kawaseBlurRenderer.Blur(temporary, dest, blurKernel, boost0, 0, num, blurKernel.Length - num, 0f, 1f, false, true, KawaseBlurRendererSO.WeightsType.None);
 			_kawaseBlurRenderer.Blur(temporary, dest, blurKernel2, boost1, 0, num, blurKernel2.Length - num, 0f, secondBlurAlpha, true, true, KawaseBlurRendererSO.WeightsType.None);

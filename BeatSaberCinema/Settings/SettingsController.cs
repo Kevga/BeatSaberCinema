@@ -11,7 +11,7 @@ namespace BeatSaberCinema
     public class SettingsController: BSMLResourceViewController
     {
         public override string ResourceName => "BeatSaberCinema.Settings.Views.settings.bsml";
-        private static float _fadeDuration = 0.2f;
+        private const float FADE_DURATION = 0.2f;
         [UIValue("modes")] [UsedImplicitly] private List<object> _qualityModes = VideoQuality.GetModeList();
 
         [UIValue("show-video")]
@@ -23,11 +23,11 @@ namespace BeatSaberCinema
 	            if (value)
 	            {
 		            SetSettingsTexture();
-		            PlaybackController.Instance.VideoPlayer.FadeIn(_fadeDuration);
+		            PlaybackController.Instance.VideoPlayer.FadeIn(FADE_DURATION);
 	            }
 	            else
 	            {
-		            PlaybackController.Instance.VideoPlayer.FadeOut(_fadeDuration);
+		            PlaybackController.Instance.VideoPlayer.FadeOut(FADE_DURATION);
 		            VideoMenu.instance.HandleDidSelectLevel(null);
 	            }
 	            SettingsStore.Instance.PluginEnabled = value;
@@ -133,7 +133,7 @@ namespace BeatSaberCinema
 	            return;
             }
 
-            PlaybackController.Instance.VideoPlayer.FadeIn(_fadeDuration);
+            PlaybackController.Instance.VideoPlayer.FadeIn(FADE_DURATION);
             PlaybackController.Instance.StopPlayback();
             SetSettingsTexture();
         }
@@ -144,7 +144,7 @@ namespace BeatSaberCinema
             try
             {
 	            //Throws NRE if the settings menu is open while the plugin gets disabled (e.g. by closing the game)
-	            PlaybackController.Instance.VideoPlayer.FadeOut(_fadeDuration);
+	            PlaybackController.Instance.VideoPlayer.FadeOut(FADE_DURATION);
 	            PlaybackController.Instance.VideoPlayer.SetDefaultMenuPlacement();
             }
             catch (Exception e)

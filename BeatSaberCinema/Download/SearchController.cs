@@ -123,7 +123,7 @@ namespace BeatSaberCinema
 				return null;
 			}
 
-			YTResult ytResult = new YTResult(result);
+			var ytResult = new YTResult(result);
 			return ytResult;
 		}
 

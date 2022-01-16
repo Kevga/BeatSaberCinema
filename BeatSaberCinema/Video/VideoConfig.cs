@@ -77,7 +77,7 @@ namespace BeatSaberCinema
 		[JsonIgnore] public bool IsStreamable => videoFile != null && (videoFile.StartsWith("http://") || videoFile.StartsWith("https://"));
 		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
 		[JsonIgnore] public bool IsPlayable => (DownloadState == DownloadState.Downloaded || IsStreamable) && !PlaybackDisabledByMissingSuggestion;
-		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains("WIPLevels");
+		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains(VideoLoader.WIP_DIRECTORY_NAME);
 		[JsonIgnore] public bool EnvironmentModified => (environment != null && environment.Length > 0) || screenPosition != null || screenHeight != null;
 
 

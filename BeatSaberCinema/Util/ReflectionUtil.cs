@@ -20,7 +20,7 @@ namespace BeatSaberCinema
 
 		public static Type? FindType(Assembly asm, string qualifiedTypeName)
 		{
-			var t = asm?.GetType(qualifiedTypeName);
+			var t = asm.GetType(qualifiedTypeName);
 			return t ?? null;
 		}
 

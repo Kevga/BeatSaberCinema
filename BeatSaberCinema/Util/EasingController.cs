@@ -6,15 +6,16 @@ namespace BeatSaberCinema
 {
 	public class EasingController
 	{
-		private enum EasingDirection {EaseIn = 1, EaseOut = -1}
+		private enum EasingDirection { EaseIn = 1, EaseOut = -1 }
+
 		private float _easingValue;
 		private IEnumerator? _easingCoroutine;
 		private const float DEFAULT_DURATION = 1.0f;
-		private bool _isEasing;
 
 		public event Action<float>? EasingUpdate;
 
-		public bool IsFading => _isEasing;
+		public bool IsFading { get; private set; }
+
 		public bool IsOne => Math.Abs(_easingValue - 1f) < 0.00001f;
 		public bool IsZero => _easingValue == 0;
 		public float Value => _easingValue;
@@ -41,7 +42,7 @@ namespace BeatSaberCinema
 				SharedCoroutineStarter.instance.StopCoroutine(_easingCoroutine);
 			}
 
-			_isEasing = true;
+			IsFading = true;
 			var speed = (int) easingDirection / (float) Math.Max(0.0001, duration);
 			_easingCoroutine = Ease(speed);
 			SharedCoroutineStarter.instance.StartCoroutine(_easingCoroutine);
@@ -56,7 +57,8 @@ namespace BeatSaberCinema
 				EasingUpdate?.Invoke(_easingValue);
 				yield return null;
 			} while (_easingValue > 0 && _easingValue < 1);
-			_isEasing = false;
+
+			IsFading = false;
 		}
 	}
 }

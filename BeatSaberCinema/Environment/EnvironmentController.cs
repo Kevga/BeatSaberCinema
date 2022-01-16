@@ -111,7 +111,7 @@ namespace BeatSaberCinema
 
 			try
 			{
-				if (videoConfig!.disableDefaultModifications == null || videoConfig.disableDefaultModifications.Value == false)
+				if (videoConfig.disableDefaultModifications == null || videoConfig.disableDefaultModifications.Value == false)
 				{
 					DefaultSceneModifications(videoConfig);
 				}
@@ -141,18 +141,18 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			var mainScreen = PlaybackController.Instance.VideoPlayer.screenController.screens[0];
+			var mainScreen = PlaybackController.Instance.VideoPlayer.screenController.Screens[0];
 			mainScreen.gameObject.GetComponent<CustomBloomPrePass>().enabled = true;
 
-			if (PlaybackController.Instance.VideoPlayer.screenController.screens.Count > 0)
+			if (PlaybackController.Instance.VideoPlayer.screenController.Screens.Count > 0)
 			{
-				foreach (var screen in PlaybackController.Instance.VideoPlayer.screenController.screens.Where(screen => screen.name.Contains("Clone")))
+				foreach (var screen in PlaybackController.Instance.VideoPlayer.screenController.Screens.Where(screen => screen.name.Contains("Clone")))
 				{
 					Object.Destroy(screen);
 					Log.Debug("Destroyed screen");
 				}
 
-				PlaybackController.Instance.VideoPlayer.screenController.screens.RemoveRange(1, PlaybackController.Instance.VideoPlayer.screenController.screens.Count - 1);
+				PlaybackController.Instance.VideoPlayer.screenController.Screens.RemoveRange(1, PlaybackController.Instance.VideoPlayer.screenController.Screens.Count - 1);
 
 
 				if (Util.IsModInstalled("_Heck"))
@@ -181,7 +181,7 @@ namespace BeatSaberCinema
 					}
 				}
 
-				Log.Debug($"Screen count: {PlaybackController.Instance.VideoPlayer.screenController.screens.Count}");
+				Log.Debug($"Screen count: {PlaybackController.Instance.VideoPlayer.screenController.Screens.Count}");
 			}
 
 			_environmentModified = false;
@@ -565,26 +565,21 @@ namespace BeatSaberCinema
 					}
 
 					//Use different defaults for this environment
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
-					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.2f, 52.7f);
-					placement.Rotation = videoConfig?.screenRotation ?? Vector3.zero;
-					placement.Height = videoConfig?.screenHeight ?? 16f;
-					placement.Curvature = videoConfig?.screenCurvature ?? 0f;
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
+						{
+							Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.2f, 52.7f), Rotation = videoConfig?.screenRotation ?? Vector3.zero,
+							Height = videoConfig?.screenHeight ?? 16f,
+							Curvature = videoConfig?.screenCurvature ?? 0f
+						};
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
 				case "KaleidoscopeEnvironment":
 				{
 					var construction = EnvironmentObjects.LastOrDefault(x => x.name == "Construction" && x.transform.parent.name != "PlayersPlace" && x.activeInHierarchy);
-					if (construction != null)
-					{
-						construction.SetActive(false);
-					}
+					construction?.SetActive(false);
 					var trackMirror = EnvironmentObjects.LastOrDefault(x => x.name == "TrackMirror" && x.activeInHierarchy);
-					if (trackMirror != null)
-					{
-						trackMirror.SetActive(false);
-					}
+					trackMirror?.SetActive(false);
 					const float coneOffset = 2.5f;
 					var evenCones = EnvironmentObjects.Where(x => x.name == "Cone" && x.transform.parent.name == "ConeRing(Clone)" && x.activeInHierarchy);
 					foreach (var glowLine in evenCones)
@@ -599,11 +594,12 @@ namespace BeatSaberCinema
 						glowLine.transform.localPosition = new Vector3(localPos.x, localPos.y - coneOffset, localPos.z);
 					}
 
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
-					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 1f, 35f);
-					placement.Rotation = videoConfig?.screenRotation ?? Vector3.zero;
-					placement.Height = videoConfig?.screenHeight ?? 12f;
-					placement.Curvature = videoConfig?.screenCurvature;
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
+						{
+							Position = videoConfig?.screenPosition ?? new Vector3(0f, 1f, 35f), Rotation = videoConfig?.screenRotation ?? Vector3.zero,
+							Height = videoConfig?.screenHeight ?? 12f,
+							Curvature = videoConfig?.screenCurvature
+						};
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
@@ -623,16 +619,10 @@ namespace BeatSaberCinema
 					//These changes just make it look passable when using environment overrides.
 
 					var ceilingFront = EnvironmentObjects.LastOrDefault(x => x.name == "Plane (1)" && x.activeInHierarchy);
-					if (ceilingFront != null)
-					{
-						ceilingFront.SetActive(false);
-					}
+					ceilingFront?.SetActive(false);
 
 					var ceilingBack = EnvironmentObjects.LastOrDefault(x => x.name == "Plane (4)" && x.activeInHierarchy);
-					if (ceilingBack != null)
-					{
-						ceilingBack.SetActive(false);
-					}
+					ceilingBack?.SetActive(false);
 
 					var topLights = EnvironmentObjects.Where(x => x.name.Contains("NeonTop") && x.activeInHierarchy);
 					foreach (var light in topLights)
@@ -640,11 +630,12 @@ namespace BeatSaberCinema
 						light.SetActive(false);
 					}
 
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
-					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.3f, 37f);
-					placement.Rotation = videoConfig?.screenRotation ?? Vector3.zero;
-					placement.Height = videoConfig?.screenHeight ?? 12.5f;
-					placement.Curvature = videoConfig?.screenCurvature;
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
+						{
+							Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.3f, 37f), Rotation = videoConfig?.screenRotation ?? Vector3.zero,
+							Height = videoConfig?.screenHeight ?? 12.5f,
+							Curvature = videoConfig?.screenCurvature
+						};
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
@@ -829,11 +820,12 @@ namespace BeatSaberCinema
 						laser11.transform.eulerAngles = new Vector3(0f, 0, 30);
 					}
 
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
-					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 5.46f, 40f);
-					placement.Rotation = videoConfig?.screenRotation ?? new Vector3(-5f, 0f, 0f);
-					placement.Height = videoConfig?.screenHeight ?? 13f;
-					placement.Curvature = videoConfig?.screenCurvature;
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
+						{
+							Position = videoConfig?.screenPosition ?? new Vector3(0f, 5.46f, 40f), Rotation = videoConfig?.screenRotation ?? new Vector3(-5f, 0f, 0f),
+							Height = videoConfig?.screenHeight ?? 13f,
+							Curvature = videoConfig?.screenCurvature
+						};
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 
 					break;
@@ -852,11 +844,12 @@ namespace BeatSaberCinema
 						skrillexLogoBottom.transform.position = new Vector3(-0.23f, -15.5f, 60f);
 					}
 
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio());
-					placement.Position = videoConfig?.screenPosition ?? new Vector3(0f, 1.5f, 30f);
-					placement.Rotation = videoConfig?.screenRotation ?? new Vector3(0f, 0f, 0f);
-					placement.Height = videoConfig?.screenHeight ?? 12f;
-					placement.Curvature = videoConfig?.screenCurvature;
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
+						{
+							Position = videoConfig?.screenPosition ?? new Vector3(0f, 1.5f, 30f), Rotation = videoConfig?.screenRotation ?? new Vector3(0f, 0f, 0f),
+							Height = videoConfig?.screenHeight ?? 12f,
+							Curvature = videoConfig?.screenCurvature
+						};
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
@@ -881,7 +874,7 @@ namespace BeatSaberCinema
 				var i = 0;
 				foreach (var screenConfig in config.additionalScreens)
 				{
-					var clone = screenController.screens.Find(screen => screen.name.EndsWith("(" + (i) + ")"));
+					var clone = screenController.Screens.Find(screen => screen.name.EndsWith("(" + (i) + ")"));
 					if (!clone)
 					{
 						Log.Error($"Couldn't find a screen ending with {"(" + (i) + ")"}");
@@ -982,26 +975,27 @@ namespace BeatSaberCinema
 			var i = 0;
 			foreach (var _ in videoConfig.additionalScreens)
 			{
-				var clone = Object.Instantiate(screenController.screens[0], screenController.screens[0].transform.parent);
+				var clone = Object.Instantiate(screenController.Screens[0], screenController.Screens[0].transform.parent);
 				clone.name += $" ({i++.ToString()})";
 			}
 		}
 
 		private static void PrepareClonedScreens(VideoConfig videoConfig)
 		{
-			var screenCount = PlaybackController.GO.transform.childCount;
+			var screenCount = PlaybackController.Instance.gameObject.transform.childCount;
+
 			if (screenCount <= 1)
 			{
 				return;
 			}
 
 			Log.Debug($"Screens found: {screenCount}");
-			foreach (Transform screen in PlaybackController.GO.transform)
+			foreach (Transform screen in PlaybackController.Instance.gameObject.transform)
 			{
 				if (screen.name.Contains("Clone"))
 				{
-					PlaybackController.Instance.VideoPlayer.screenController.screens.Add(screen.gameObject);
-					screen.GetComponent<Renderer>().material = PlaybackController.Instance.VideoPlayer.screenController.screens[0].GetComponent<Renderer>().material;
+					PlaybackController.Instance.VideoPlayer.screenController.Screens.Add(screen.gameObject);
+					screen.GetComponent<Renderer>().material = PlaybackController.Instance.VideoPlayer.screenController.Screens[0].GetComponent<Renderer>().material;
 				}
 
 				screen.gameObject.GetComponent<CustomBloomPrePass>().enabled = false;
@@ -1141,7 +1135,7 @@ namespace BeatSaberCinema
 		{
 			var selectByCloneFrom = modification.cloneFrom != null;
 			var name = selectByCloneFrom ? modification.cloneFrom! : modification.name;
-			string newName = name;
+			var newName = name;
 
 			switch (_currentEnvironmentName)
 			{

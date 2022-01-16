@@ -67,7 +67,7 @@ namespace BeatSaberCinema
 				}
 			}
 
-			Thread thread = new Thread((ThreadStart) WorkDelegate);
+			var thread = new Thread((ThreadStart) WorkDelegate);
 			thread.Start();
 		}
 
@@ -96,7 +96,7 @@ namespace BeatSaberCinema
 			return process;
 		}
 
-		public static void StartProcessThreaded(Process process)
+		protected static void StartProcessThreaded(Process process)
 		{
 			void WorkDelegate()
 			{
@@ -112,15 +112,15 @@ namespace BeatSaberCinema
 				}
 			}
 
-			Thread thread = new Thread((ThreadStart) WorkDelegate);
+			var thread = new Thread((ThreadStart) WorkDelegate);
 			thread.Start();
 		}
 
-		public static bool IsProcessRunning(Process? process)
+		protected static bool IsProcessRunning(Process? process)
 		{
 			try
 			{
-				return process != null && !process.HasExited;
+				return process is { HasExited: false };
 			}
 			catch (Exception e)
 			{
@@ -133,9 +133,9 @@ namespace BeatSaberCinema
 			return false;
 		}
 
-		private void OnProcessDisposed(object sender, EventArgs eventArgs)
+		private static void OnProcessDisposed(object sender, EventArgs eventArgs)
 		{
-			Log.Debug("Process disposed event fired");
+			Log.Debug("Process disposed");
 		}
 	}
 }

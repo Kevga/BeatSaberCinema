@@ -68,7 +68,7 @@ namespace BeatSaberCinema
 		}
 
 		private VideoMenuStatus _menuStatus = null!;
-		public LevelDetailViewController LevelDetailMenu = null!;
+		private LevelDetailViewController _levelDetailMenu = null!;
 		private bool _videoMenuInitialized;
 
 		private IPreviewBeatmapLevel? _currentLevel;
@@ -86,8 +86,8 @@ namespace BeatSaberCinema
 
 		public void Init()
 		{
-			LevelDetailMenu = new LevelDetailViewController();
-			LevelDetailMenu.ButtonPressedAction += OnDeleteVideoAction;
+			_levelDetailMenu = new LevelDetailViewController();
+			_levelDetailMenu.ButtonPressedAction += OnDeleteVideoAction;
 			CreateStatusListener();
 			_deleteButton.transform.localScale *= 0.5f;
 
@@ -140,8 +140,7 @@ namespace BeatSaberCinema
 			}
 
 			var handlerDelegate = Delegate.CreateDelegate(delegateType, this, handler);
-			var returnValue = ReflectionUtil.AddDelegateToStaticType(eventInfo, handlerDelegate);
-			Log.Debug("Added event");
+			ReflectionUtil.AddDelegateToStaticType(eventInfo, handlerDelegate);
 
 			//All this to remove this reference to PlaylistManager
 			//PlaylistManager.Utilities.Events.playlistSongSelected += OnPlaylistSongSelected;
@@ -275,7 +274,7 @@ namespace BeatSaberCinema
 		public void SetupVideoDetails()
 		{
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
-			LevelDetailMenu.SetActive(false);
+			_levelDetailMenu.SetActive(false);
 
 			if (_currentVideo == null || !_downloadController.LibrariesAvailable())
 			{
@@ -352,41 +351,41 @@ namespace BeatSaberCinema
 				case DownloadState.Downloaded:
 					if (videoConfig.IsWIPLevel && _difficultyData?.HasCinema() == false && _extraSongData?.HasCinemaInAnyDifficulty() == false)
 					{
-						LevelDetailMenu.SetActive(true);
-						LevelDetailMenu.SetText("Please add Cinema as a suggestion", null, Color.red);
+						_levelDetailMenu.SetActive(true);
+						_levelDetailMenu.SetText("Please add Cinema as a suggestion", null, Color.red);
 					}
 					else
 					{
-						LevelDetailMenu.SetText("Video ready!", null, Color.green);
+						_levelDetailMenu.SetText("Video ready!", null, Color.green);
 					}
 
 					break;
 				case DownloadState.Downloading:
-					LevelDetailMenu.SetActive(true);
-					LevelDetailMenu.SetText($"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress * 100).ToString()}%)", "Cancel", Color.yellow, Color.red);
+					_levelDetailMenu.SetActive(true);
+					_levelDetailMenu.SetText($"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress * 100).ToString()}%)", "Cancel", Color.yellow, Color.red);
 					break;
 				case DownloadState.Converting:
-					LevelDetailMenu.SetActive(true);
-					LevelDetailMenu.SetText($"Converting...",
+					_levelDetailMenu.SetActive(true);
+					_levelDetailMenu.SetText($"Converting...",
 						"Cancel", Color.yellow, Color.red);
 					break;
 				case DownloadState.NotDownloaded when videoConfig.IsStreamable:
 					break;
 				case DownloadState.NotDownloaded:
-					LevelDetailMenu.SetActive(true);
+					_levelDetailMenu.SetActive(true);
 					if (_difficultyData?.HasCinemaRequirement() == true)
 					{
-						LevelDetailMenu.SetText("Video required to play this map", "Download", Color.red, Color.green);
+						_levelDetailMenu.SetText("Video required to play this map", "Download", Color.red, Color.green);
 					}
 					else
 					{
-						LevelDetailMenu.SetText("Video available", "Download Video", null, Color.green);
+						_levelDetailMenu.SetText("Video available", "Download Video", null, Color.green);
 					}
 
 					break;
 				case DownloadState.Cancelled:
-					LevelDetailMenu.SetActive(true);
-					LevelDetailMenu.SetText("Cancelling...", "Download Video", Color.red, Color.green);
+					_levelDetailMenu.SetActive(true);
+					_levelDetailMenu.SetText("Cancelling...", "Download Video", Color.red, Color.green);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -451,7 +450,6 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			Log.Debug("Updating thumbnail");
 			_videoThumnnail.SetImage(url);
 		}
 
@@ -674,8 +672,8 @@ namespace BeatSaberCinema
 			}
 
 			SetupVideoDetails();
-			LevelDetailMenu.SetActive(true);
-			LevelDetailMenu.RefreshContent();
+			_levelDetailMenu.SetActive(true);
+			_levelDetailMenu.RefreshContent();
 		}
 
 		public void ShowKeyboard()
@@ -720,7 +718,7 @@ namespace BeatSaberCinema
 					VideoLoader.DeleteVideo(_currentVideo);
 					PlaybackController.Instance.VideoPlayer.FadeOut(0.2f);
 					SetupLevelDetailView(_currentVideo);
-					LevelDetailMenu.RefreshContent();
+					_levelDetailMenu.RefreshContent();
 					break;
 			}
 
@@ -754,7 +752,7 @@ namespace BeatSaberCinema
 				_currentVideo = null;
 			}
 
-			LevelDetailMenu.SetActive(false);
+			_levelDetailMenu.SetActive(false);
 			ResetVideoMenu();
 		}
 
@@ -834,7 +832,7 @@ namespace BeatSaberCinema
 			//Loading animation
 			while (_searchResultsLoadingText.gameObject.activeInHierarchy)
 			{
-				string periods = string.Empty;
+				var periods = string.Empty;
 				count++;
 
 				for (var i = 0; i < count; i++)
@@ -881,8 +879,7 @@ namespace BeatSaberCinema
 			}
 
 			_downloadButton.interactable = false;
-			VideoConfig config = new VideoConfig(_searchController.SearchResults[_selectedCell], VideoLoader.GetLevelPath(_currentLevel));
-			config.NeedsToSave = true;
+			var config = new VideoConfig(_searchController.SearchResults[_selectedCell], VideoLoader.GetLevelPath(_currentLevel)) { NeedsToSave = true };
 			VideoLoader.AddConfigToCache(config, _currentLevel);
 			_searchController.StopSearch();
 			_downloadController.StartDownload(config, SettingsStore.Instance.QualityMode);
