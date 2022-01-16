@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace BeatSaberCinema
 {
@@ -96,6 +97,30 @@ namespace BeatSaberCinema
 		public static bool IsMultiplayer()
 		{
 			return MultiplayerPatch.IsMultiplayer;
+		}
+
+		public static string GetEnvironmentName()
+		{
+			var environmentName = "MainMenu";
+			if (SceneManager.GetActiveScene().name != "GameCore")
+			{
+				return environmentName;
+			}
+
+			var sceneCount = SceneManager.sceneCount;
+			for (var i = 0; i < sceneCount; i++)
+			{
+				var sceneName = SceneManager.GetSceneAt(i).name;
+				if (!sceneName.EndsWith("Environment"))
+				{
+					continue;
+				}
+
+				environmentName = sceneName;
+				break;
+			}
+
+			return environmentName;
 		}
 	}
 }

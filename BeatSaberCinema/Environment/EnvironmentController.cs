@@ -18,7 +18,7 @@ namespace BeatSaberCinema
 		private const string CLONED_OBJECT_NAME_SUFFIX = " (CinemaClone)";
 
 		private static bool _environmentModified;
-		private static string _currentEnvironment = "Menu";
+		private static string _currentEnvironmentName = "MainMenu";
 		private static List<EnvironmentObject>? _environmentObjectList;
 		private static IEnumerable<EnvironmentObject> EnvironmentObjects
 		{
@@ -39,7 +39,7 @@ namespace BeatSaberCinema
 				foreach (var gameObject in gameObjects)
 				{
 					//Relevant GameObjects are mostly in "GameCore" or the scene of the current environment, so filter out everything else
-					if (gameObject.scene != activeScene && gameObject.scene.name != _currentEnvironment)
+					if (gameObject.scene != activeScene && gameObject.scene.name != _currentEnvironmentName)
 					{
 						continue;
 					}
@@ -70,21 +70,11 @@ namespace BeatSaberCinema
 
 		private static void SceneChanged()
 		{
-			_currentEnvironment = "MainMenu";
-			var sceneName = SceneManager.GetActiveScene().name;
-			if (sceneName == "GameCore")
-			{
-				var environment = GameObject.Find("Environment");
-				if (environment != null)
-				{
-					_currentEnvironment = environment.scene.name;
-				}
-			}
-			else
+			_currentEnvironmentName = Util.GetEnvironmentName();
+			if (_currentEnvironmentName == "MainMenu")
 			{
 				Reset();
 			}
-			Log.Debug($"Environment name (new method): {_currentEnvironment}");
 		}
 
 		private static void SceneChanged(ScenesTransitionSetupDataSO scenesTransitionSetupDataSo)
@@ -110,7 +100,7 @@ namespace BeatSaberCinema
 			}
 
 			_environmentModified = true;
-			Log.Debug("Loaded environment: "+BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName);
+			Log.Debug("Loaded environment: "+_currentEnvironmentName);
 
 			var stopwatch = new Stopwatch();
 			stopwatch.Start();
@@ -211,7 +201,7 @@ namespace BeatSaberCinema
 				frontLights.SetActive(false);
 			}
 
-			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
+			switch (_currentEnvironmentName)
 			{
 				case "NiceEnvironment":
 				case "BigMirrorEnvironment":
@@ -1153,7 +1143,7 @@ namespace BeatSaberCinema
 			var name = selectByCloneFrom ? modification.cloneFrom! : modification.name;
 			string newName = name;
 
-			switch (BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.serializedName)
+			switch (_currentEnvironmentName)
 			{
 				case "BigMirrorEnvironment":
 				{
