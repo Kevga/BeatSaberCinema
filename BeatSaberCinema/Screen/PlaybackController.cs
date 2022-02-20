@@ -598,9 +598,26 @@ namespace BeatSaberCinema
 			{
 				Log.Debug("Waiting for ATSC to be ready");
 				yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
-				_timeSyncController = Util.IsMultiplayer() ?
-					Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().First(atsc => atsc.transform.parent.parent.parent.name.Contains("(Clone)")) :
-					Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
+
+				//There can be multiple ATSC behaviors
+				if (Util.IsMultiplayer())
+				{
+					//Hierarchy: MultiplayerLocalActivePlayerController(Clone)/IsActiveObjects/GameplayCore/SongController
+					_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.parent.name.Contains("(Clone)"));
+				}
+				else
+				{
+					//Hierarchy: Wrapper/StandardGameplay/GameplayCore/SongController
+					_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.name.Contains("StandardGameplay"));
+				}
+
+				if (_timeSyncController == null)
+				{
+					Log.Warn("Could not find ATSC the usual way. Did the object hierarchy change?");
+
+					//This throws an exception if we still don't find the ATSC
+					_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
+				}
 
 				_activeAudioSource = _timeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
 			}

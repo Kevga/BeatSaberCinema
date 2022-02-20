@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using IPA.Utilities;
 using JetBrains.Annotations;
+
 // ReSharper disable InconsistentNaming
 
 namespace BeatSaberCinema
@@ -9,9 +10,9 @@ namespace BeatSaberCinema
 	[UsedImplicitly]
 	internal class MultiplayerPatch
 	{
-		private static MultiplayerLobbyConnectionController.LobbyConnectionType _connectionType;
+		private static MultiplayerLobbyConnectionController.LobbyConnectionType? _connectionType;
 
-		public static bool IsMultiplayer => _connectionType != MultiplayerLobbyConnectionController.LobbyConnectionType.None;
+		public static bool IsMultiplayer => _connectionType != null && _connectionType != MultiplayerLobbyConnectionController.LobbyConnectionType.None;
 
 		/// <summary>
 		/// Gets the current lobby type.
