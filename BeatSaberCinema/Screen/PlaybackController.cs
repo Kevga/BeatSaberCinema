@@ -194,7 +194,7 @@ namespace BeatSaberCinema
 
 		public void FrameReady(VideoPlayer videoPlayer, long frame)
 		{
-			if (_activeAudioSource == null)
+			if (_activeAudioSource == null || VideoConfig == null)
 			{
 				return;
 			}
@@ -208,7 +208,7 @@ namespace BeatSaberCinema
 			}
 
 			var playerTime = VideoPlayer.Player.time;
-			var referenceTime = audioSourceTime + (VideoConfig!.offset / 1000f);
+			var referenceTime = audioSourceTime + (VideoConfig.offset / 1000f);
 			if (VideoPlayer.VideoDuration > 0)
 			{
 				referenceTime %= VideoPlayer.VideoDuration;
