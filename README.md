@@ -72,7 +72,7 @@ These basic settings get set automatically when you add a video to your map.
 | Property                   		| Data Type | Default       	    | Description |
 | --------------------------------- |:---------:|:---------------------:| ----------- |
 | `videoID`                  		| string    | *none*           	 	| The YouTube video ID from the part after the `&v=` in the URL, e.g.: youtube.com/watch?v=**\_qwnHeMKbVA** |
-| `videoUrl`                  		| string    | *none*           	 	| Use this parameter instead of videoID if you want to use a video hoster other than YouTube. Provide the full video URL for this parameter. Currently supported are the following video sources: **YouTube, Facebook, Dailymotion, Vimeo, Bilibili**. |
+| `videoUrl`                  		| string    | *none*           	 	| Use this parameter instead of videoID if you want to use a video hoster other than YouTube. Provide the full video URL for this parameter. Currently supported are the following video sources: **YouTube, Facebook, Dailymotion, Vimeo**. |
 | `title`                    		| string    | Untitled Video   	 	| The title of the video. Will be shown to the user. |
 | `author`                   		| string    | Unknown Author   	 	| The name of the video's uploader. Will be shown to the user. |
 | `videoFile`                		| string    | *none*           	 	| Name of the video file on the local file system. Path is not included, the file is assumed to be in the map's folder. Will be set automatically after downloading and set to the title of the video, with illegal characters replaced by `_`. |

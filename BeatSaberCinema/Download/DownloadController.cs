@@ -23,7 +23,6 @@ namespace BeatSaberCinema
 			"https://www.youtube.com/",
 			"https://www.dailymotion.com/",
 			"https://www.facebook.com/",
-			"https://www.bilibili.com/",
 			"https://vimeo.com/"
 		};
 

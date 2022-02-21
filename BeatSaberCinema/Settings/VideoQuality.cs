@@ -35,10 +35,6 @@ namespace BeatSaberCinema
 			{
 				qualityString = "mp4";
 			}
-			else if (config.videoUrl.StartsWith("https://www.bilibili.com"))
-			{
-				qualityString = "best";
-			}
 			else
 			{
 				qualityString = $"best[height<={(int) quality}][vcodec*=avc1]";
