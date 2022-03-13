@@ -378,6 +378,7 @@ namespace BeatSaberCinema
 			try
 			{
 				File.WriteAllText(videoJsonPath, JsonConvert.SerializeObject(videoConfig, Formatting.Indented));
+				videoConfig.NeedsToSave = false;
 			}
 			catch (Exception e)
 			{
