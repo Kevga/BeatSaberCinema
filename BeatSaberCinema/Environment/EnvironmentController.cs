@@ -853,6 +853,17 @@ namespace BeatSaberCinema
 					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
+				case "WeaveEnvironment":
+				{
+					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
+					{
+						Position = videoConfig?.screenPosition ?? new Vector3(0f, 1.5f, 21f), Rotation = videoConfig?.screenRotation ?? new Vector3(0f, 0f, 0f),
+						Height = videoConfig?.screenHeight ?? 4.3f,
+						Curvature = videoConfig?.screenCurvature
+					};
+					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
+					break;
+				}
 			}
 		}
 
