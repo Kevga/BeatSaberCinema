@@ -407,7 +407,7 @@ namespace BeatSaberCinema
 			}
 			else
 			{
-				VideoPlayer.SetPlacement(new Placement(config, _activeScene, VideoPlayer.GetVideoAspectRatio()));
+				VideoPlayer.SetPlacement(Placement.CreatePlacementForConfig(config, _activeScene, VideoPlayer.GetVideoAspectRatio()));
 			}
 
 			if (previousVideoPath != config.VideoPath)
@@ -575,7 +575,7 @@ namespace BeatSaberCinema
 				VideoLoader.SaveVideoConfig(VideoConfig);
 			}
 
-			VideoPlayer.SetPlacement(Util.IsMultiplayer() ? Placement.MultiplayerPlacement : new Placement(VideoConfig, _activeScene, VideoPlayer.GetVideoAspectRatio()));
+			VideoPlayer.SetPlacement(Placement.CreatePlacementForConfig(VideoConfig, _activeScene, VideoPlayer.GetVideoAspectRatio()));
 
 			//Fixes rough pop-in at the start of the song when transparency is disabled
 			if (VideoConfig.TransparencyEnabled)

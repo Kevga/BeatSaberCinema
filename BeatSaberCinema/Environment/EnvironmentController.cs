@@ -563,15 +563,6 @@ namespace BeatSaberCinema
 					{
 						hud.transform.localScale = invertedScale;
 					}
-
-					//Use different defaults for this environment
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
-						{
-							Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.2f, 52.7f), Rotation = videoConfig?.screenRotation ?? Vector3.zero,
-							Height = videoConfig?.screenHeight ?? 16f,
-							Curvature = videoConfig?.screenCurvature ?? 0f
-						};
-					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
 				case "KaleidoscopeEnvironment":
@@ -593,14 +584,6 @@ namespace BeatSaberCinema
 						var localPos = glowLine.transform.localPosition;
 						glowLine.transform.localPosition = new Vector3(localPos.x, localPos.y - coneOffset, localPos.z);
 					}
-
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
-						{
-							Position = videoConfig?.screenPosition ?? new Vector3(0f, 1f, 35f), Rotation = videoConfig?.screenRotation ?? Vector3.zero,
-							Height = videoConfig?.screenHeight ?? 12f,
-							Curvature = videoConfig?.screenCurvature
-						};
-					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
 				case "GlassDesertEnvironment":
@@ -629,14 +612,6 @@ namespace BeatSaberCinema
 					{
 						light.SetActive(false);
 					}
-
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
-						{
-							Position = videoConfig?.screenPosition ?? new Vector3(0f, 6.3f, 37f), Rotation = videoConfig?.screenRotation ?? Vector3.zero,
-							Height = videoConfig?.screenHeight ?? 12.5f,
-							Curvature = videoConfig?.screenCurvature
-						};
-					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
 				case "CrabRaveEnvironment":
@@ -819,15 +794,6 @@ namespace BeatSaberCinema
 						laser11.transform.position = new Vector3(-12.4f, 10f, 9.3f);
 						laser11.transform.eulerAngles = new Vector3(0f, 0, 30);
 					}
-
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
-						{
-							Position = videoConfig?.screenPosition ?? new Vector3(0f, 5.46f, 40f), Rotation = videoConfig?.screenRotation ?? new Vector3(-5f, 0f, 0f),
-							Height = videoConfig?.screenHeight ?? 13f,
-							Curvature = videoConfig?.screenCurvature
-						};
-					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
-
 					break;
 				}
 				case "SkrillexEnvironment":
@@ -843,25 +809,6 @@ namespace BeatSaberCinema
 					{
 						skrillexLogoBottom.transform.position = new Vector3(-0.23f, -15.5f, 60f);
 					}
-
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
-						{
-							Position = videoConfig?.screenPosition ?? new Vector3(0f, 1.5f, 30f), Rotation = videoConfig?.screenRotation ?? new Vector3(0f, 0f, 0f),
-							Height = videoConfig?.screenHeight ?? 12f,
-							Curvature = videoConfig?.screenCurvature
-						};
-					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
-					break;
-				}
-				case "WeaveEnvironment":
-				{
-					var placement = new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
-					{
-						Position = videoConfig?.screenPosition ?? new Vector3(0f, 1.5f, 21f), Rotation = videoConfig?.screenRotation ?? new Vector3(0f, 0f, 0f),
-						Height = videoConfig?.screenHeight ?? 4.3f,
-						Curvature = videoConfig?.screenCurvature
-					};
-					PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
 					break;
 				}
 			}
@@ -1014,7 +961,8 @@ namespace BeatSaberCinema
 			}
 
 			PlaybackController.Instance.VideoPlayer.SetPlacement(
-				new Placement(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio()));
+				Placement.CreatePlacementForConfig(videoConfig, PlaybackController.Scene.SoloGameplay, PlaybackController.Instance.VideoPlayer.GetVideoAspectRatio())
+			);
 			PlaybackController.Instance.VideoPlayer.screenController.SetShaderParameters(videoConfig);
 		}
 
