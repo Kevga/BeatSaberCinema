@@ -27,7 +27,6 @@ namespace BeatSaberCinema
 		private string _currentlyPlayingVideo = "";
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
-		private float _correctPlaybackSpeed = 1.0f;
 		private const float MAX_VOLUME = 0.28f; //Don't ask, I don't know either.
 		[NonSerialized] public float VolumeScale = 1.0f;
 		private bool _muted = true;
@@ -44,15 +43,7 @@ namespace BeatSaberCinema
 		public float PlaybackSpeed
 		{
 			get => Player.playbackSpeed;
-			set
-			{
-				if (!IsSyncing)
-				{
-					_correctPlaybackSpeed = value;
-				}
-
-				Player.playbackSpeed = value;
-			}
+			set => Player.playbackSpeed = value;
 		}
 
 		public float VideoDuration => (float) Player.length;
@@ -190,12 +181,6 @@ namespace BeatSaberCinema
 			myLoadedAssetBundle.Unload(false);
 
 			return shader;
-		}
-
-		public void ResetPlaybackSpeed()
-		{
-			Player.playbackSpeed = _correctPlaybackSpeed;
-			IsSyncing = false;
 		}
 
 		public void FadeControllerUpdate(float value)

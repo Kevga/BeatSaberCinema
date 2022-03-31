@@ -112,17 +112,19 @@ namespace BeatSaberCinema
 
 		public void ResumeVideo()
 		{
-			if (Plugin.Enabled && !VideoPlayer.IsPlaying && VideoConfig != null && (!VideoPlayer.VideoEnded || VideoConfig.loop == true))
+			if (!Plugin.Enabled || VideoPlayer.IsPlaying || VideoConfig == null || (VideoPlayer.VideoEnded && VideoConfig.loop != true))
 			{
-				var referenceTime = GetReferenceTime();
-				if (referenceTime > 0)
-				{
-					VideoPlayer.Play();
-				}
-				else
-				{
-					StartCoroutine(PlayVideoDelayedCoroutine(-referenceTime));
-				}
+				return;
+			}
+
+			var referenceTime = GetReferenceTime();
+			if (referenceTime > 0)
+			{
+				VideoPlayer.Play();
+			}
+			else
+			{
+				StartCoroutine(PlayVideoDelayedCoroutine(-referenceTime));
 			}
 		}
 
@@ -165,7 +167,7 @@ namespace BeatSaberCinema
 				return 0;
 			}
 
-			return _activeAudioSource.time + (VideoConfig.offset / 1000f);
+			return (_activeAudioSource.time * VideoConfig.PlaybackSpeed) + (VideoConfig.offset / 1000f);
 		}
 
 		public void ResyncVideo()
@@ -208,7 +210,7 @@ namespace BeatSaberCinema
 			}
 
 			var playerTime = VideoPlayer.Player.time;
-			var referenceTime = audioSourceTime + (VideoConfig.offset / 1000f);
+			var referenceTime = GetReferenceTime();
 			if (VideoPlayer.VideoDuration > 0)
 			{
 				referenceTime %= VideoPlayer.VideoDuration;
@@ -698,15 +700,15 @@ namespace BeatSaberCinema
 					songSpeed = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.practiceSettings.songSpeedMul;
 					if ((totalOffset+startTime) < 0)
 					{
-						totalOffset /= songSpeed;
+						totalOffset /= (songSpeed * VideoConfig.PlaybackSpeed);
 					}
 				}
 			}
 
-			VideoPlayer.PlaybackSpeed = songSpeed;
+			VideoPlayer.PlaybackSpeed = songSpeed * VideoConfig.PlaybackSpeed;
 			totalOffset += startTime; //This must happen after song speed adjustment
 
-			if (songSpeed < 1f && totalOffset > 0f)
+			if ((songSpeed * VideoConfig.PlaybackSpeed) < 1f && totalOffset > 0f)
 			{
 				//Unity crashes if the playback speed is less than 1 and the video time at the start of playback is greater than 0
 				Log.Warn("Video playback disabled to prevent Unity crash");

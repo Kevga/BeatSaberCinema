@@ -20,7 +20,8 @@ namespace BeatSaberCinema
 		public string? author;
 		public string? videoFile;
 		public int duration; //s
-		public int offset; //in ms
+		public int offset; //ms
+		public float? playbackSpeed; //percent
 		public bool? loop;
 		public float? endVideoAt;
 		public bool? configByMapper;
@@ -79,6 +80,7 @@ namespace BeatSaberCinema
 		[JsonIgnore] public bool IsPlayable => (DownloadState == DownloadState.Downloaded || IsStreamable) && !PlaybackDisabledByMissingSuggestion;
 		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains(VideoLoader.WIP_DIRECTORY_NAME);
 		[JsonIgnore] public bool EnvironmentModified => (environment != null && environment.Length > 0) || screenPosition != null || screenHeight != null;
+		public float PlaybackSpeed => playbackSpeed ?? 1;
 
 
 		private static Regex _regexParseID = new Regex(@"\/watch\?v=([a-z0-9_-]*)",
