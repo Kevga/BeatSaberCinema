@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace BeatSaberCinema
 {
-	internal class CustomBloomPrePass : MonoBehaviour, CameraRenderCallbacksManager.ICameraRenderCallbacks
+	internal class CustomBloomPrePass : MonoBehaviour
 	{
 		//Most cameras have their own BloomPrePass, so save one for each camera and use that when rendering the bloom for the camera
 		private readonly Dictionary<Camera, BloomPrePass?> _bloomPrePassDict = new Dictionary<Camera, BloomPrePass?>();
@@ -248,18 +248,18 @@ namespace BeatSaberCinema
 			UpdateMesh();
 		}
 
-		private void OnWillRenderObject() {
-			CameraRenderCallbacksManager.RegisterForCameraCallbacks(Camera.current, this);
+		public void OnEnable()
+		{
+			Camera.onPreRender = (Camera.CameraCallback)Delegate.Combine(Camera.onPreRender, new Camera.CameraCallback(OnCameraPreRender));
 		}
 
 		public void OnDisable()
 		{
-			CameraRenderCallbacksManager.UnregisterFromCameraCallbacks(this);
+			Camera.onPreRender = (Camera.CameraCallback)Delegate.Remove(Camera.onPreRender, new Camera.CameraCallback(OnCameraPreRender))!;
 		}
 
 		private void OnDestroy()
 		{
-			CameraRenderCallbacksManager.UnregisterFromCameraCallbacks(this);
 			BSEvents.menuSceneLoaded -= UpdateMesh;
 			BSEvents.gameSceneLoaded -= UpdateMesh;
 			BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoaded;
