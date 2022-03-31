@@ -321,14 +321,6 @@ namespace BeatSaberCinema
 					{
 						Log.Warn("BTS movement effect not found");
 					}
-
-					if (videoConfig!.screenPosition == null)
-					{
-						var placement = Placement.GetDefaultPlacementForScene(PlaybackController.Scene.SoloGameplay);
-						placement.Position.z = 80;
-						PlaybackController.Instance.VideoPlayer.SetPlacement(placement);
-					}
-
 					break;
 				}
 				case "OriginsEnvironment":

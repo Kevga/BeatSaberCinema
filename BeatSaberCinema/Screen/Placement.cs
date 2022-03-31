@@ -60,9 +60,9 @@ namespace BeatSaberCinema
 			);
 
 			placement.Width = placement.Height * aspectRatio;
-			placement.Curvature = config?.screenCurvature;
-			placement.Subsurfaces = config?.screenSubsurfaces;
-			placement.CurveYAxis = config?.curveYAxis;
+			placement.Curvature = config.screenCurvature ?? defaultPlacement.Curvature;
+			placement.Subsurfaces = config.screenSubsurfaces;
+			placement.CurveYAxis = config.curveYAxis;
 
 			return placement;
 		}
@@ -90,6 +90,7 @@ namespace BeatSaberCinema
 				"MonstercatEnvironment" => new Placement(new Vector3(0f, 5.46f, 40f), new Vector3(-5f, 0f, 0f), 13f),
 				"SkrillexEnvironment" => new Placement(new Vector3(0f, 1.5f, 30f), Vector3.zero, 12f),
 				"WeaveEnvironment" => new Placement(new Vector3(0f, 1.5f, 21f), Vector3.zero, 4.3f, null, 0f),
+				"PyroEnvironment" => new Placement(new Vector3(0f, 12f, 60f), Vector3.zero, 24f, null, 0f),
 				_ => null
 			};
 		}

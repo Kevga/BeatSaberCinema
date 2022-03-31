@@ -72,7 +72,8 @@ namespace BeatSaberCinema
 					"MonstercatEnvironment",
 					"CrabRaveEnvironment",
 					"SkrillexEnvironment",
-					"WeaveEnvironment"
+					"WeaveEnvironment",
+					"PyroEnvironment"
 				};
 
 				var mapEnvironmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();
