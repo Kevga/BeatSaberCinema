@@ -942,10 +942,16 @@ namespace BeatSaberCinema
 			Log.Debug($"Screens found: {screenCount}");
 			foreach (Transform screen in PlaybackController.Instance.gameObject.transform)
 			{
+				if (!screen.name.StartsWith("CinemaScreen"))
+				{
+					return;
+				}
+
 				if (screen.name.Contains("Clone"))
 				{
 					PlaybackController.Instance.VideoPlayer.screenController.Screens.Add(screen.gameObject);
 					screen.GetComponent<Renderer>().material = PlaybackController.Instance.VideoPlayer.screenController.Screens[0].GetComponent<Renderer>().material;
+					Object.Destroy(screen.Find("CinemaDirectionalLight").gameObject);
 				}
 
 				screen.gameObject.GetComponent<CustomBloomPrePass>().enabled = false;
