@@ -16,7 +16,7 @@ namespace BeatSaberCinema
 		private AudioSource _videoPlayerAudioSource = null!;
 		internal ScreenController screenController = null!;
 		private Renderer _screenRenderer  = null!;
-		private EasingController _fadeController = null!;
+		internal EasingController FadeController = null!;
 
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
 		private const float MAX_BRIGHTNESS = 0.92f;
@@ -32,6 +32,8 @@ namespace BeatSaberCinema
 		private bool _muted = true;
 		private bool _bodyVisible;
 		private bool _waitingForFadeOut;
+
+		internal event Action? stopped;
 		public bool VideoEnded { get; private set; }
 
 		public Color ScreenColor
@@ -64,7 +66,7 @@ namespace BeatSaberCinema
 		}
 
 		public bool IsPlaying => Player.isPlaying;
-		public bool IsFading => _fadeController.IsFading;
+		public bool IsFading => FadeController.IsFading;
 		public bool IsPrepared => Player.isPrepared;
 		[NonSerialized] public bool IsSyncing;
 
@@ -98,8 +100,8 @@ namespace BeatSaberCinema
 			_videoPlayerAudioSource.playOnAwake = false;
 			_videoPlayerAudioSource.spatialize = false;
 
-			_fadeController = new EasingController();
-			_fadeController.EasingUpdate += FadeControllerUpdate;
+			FadeController = new EasingController();
+			FadeController.EasingUpdate += FadeControllerUpdate;
 			Hide();
 
 			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
@@ -124,7 +126,7 @@ namespace BeatSaberCinema
 		public void OnDestroy()
 		{
 			BSEvents.menuSceneLoaded -= OnMenuSceneLoaded;
-			_fadeController.EasingUpdate -= FadeControllerUpdate;
+			FadeController.EasingUpdate -= FadeControllerUpdate;
 		}
 
 #if DEBUG
@@ -262,7 +264,7 @@ namespace BeatSaberCinema
 		{
 			screenController.SetScreensActive(true);
 			_waitingForFadeOut = false;
-			_fadeController.EaseIn(duration);
+			FadeController.EaseIn(duration);
 		}
 
 		public void Hide()
@@ -273,13 +275,13 @@ namespace BeatSaberCinema
 		public void FadeOut(float duration = 0.4f)
 		{
 			_waitingForFadeOut = true;
-			_fadeController.EaseOut(duration);
+			FadeController.EaseOut(duration);
 		}
 
 		public void ShowScreenBody()
 		{
 			_bodyVisible = true;
-			if (!_fadeController.IsFading && _fadeController.IsOne)
+			if (!FadeController.IsFading && FadeController.IsOne)
 			{
 				screenController.SetScreenBodiesActive(true);
 			}
@@ -288,7 +290,7 @@ namespace BeatSaberCinema
 		public void HideScreenBody()
 		{
 			_bodyVisible = false;
-			if (!_fadeController.IsFading)
+			if (!FadeController.IsFading)
 			{
 				screenController.SetScreenBodiesActive(false);
 			}
@@ -313,11 +315,13 @@ namespace BeatSaberCinema
 		{
 			Log.Debug("Stopping playback");
 			Player.Stop();
+			stopped?.Invoke();
 			SetStaticTexture(null);
 		}
 
 		public void Prepare()
 		{
+			stopped?.Invoke();
 			_waitingForFadeOut = false;
 			Player.Prepare();
 		}
