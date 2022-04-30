@@ -451,7 +451,7 @@ namespace BeatSaberCinema
 		{
 			if (!File.Exists(configPath))
 			{
-				Log.Warn("Config file "+configPath+" does not exist");
+				Log.Warn($"Config file {configPath} does not exist");
 				return null;
 			}
 
@@ -477,8 +477,16 @@ namespace BeatSaberCinema
 				return null;
 			}
 
-			videoConfig.LevelDir = Path.GetDirectoryName(configPath);
-			videoConfig.UpdateDownloadState();
+			// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+			if (videoConfig != null)
+			{
+				videoConfig.LevelDir = Path.GetDirectoryName(configPath);
+				videoConfig.UpdateDownloadState();
+			}
+			else
+			{
+				Log.Warn($"Deserializing video config at {configPath} failed");
+			}
 
 			return videoConfig;
 		}
