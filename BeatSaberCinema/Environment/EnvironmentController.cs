@@ -803,6 +803,15 @@ namespace BeatSaberCinema
 					}
 					break;
 				}
+				case "PyroEnvironment":
+				{
+					var logo = EnvironmentObjects.LastOrDefault(x => x.name == "PyroLogo" && x.activeInHierarchy);
+					if (logo != null)
+					{
+						logo.SetActive(false);
+					}
+					break;
+				}
 			}
 		}
 
