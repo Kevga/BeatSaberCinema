@@ -70,7 +70,7 @@ namespace BeatSaberCinema
 			Instance = this;
 
 			VideoPlayer = gameObject.AddComponent<CustomVideoPlayer>();
-			gameObject.AddComponent<DirectionalLightController>();
+			gameObject.AddComponent<LightController>();
 			VideoPlayer.Player.frameReady += FrameReady;
 			VideoPlayer.Player.sendFrameReadyEvents = true;
 			BSEvents.gameSceneActive += GameSceneActive;
