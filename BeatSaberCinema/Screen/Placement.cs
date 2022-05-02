@@ -14,7 +14,7 @@ namespace BeatSaberCinema
 
 		private static Placement SoloGameplayPlacement => new Placement(
 			new Vector3(0, 12.4f, 67.8f),
-			new Vector3(-8, 0, 0),
+			new Vector3(-7, 0, 0),
 			25f
 		);
 
@@ -83,12 +83,13 @@ namespace BeatSaberCinema
 			return Util.GetEnvironmentName() switch
 			{
 				"LinkinParkEnvironment" => new Placement(new Vector3(0f, 6.2f, 52.7f), Vector3.zero, 16f, null, 0f),
-				"BTSEnvironment" => new Placement(new Vector3(0, 12.4f, 80f), new Vector3(-8, 0, 0), 25f),
+				"BTSEnvironment" => new Placement(new Vector3(0, 12.4f, 80f), new Vector3(-7, 0, 0), 25f),
+				"OriginsEnvironment" => new Placement(new Vector3(0, 12.4f, 66.7f), new Vector3(-7, 0, 0), 25f),
 				"KaleidoscopeEnvironment" => new Placement(new Vector3(0f, 1f, 35f), Vector3.zero, 12f),
 				"InterscopeEnvironment" => new Placement(new Vector3(0f, 6.3f, 37f), Vector3.zero, 12.5f),
 				"CrabRaveEnvironment" => new Placement(new Vector3(0f, 5.46f, 40f), new Vector3(-5f, 0f, 0f), 13f),
 				"MonstercatEnvironment" => new Placement(new Vector3(0f, 5.46f, 40f), new Vector3(-5f, 0f, 0f), 13f),
-				"SkrillexEnvironment" => new Placement(new Vector3(0f, 1.5f, 30f), Vector3.zero, 12f),
+				"SkrillexEnvironment" => new Placement(new Vector3(0f, 1.5f, 40f), Vector3.zero, 12f),
 				"WeaveEnvironment" => new Placement(new Vector3(0f, 1.5f, 21f), Vector3.zero, 4.3f, null, 0f),
 				"PyroEnvironment" => new Placement(new Vector3(0f, 12f, 60f), Vector3.zero, 24f, null, 0f),
 				_ => null
