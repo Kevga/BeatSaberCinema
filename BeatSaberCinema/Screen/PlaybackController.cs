@@ -370,7 +370,7 @@ namespace BeatSaberCinema
 			_activeScene = Scene.Menu;
 			VideoPlayer.Hide();
 			StopAllCoroutines();
-			_previewWaitingForPreviewPlayer = false;
+			_previewWaitingForPreviewPlayer = true;
 
 			if (VideoConfig != null)
 			{
