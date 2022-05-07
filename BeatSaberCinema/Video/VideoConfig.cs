@@ -63,7 +63,15 @@ namespace BeatSaberCinema
 			{
 				if (videoFile != null && IsLocal && LevelDir != null)
 				{
-					return Path.Combine(LevelDir, videoFile);
+					try
+					{
+						return Path.Combine(LevelDir, videoFile);
+					}
+					catch (Exception e)
+					{
+						Log.Error($"Failed to combine video path for {videoFile}: {e.Message}");
+						return null;
+					}
 				}
 
 				if (videoFile != null && IsStreamable)
