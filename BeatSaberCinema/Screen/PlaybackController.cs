@@ -414,6 +414,7 @@ namespace BeatSaberCinema
 
 			if (previousVideoPath != config.VideoPath)
 			{
+				VideoPlayer.Player.prepareCompleted += ConfigChangedPrepareHandler;
 				PrepareVideo(config);
 			}
 			else
@@ -435,6 +436,32 @@ namespace BeatSaberCinema
 			if (_activeScene == Scene.SoloGameplay)
 			{
 				EnvironmentController.VideoConfigSceneModifications(VideoConfig);
+			}
+		}
+
+		private void ConfigChangedPrepareHandler(VideoPlayer sender)
+		{
+			sender.prepareCompleted -= ConfigChangedPrepareHandler;
+			if (_activeScene == Scene.Menu || _activeAudioSource == null)
+			{
+				return;
+			}
+
+			sender.frameReady += ConfigChangedFrameReadyHandler;
+			PlayVideo(_activeAudioSource!.time);
+		}
+
+		private void ConfigChangedFrameReadyHandler(VideoPlayer sender, long frameIdx)
+		{
+			sender.frameReady -= ConfigChangedFrameReadyHandler;
+			if (_activeAudioSource == null)
+			{
+				return;
+			}
+
+			if (!_activeAudioSource.isPlaying)
+			{
+				VideoPlayer.Pause();
 			}
 		}
 
