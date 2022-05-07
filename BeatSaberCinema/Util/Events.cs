@@ -1,6 +1,5 @@
 ﻿using System;
 
-// These events are primarily for other mods to use, so they have no usages in this code base
 // ReSharper disable EventNeverSubscribedTo.Global
 
 namespace BeatSaberCinema
@@ -22,12 +21,12 @@ namespace BeatSaberCinema
 		/// <summary>
 		/// Informs about the selected level in Solo or Party mode. Is fired a bit earlier than the BSEvents event.
 		/// </summary>
-		public static event Action<IPreviewBeatmapLevel?>? LevelSelected;
+		public static event Action<LevelSelectedArgs>? LevelSelected;
 
 		/// <summary>
 		/// Broadcasts SongCores DifficultyData every time the LevelDetailView is refreshed
 		/// </summary>
-		public static event Action<SongCore.Data.ExtraSongData?, SongCore.Data.ExtraSongData.DifficultyData?>? DifficultySelected;
+		public static event Action<ExtraSongDataArgs>? DifficultySelected;
 
 		internal static void InvokeSceneTransitionEvents(VideoConfig? videoConfig)
 		{
@@ -58,12 +57,12 @@ namespace BeatSaberCinema
 
 		internal static void SetSelectedLevel(IPreviewBeatmapLevel? level)
 		{
-			LevelSelected?.Invoke(level);
+			LevelSelected?.InvokeSafe(new LevelSelectedArgs(level), nameof(LevelSelected));
 		}
 
 		internal static void SetExtraSongData(SongCore.Data.ExtraSongData? songData, SongCore.Data.ExtraSongData.DifficultyData? selectedDifficultyData)
 		{
-			DifficultySelected?.Invoke(songData, selectedDifficultyData);
+			DifficultySelected?.InvokeSafe(new ExtraSongDataArgs(songData, selectedDifficultyData), nameof(DifficultySelected));
 		}
 	}
 }

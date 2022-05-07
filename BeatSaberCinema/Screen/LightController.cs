@@ -74,7 +74,7 @@ namespace BeatSaberCinema
 			VideoStopped();
 		}
 
-		private void OnLevelSelected(IPreviewBeatmapLevel? obj)
+		private void OnLevelSelected(LevelSelectedArgs levelSelectedArgs)
 		{
 			if (_menuReferencesSet)
 			{

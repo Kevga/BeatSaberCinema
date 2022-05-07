@@ -7,7 +7,6 @@ using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
 using IPA.Utilities;
-using SongCore.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
@@ -477,12 +476,15 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private void DifficultySelected(ExtraSongData? songData, ExtraSongData.DifficultyData? difficultyData)
+		private void DifficultySelected(ExtraSongDataArgs extraSongDataArgs)
 		{
 			if (VideoConfig == null)
 			{
 				return;
 			}
+
+			var difficultyData = extraSongDataArgs.SelectedDifficultyData;
+			var songData = extraSongDataArgs.SongData;
 
 			//If there is any difficulty that has a Cinema suggestion but the current one doesn't, disable playback. The current difficulty most likely has the suggestion missing on purpose.
 			//If there are no difficulties that have the suggestion set, play the video. It might be a video added by the user.

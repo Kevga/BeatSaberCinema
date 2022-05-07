@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using SongCore.Data;
 
 namespace BeatSaberCinema
@@ -33,6 +34,34 @@ namespace BeatSaberCinema
 		public static bool HasCinemaInAnyDifficulty(this ExtraSongData songData)
 		{
 			return songData.HasCinemaSuggestionInAnyDifficulty() || songData.HasCinemaRequirementInAnyDifficulty();
+		}
+
+
+		/// <summary>
+		/// Raises an event, wrapping each delegate in a try/catch.
+		/// Exceptions thrown are logged, using <paramref name="eventName"/> to provide the name of the event the exception was thrown from.
+		/// Yoinked and adapted from BS_Utils.
+		/// </summary>
+		public static void InvokeSafe<T>(this Action<T>? e, T arg, string eventName)
+		{
+			if (e == null)
+			{
+				return;
+			}
+
+			Action<T>[] handlers = e.GetInvocationList().Select(d => (Action<T>)d).ToArray();
+			foreach (var handler in handlers)
+			{
+				try
+				{
+					handler.Invoke(arg);
+				}
+				catch (Exception ex)
+				{
+					Log.Error($"Exception thrown in '{eventName}' handler '{handler.Method.Name}': {ex.Message}");
+					Log.Debug(ex);
+				}
+			}
 		}
 	}
 }

@@ -520,15 +520,15 @@ namespace BeatSaberCinema
 			_searchText = _currentLevel.songName + (!string.IsNullOrEmpty(_currentLevel.songAuthorName) ? " " + _currentLevel.songAuthorName : "");
 		}
 
-		private void OnLevelSelected(IPreviewBeatmapLevel? level)
+		private void OnLevelSelected(LevelSelectedArgs levelSelectedArgs)
 		{
-			HandleDidSelectLevel(level);
+			HandleDidSelectLevel(levelSelectedArgs.PreviewBeatmapLevel);
 		}
 
-		private void OnDifficultySelected(ExtraSongData? songData, ExtraSongData.DifficultyData? difficultyData)
+		private void OnDifficultySelected(ExtraSongDataArgs extraSongDataArgs)
 		{
-			_extraSongData = songData;
-			_difficultyData = difficultyData;
+			_extraSongData = extraSongDataArgs.SongData;
+			_difficultyData = extraSongDataArgs.SelectedDifficultyData;
 			if (_currentVideo != null)
 			{
 				SetupLevelDetailView(_currentVideo);
