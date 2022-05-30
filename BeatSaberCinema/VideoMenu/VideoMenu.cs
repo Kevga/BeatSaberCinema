@@ -235,7 +235,10 @@ namespace BeatSaberCinema
 			switch (_currentVideo.DownloadState)
 			{
 				case DownloadState.Converting:
+				case DownloadState.Preparing:
 				case DownloadState.Downloading:
+				case DownloadState.DownloadingVideo:
+				case DownloadState.DownloadingAudio:
 					_deleteVideoButtonText.SetText("Cancel");
 					_previewButton.interactable = false;
 					_deleteVideoButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.grey;
@@ -360,9 +363,21 @@ namespace BeatSaberCinema
 					}
 
 					break;
+				case DownloadState.Preparing:
+					_levelDetailMenu.SetActive(true);
+					_levelDetailMenu.SetText($"Preparing download...", "Cancel", Color.yellow, Color.red);
+					break;
 				case DownloadState.Downloading:
 					_levelDetailMenu.SetActive(true);
 					_levelDetailMenu.SetText($"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress * 100).ToString()}%)", "Cancel", Color.yellow, Color.red);
+					break;
+				case DownloadState.DownloadingVideo:
+					_levelDetailMenu.SetActive(true);
+					_levelDetailMenu.SetText($"Downloading video ({Convert.ToInt32(videoConfig.DownloadProgress * 100).ToString()}%)", "Cancel", Color.yellow, Color.red);
+					break;
+				case DownloadState.DownloadingAudio:
+					_levelDetailMenu.SetActive(true);
+					_levelDetailMenu.SetText($"Downloading audio ({Convert.ToInt32(videoConfig.DownloadProgress * 100).ToString()}%)", "Cancel", Color.yellow, Color.red);
 					break;
 				case DownloadState.Converting:
 					_levelDetailMenu.SetActive(true);
@@ -373,7 +388,11 @@ namespace BeatSaberCinema
 					break;
 				case DownloadState.NotDownloaded:
 					_levelDetailMenu.SetActive(true);
-					if (_difficultyData?.HasCinemaRequirement() == true)
+					if (videoConfig.DownloadError != null)
+					{
+						_levelDetailMenu.SetText(videoConfig.DownloadError, "Retry", Color.red, Color.red);
+					}
+					else if (_difficultyData?.HasCinemaRequirement() == true)
 					{
 						_levelDetailMenu.SetText("Video required to play this map", "Download", Color.red, Color.green);
 					}
@@ -405,8 +424,23 @@ namespace BeatSaberCinema
 					_videoStatusText.text = "Downloaded";
 					_videoStatusText.color = Color.green;
 					break;
+				case DownloadState.Preparing:
+					_videoStatusText.text = $"Preparing download...";
+					_videoStatusText.color = Color.yellow;
+					_previewButton.interactable = false;
+					break;
 				case DownloadState.Downloading:
 					_videoStatusText.text = $"Downloading ({Convert.ToInt32(videoConfig.DownloadProgress * 100).ToString()}%)";
+					_videoStatusText.color = Color.yellow;
+					_previewButton.interactable = false;
+					break;
+				case DownloadState.DownloadingVideo:
+					_videoStatusText.text = $"Downloading video ({Convert.ToInt32(videoConfig.DownloadProgress * 100).ToString()}%)";
+					_videoStatusText.color = Color.yellow;
+					_previewButton.interactable = false;
+					break;
+				case DownloadState.DownloadingAudio:
+					_videoStatusText.text = $"Downloading audio ({Convert.ToInt32(videoConfig.DownloadProgress * 100).ToString()}%)";
 					_videoStatusText.color = Color.yellow;
 					_previewButton.interactable = false;
 					break;
@@ -421,7 +455,7 @@ namespace BeatSaberCinema
 					_previewButton.interactable = true;
 					break;
 				case DownloadState.NotDownloaded:
-					_videoStatusText.text = "Not downloaded";
+					_videoStatusText.text = videoConfig.DownloadError ?? "Not downloaded";
 					_videoStatusText.color = Color.red;
 					_previewButton.interactable = false;
 					break;
@@ -659,7 +693,7 @@ namespace BeatSaberCinema
 
 		private void OnDownloadFinished(VideoConfig video)
 		{
-			if (_currentVideo != video)
+			if (_currentVideo != video || video.DownloadError != null)
 			{
 				return;
 			}
@@ -703,7 +737,10 @@ namespace BeatSaberCinema
 
 			switch (_currentVideo.DownloadState)
 			{
+				case DownloadState.Preparing:
 				case DownloadState.Downloading:
+				case DownloadState.DownloadingAudio:
+				case DownloadState.DownloadingVideo:
 					_downloadController.CancelDownload(_currentVideo);
 					break;
 				case DownloadState.NotDownloaded:
@@ -740,7 +777,7 @@ namespace BeatSaberCinema
 			PlaybackController.Instance.StopPlayback();
 			PlaybackController.Instance.VideoPlayer.Hide();
 
-			if (_currentVideo.DownloadState == DownloadState.Downloading)
+			if (_currentVideo.IsDownloading)
 			{
 				_downloadController.CancelDownload(_currentVideo);
 			}

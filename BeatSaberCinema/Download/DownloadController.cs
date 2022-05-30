@@ -16,6 +16,11 @@ namespace BeatSaberCinema
 		private readonly ConcurrentDictionary<VideoConfig, Process> _downloadProcesses = new ConcurrentDictionary<VideoConfig, Process>();
 		private string _downloadLog = "";
 
+		private static readonly Regex DownloadProgressRegex = new Regex(
+			@"(?<percentage>\d+\.?\d*)%",
+			RegexOptions.Compiled | RegexOptions.CultureInvariant
+		);
+
 		public event Action<VideoConfig>? DownloadProgress;
 		public event Action<VideoConfig>? DownloadFinished;
 
@@ -43,7 +48,8 @@ namespace BeatSaberCinema
 				yield break;
 			}
 
-			video.DownloadState = DownloadState.Downloading;
+			video.DownloadError = null;
+			video.DownloadState = DownloadState.Preparing;
 			DownloadProgress?.Invoke(video);
 
 			Log.Info(
@@ -55,7 +61,7 @@ namespace BeatSaberCinema
 				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadOutputDataReceived(e, video); });
 
 			downloadProcess.ErrorDataReceived += (sender, e) =>
-				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadErrorDataReceived(e); });
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadErrorDataReceived(e, video); });
 
 			downloadProcess.Exited += (sender, e) =>
 				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadProcessExited((Process) sender, video); });
@@ -68,7 +74,7 @@ namespace BeatSaberCinema
 			yield return new WaitUntil(() => IsProcessRunning(downloadProcess) || startProcessTimeout.HasTimedOut);
 			startProcessTimeout.Stop();
 
-			yield return new WaitUntil(() => !IsProcessRunning(downloadProcess)|| timeout.HasTimedOut);
+			yield return new WaitUntil(() => !IsProcessRunning(downloadProcess) || timeout.HasTimedOut);
 			if (timeout.HasTimedOut)
 			{
 				Log.Warn("Timeout reached, disposing download process");
@@ -86,15 +92,22 @@ namespace BeatSaberCinema
 
 		private void DownloadOutputDataReceived(DataReceivedEventArgs eventArgs, VideoConfig video)
 		{
-			_downloadLog += eventArgs.Data+"\r\n";
+			_downloadLog += eventArgs.Data + "\r\n";
 			Log.Debug(eventArgs.Data);
 			ParseDownloadProgress(video, eventArgs);
 			DownloadProgress?.Invoke(video);
 		}
 
-		private static void DownloadErrorDataReceived(DataReceivedEventArgs eventArgs)
+		private void DownloadErrorDataReceived(DataReceivedEventArgs eventArgs, VideoConfig video)
 		{
-			Log.Error(eventArgs.Data);
+			var error = eventArgs.Data.Trim();
+			if (error.Length == 0)
+			{
+				return;
+			}
+
+			Log.Error(error);
+			video.DownloadError = ShortenErrorMessage(error);
 		}
 
 		private void DownloadProcessExited(Process process, VideoConfig video)
@@ -103,12 +116,12 @@ namespace BeatSaberCinema
 			if (exitCode != 0)
 			{
 				Log.Warn(_downloadLog.Length > 0 ? _downloadLog : "Empty youtube-dl log");
-
-				video.DownloadState = DownloadState.Cancelled;
+				video.DownloadState = DownloadState.NotDownloaded;
 			}
+
 			Log.Info($"Download process exited with code {exitCode}");
 
-			if (video.DownloadState == DownloadState.Cancelled)
+			if (video.DownloadState == DownloadState.Cancelled || video.DownloadState == DownloadState.NotDownloaded)
 			{
 				Log.Info("Cancelled download");
 				VideoLoader.DeleteVideo(video);
@@ -128,7 +141,7 @@ namespace BeatSaberCinema
 		private void DownloadProcessDisposed(object sender, EventArgs eventArgs)
 		{
 			var disposedProcess = (Process) sender;
-			foreach(var dictionaryEntry in _downloadProcesses.Where(keyValuePair => keyValuePair.Value == disposedProcess).ToList())
+			foreach (var dictionaryEntry in _downloadProcesses.Where(keyValuePair => keyValuePair.Value == disposedProcess).ToList())
 			{
 				var video = dictionaryEntry.Key;
 				var success = _downloadProcesses.TryRemove(dictionaryEntry.Key, out _);
@@ -151,22 +164,37 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			var rx = new Regex(@"(\d*).\d%+");
-			var match = rx.Match(dataReceivedEventArgs.Data);
+			var match = DownloadProgressRegex.Match(dataReceivedEventArgs.Data);
 			if (!match.Success)
 			{
 				if (dataReceivedEventArgs.Data.Contains("Converting video"))
 				{
 					video.DownloadState = DownloadState.Converting;
 				}
+				else if (dataReceivedEventArgs.Data.Contains("[download]"))
+				{
+					if (dataReceivedEventArgs.Data.EndsWith(".mp4"))
+					{
+						video.DownloadState = DownloadState.DownloadingVideo;
+					}
+					else if (dataReceivedEventArgs.Data.EndsWith(".m4a"))
+					{
+						video.DownloadState = DownloadState.DownloadingAudio;
+					}
+					else
+					{
+						video.DownloadState = DownloadState.Downloading;
+					}
+				}
+
 				return;
 			}
 
-			var ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+			var ci = (CultureInfo) CultureInfo.CurrentCulture.Clone();
 			ci.NumberFormat.NumberDecimalSeparator = ".";
 
 			video.DownloadProgress =
-				float.Parse(match.Value.Substring(0, match.Value.Length - 1), ci) / 100;
+				float.Parse(match.Groups["percentage"].Value, ci) / 100;
 		}
 
 		private IEnumerator WaitForDownloadToFinishCoroutine(VideoConfig video)
@@ -254,12 +282,42 @@ namespace BeatSaberCinema
 			{
 				DisposeProcess(process);
 			}
+
 			VideoLoader.DeleteVideo(video);
 		}
 
 		private bool UrlInWhitelist(string url)
 		{
 			return _videoHosterWhitelist.Any(url.StartsWith);
+		}
+
+		private static string ShortenErrorMessage(string rawError)
+		{
+			var error = rawError;
+			error = Regex.Replace(error, @"^ERROR: ", "");
+			var prefixRegex = new Regex(@"^\[(?<type>[^\]]*)\][^:]*:? (?<msg>.*)$");
+			var match = prefixRegex.Match(error);
+			string? errorType = null;
+			if (match.Success)
+			{
+				error = match.Groups["msg"].Value;
+				errorType = match.Groups["type"].Value;
+				if (!string.IsNullOrEmpty(errorType))
+				{
+					errorType = errorType.FirstCharToUpper();
+				}
+			}
+
+			if (error.Contains("The uploader has not made this video available in your country"))
+			{
+				error = "Video is geo-restricted";
+			}
+			else
+			{
+				error = $"{errorType ?? "Unknown"} error. See log for details.";
+			}
+
+			return error;
 		}
 	}
 }

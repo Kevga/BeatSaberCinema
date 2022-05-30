@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace BeatSaberCinema
 {
-	public enum DownloadState { NotDownloaded, Downloading, Converting, Downloaded, Cancelled }
+	public enum DownloadState { NotDownloaded, Preparing, Downloading, DownloadingVideo, DownloadingAudio, Converting, Downloaded, Cancelled }
 
 	[Serializable]
 	[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
@@ -31,6 +31,10 @@ namespace BeatSaberCinema
 		public bool? transparency;
 		[JsonIgnore] public bool TransparencyEnabled => ((transparency == null && !SettingsStore.Instance.TransparencyEnabled) ||
 		                                          (transparency != null && !transparency.Value));
+		[JsonIgnore] public bool IsDownloading => DownloadState == DownloadState.Preparing ||
+		                                          DownloadState == DownloadState.Downloading ||
+		                                          DownloadState == DownloadState.DownloadingVideo ||
+		                                          DownloadState == DownloadState.DownloadingAudio;
 
 		public SerializableVector3? screenPosition;
 		public SerializableVector3? screenRotation;
@@ -52,6 +56,7 @@ namespace BeatSaberCinema
 		public ScreenConfig[]? additionalScreens;
 
 		[JsonIgnore, NonSerialized] public DownloadState DownloadState;
+		[JsonIgnore, NonSerialized] public string? DownloadError;
 		[JsonIgnore, NonSerialized] public bool BackCompat;
 		[JsonIgnore, NonSerialized] public bool NeedsToSave;
 		[JsonIgnore, NonSerialized] public bool PlaybackDisabledByMissingSuggestion;
