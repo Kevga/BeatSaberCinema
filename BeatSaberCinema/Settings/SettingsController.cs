@@ -133,8 +133,8 @@ namespace BeatSaberCinema
 	            return;
             }
 
-            PlaybackController.Instance.VideoPlayer.FadeIn(FADE_DURATION);
             PlaybackController.Instance.StopPlayback();
+            PlaybackController.Instance.VideoPlayer.FadeIn(FADE_DURATION);
             SetSettingsTexture();
         }
 
