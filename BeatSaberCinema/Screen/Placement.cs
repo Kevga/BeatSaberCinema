@@ -92,6 +92,7 @@ namespace BeatSaberCinema
 				"SkrillexEnvironment" => new Placement(new Vector3(0f, 1.5f, 40f), Vector3.zero, 12f),
 				"WeaveEnvironment" => new Placement(new Vector3(0f, 1.5f, 21f), Vector3.zero, 4.3f, null, 0f),
 				"PyroEnvironment" => new Placement(new Vector3(0f, 12f, 60f), Vector3.zero, 24f, null, 0f),
+				"EDMEnvironment" => new Placement(new Vector3(0f, 3f, 25f), Vector3.zero, 8f),
 				_ => null
 			};
 		}
