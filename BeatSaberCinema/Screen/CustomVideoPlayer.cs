@@ -375,6 +375,7 @@ namespace BeatSaberCinema
 			Log.Debug("Video player prepare complete");
 			var texture = source.texture;
 			Log.Debug($"Video resolution: {texture.width}x{texture.height}");
+			Log.Debug($"Audio channels: {source.GetAudioChannelCount(0)}");
 		}
 
 		private void VideoPlayerStarted(VideoPlayer source)
@@ -417,12 +418,13 @@ namespace BeatSaberCinema
 		public void Mute()
 		{
 			_muted = true;
-			Volume = 0f;
+			Player.EnableAudioTrack(0, false);
 		}
 
 		public void Unmute()
 		{
 			_muted = false;
+			Player.EnableAudioTrack(0, true);
 		}
 
 		public void SetSoftParent(Transform? parent)
