@@ -11,19 +11,19 @@ namespace BeatSaberCinema
 	public class MenuColor
 	{
 		public static Color BaseColor;
-		public static MenuLightsPresetSO MenuLightsPreset = null!;
-		public static MenuLightsManager LightManager = null!;
+		//public static MenuLightsPresetSO MenuLightsPreset = null!;
+		//public static MenuLightsManager LightManager = null!;
 
 		[UsedImplicitly]
 		public static void Postfix(MenuLightsManager __instance, ref MenuLightsPresetSO preset)
 		{
-			MenuLightsPreset = preset;
 			if (preset.lightIdColorPairs.Length > 0)
 			{
 				BaseColor = preset.lightIdColorPairs[0].baseColor;
 			}
 
-			LightManager = __instance;
+			//MenuLightsPreset = preset;
+			//LightManager = __instance;
 		}
 	}
 }

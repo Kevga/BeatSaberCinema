@@ -1,12 +1,12 @@
-using System;
 using System.IO;
-using System.Reflection;
-using HarmonyLib;
+using BS_Utils.Utilities;
 using IPA;
-using IPA.Config;
 using IPA.Config.Stores;
+using IPA.Logging;
 using IPA.Utilities;
 using JetBrains.Annotations;
+using SongCore;
+using Config = IPA.Config.Config;
 
 namespace BeatSaberCinema
 {
@@ -14,10 +14,10 @@ namespace BeatSaberCinema
 	[UsedImplicitly]
 	public class Plugin
 	{
-		private const string HARMONY_ID = "com.github.kevga.cinema";
 		internal const string CAPABILITY = "Cinema";
-		private Harmony _harmonyInstance = null!;
+		private HarmonyPatchController? _harmonyPatchController;
 		private static bool _enabled;
+
 		public static bool Enabled
 		{
 			get => _enabled && SettingsStore.Instance.PluginEnabled;
@@ -26,7 +26,7 @@ namespace BeatSaberCinema
 
 		[Init]
 		[UsedImplicitly]
-		public void Init(IPA.Logging.Logger ipaLogger, Config config)
+		public void Init(Logger ipaLogger, Config config)
 		{
 			Log.IpaLogger = ipaLogger;
 			SettingsStore.Instance = config.Generated<SettingsStore>();
@@ -38,8 +38,7 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		public void OnApplicationStart()
 		{
-			BS_Utils.Utilities.BSEvents.OnLoad();
-			_harmonyInstance = new Harmony(HARMONY_ID);
+			BSEvents.OnLoad();
 			VideoLoader.Init();
 		}
 
@@ -55,12 +54,13 @@ namespace BeatSaberCinema
 		public void OnEnable()
 		{
 			Enabled = true;
-			BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
+			BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
+			_harmonyPatchController = new HarmonyPatchController();
 			ApplyHarmonyPatches();
 			SettingsUI.CreateMenu();
 			VideoMenu.instance.AddTab();
 			EnvironmentController.Init();
-			SongCore.Collections.RegisterCapability(CAPABILITY);
+			Collections.RegisterCapability(CAPABILITY);
 			Log.Info($"{nameof(BeatSaberCinema)} enabled");
 			if (File.Exists(Path.Combine(UnityGame.InstallPath, "dxgi.dll")))
 			{
@@ -73,8 +73,9 @@ namespace BeatSaberCinema
 		public void OnDisable()
 		{
 			Enabled = false;
-			BS_Utils.Utilities.BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoadedFresh;
+			BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoadedFresh;
 			RemoveHarmonyPatches();
+			_harmonyPatchController = null;
 			SettingsUI.RemoveMenu();
 
 			//TODO Destroying and re-creating the PlaybackController messes up the VideoMenu without any exceptions in the log. Investigate.
@@ -83,36 +84,18 @@ namespace BeatSaberCinema
 			VideoMenu.instance.RemoveTab();
 			EnvironmentController.Disable();
 			VideoLoader.StopFileSystemWatcher();
-			SongCore.Collections.DeregisterizeCapability(CAPABILITY);
+			Collections.DeregisterizeCapability(CAPABILITY);
 			Log.Info($"{nameof(BeatSaberCinema)} disabled");
 		}
 
 		private void ApplyHarmonyPatches()
 		{
-			try
-			{
-				Log.Debug("Applying Harmony patches");
-				_harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-			}
-			catch (Exception ex)
-			{
-				Log.Error("Error applying Harmony patches: " + ex.Message);
-				Log.Debug(ex);
-			}
+			_harmonyPatchController?.PatchAll();
 		}
 
 		private void RemoveHarmonyPatches()
 		{
-			try
-			{
-				Log.Debug("Removing Harmony patches");
-				_harmonyInstance.UnpatchSelf();
-			}
-			catch (Exception ex)
-			{
-				Log.Error("Error removing Harmony patches: " + ex.Message);
-				Log.Debug(ex);
-			}
+			_harmonyPatchController?.UnpatchAll();
 		}
 	}
 }
