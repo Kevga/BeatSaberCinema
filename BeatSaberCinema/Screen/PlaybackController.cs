@@ -486,6 +486,7 @@ namespace BeatSaberCinema
 			if (VideoConfig == null)
 			{
 				VideoPlayer.FadeOut();
+				StopAllCoroutines();
 				return;
 			}
 
@@ -919,6 +920,7 @@ namespace BeatSaberCinema
 		public void StopPlayback()
 		{
 			VideoPlayer.Stop();
+			StopAllCoroutines();
 		}
 
 		public void SceneTransitionInitCalled()
