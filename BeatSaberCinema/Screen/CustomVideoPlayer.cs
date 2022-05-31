@@ -94,6 +94,7 @@ namespace BeatSaberCinema
 			Player.audioOutputMode = VideoAudioOutputMode.AudioSource;
 			Player.SetTargetAudioSource(0, _videoPlayerAudioSource);
 			Mute();
+			screenController.SetScreensActive(false);
 			LoopVideo(false);
 
 			_videoPlayerAudioSource.reverbZoneMix = 0f;
@@ -317,7 +318,7 @@ namespace BeatSaberCinema
 			Player.Stop();
 			stopped?.Invoke();
 			SetStaticTexture(null);
-			screenController.SetScreensActive(true);
+			screenController.SetScreensActive(false);
 		}
 
 		public void Prepare()
