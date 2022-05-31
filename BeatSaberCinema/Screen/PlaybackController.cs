@@ -936,6 +936,7 @@ namespace BeatSaberCinema
 
 			if (IsPreviewPlaying)
 			{
+				_previewWaitingForPreviewPlayer = true;
 				Log.Debug($"Ignoring SongPreviewPlayer update");
 				return;
 			}
@@ -944,6 +945,7 @@ namespace BeatSaberCinema
 			{
 				StopPreview(true);
 				VideoPlayer.FadeOut();
+				_previewWaitingForPreviewPlayer = true;
 
 				Log.Debug("SongPreviewPlayer reverting to default loop");
 				return;
