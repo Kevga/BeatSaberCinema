@@ -317,6 +317,7 @@ namespace BeatSaberCinema
 			Player.Stop();
 			stopped?.Invoke();
 			SetStaticTexture(null);
+			screenController.SetScreensActive(true);
 		}
 
 		public void Prepare()
