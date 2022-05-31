@@ -196,10 +196,11 @@ namespace BeatSaberCinema
 		{
 			//FrontLights appear in many environments and need to be removed in all of them
 			var frontLights = EnvironmentObjects.LastOrDefault(x => (x.name == "FrontLights" || x.name == "FrontLight") && x.activeInHierarchy);
-			if (frontLights != null)
-			{
-				frontLights.SetActive(false);
-			}
+			frontLights?.SetActive(false);
+
+			//To make the screen's directional lighting work, we have to disable on of the base game lights. The last one is the least noticable from my testing.
+			var directionalLight = EnvironmentObjects.LastOrDefault(x => (x.name == "DirectionalLight" && x.parentName == "CoreLighting"));
+			directionalLight?.SetActive(false);
 
 			switch (_currentEnvironmentName)
 			{
