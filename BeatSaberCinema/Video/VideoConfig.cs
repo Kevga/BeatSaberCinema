@@ -36,8 +36,6 @@ namespace BeatSaberCinema
 		                                          DownloadState == DownloadState.DownloadingVideo ||
 		                                          DownloadState == DownloadState.DownloadingAudio;
 
-		[JsonIgnore] public bool ShouldDownloadAudioTrack => !(bundledConfig == true || (configByMapper == true && !IsWIPLevel));
-
 		public SerializableVector3? screenPosition;
 		public SerializableVector3? screenRotation;
 		public float? screenHeight;

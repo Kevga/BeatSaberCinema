@@ -25,15 +25,11 @@ namespace BeatSaberCinema
 			string? qualityString;
 			if (config.videoUrl == null || config.videoUrl.StartsWith("https://www.youtube.com/watch"))
 			{
-				qualityString = config.ShouldDownloadAudioTrack ?
-					$"bestvideo[height<={(int) quality}][vcodec*=avc1]+bestaudio[acodec*=mp4]" :
-					$"bestvideo[height<={(int) quality}][vcodec*=avc1]";
+				qualityString = $"bestvideo[height<={(int) quality}][vcodec*=avc1]+bestaudio[acodec*=mp4]";
 			}
 			else if (config.videoUrl.StartsWith("https://vimeo.com/"))
 			{
-				qualityString = config.ShouldDownloadAudioTrack ?
-					$"bestvideo[height<={(int) quality}][vcodec*=avc1]+bestaudio[acodec*=mp4]" :
-					$"bestvideo[height<={(int) quality}][vcodec*=avc1]";
+				qualityString = $"bestvideo[height<={(int) quality}][vcodec*=avc1]+bestaudio[acodec*=mp4]";
 			}
 			else if (config.videoUrl.StartsWith("https://www.facebook.com"))
 			{

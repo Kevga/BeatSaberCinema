@@ -329,21 +329,12 @@ namespace BeatSaberCinema
 					return;
 				}
 
-				if (VideoConfig.ShouldDownloadAudioTrack)
-				{
-					// +1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
-					// pan hard left either. Also, it sounds a bit more comfortable.
-					SetAudioSourcePanning(0.9f);
-					// -1 is hard left
-					VideoPlayer.PanStereo = -1f;
-					VideoPlayer.Unmute();
-				}
-				else
-				{
-					VideoPlayer.Mute();
-				}
-
+				//+1.0 is hard right. only pan "mostly" right, because for some reason the video player audio doesn't
+				//pan hard left either. Also, it sounds a bit more comfortable.
+				SetAudioSourcePanning(0.9f);
 				StartCoroutine(PlayVideoAfterAudioSourceCoroutine(true));
+				VideoPlayer.PanStereo = -1f; // -1 is hard left
+				VideoPlayer.Unmute();
 			}
 		}
 
