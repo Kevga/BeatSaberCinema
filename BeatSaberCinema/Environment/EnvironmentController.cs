@@ -811,6 +811,21 @@ namespace BeatSaberCinema
 					{
 						logo.SetActive(false);
 					}
+
+					//Pull light groups in front of the screen
+					var leftLightGroup = EnvironmentObjects.LastOrDefault(x => x.name == "LightGroupLeft" && x.activeInHierarchy);
+					if (leftLightGroup != null)
+					{
+						leftLightGroup.transform.position = new Vector3(-11.1f, 1.99f, 59f);
+						leftLightGroup.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+					}
+
+					var rightLightGroup = EnvironmentObjects.LastOrDefault(x => x.name == "LightGroupRight" && x.activeInHierarchy);
+					if (rightLightGroup != null)
+					{
+						rightLightGroup.transform.position = new Vector3(11.1f, 1.99f, 59f);
+						rightLightGroup.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+					}
 					break;
 				}
 			}
