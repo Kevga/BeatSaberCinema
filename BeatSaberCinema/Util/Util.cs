@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using BeatSaberCinema.Patches;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -99,14 +100,27 @@ namespace BeatSaberCinema
 			return MultiplayerPatch.IsMultiplayer;
 		}
 
+		public static bool IsInEditor()
+		{
+			var isInEditor = false;
+			for (var i = 0; i < SceneManager.sceneCount; i++)
+			{
+				var sceneName = SceneManager.GetSceneAt(i).name;
+				if (sceneName != "BeatmapLevelEditorWorldUi" && sceneName != "BeatmapEditor3D")
+				{
+					continue;
+				}
+
+				isInEditor = true;
+				break;
+			}
+
+			return isInEditor;
+		}
+
 		public static string GetEnvironmentName()
 		{
 			var environmentName = "MainMenu";
-			if (SceneManager.GetActiveScene().name != "GameCore")
-			{
-				return environmentName;
-			}
-
 			var sceneCount = SceneManager.sceneCount;
 			for (var i = 0; i < sceneCount; i++)
 			{

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatmapEditor3D.DataModels;
 using IPA.Utilities;
 using IPA.Utilities.Async;
 using Newtonsoft.Json;
@@ -159,15 +160,27 @@ namespace BeatSaberCinema
 			_fileSystemWatcher?.Dispose();
 		}
 
-		public static void ListenForConfigChanges(IPreviewBeatmapLevel level)
+		public static void SetupFileSystemWatcher(IPreviewBeatmapLevel level)
+		{
+			var levelPath = GetLevelPath(level);
+			ListenForConfigChanges(levelPath);
+		}
+
+		public static void SetupFileSystemWatcher(string path)
+		{
+			ListenForConfigChanges(path);
+		}
+
+		private static void ListenForConfigChanges(string levelPath)
 		{
 			_fileSystemWatcher?.Dispose();
-
-			var levelPath = GetLevelPath(level);
 			if (!Directory.Exists(levelPath))
 			{
+				Log.Debug($"Level directory {levelPath} does not exist");
 				return;
 			}
+
+			Log.Debug($"Setting up FileSystemWatcher for {levelPath}");
 
 			_fileSystemWatcher = new FileSystemWatcher();
 			var configPath = Path.Combine(levelPath, CONFIG_FILENAME);
@@ -257,6 +270,24 @@ namespace BeatSaberCinema
 			}
 
 			return AdditionalContentModel.EntitlementStatus.Owned;
+		}
+
+		public static VideoConfig? GetConfigForLevel(IBeatmapDataModel beatmapData, string originalPath)
+		{
+			if (!Directory.Exists(originalPath))
+			{
+				Log.Debug($"Path does not exist: {originalPath}");
+				return null;
+			}
+
+			VideoConfig? videoConfig = null;
+			var results = Directory.GetFiles(originalPath, CONFIG_FILENAME, SearchOption.AllDirectories);
+			if (results.Length != 0)
+			{
+				videoConfig = LoadConfig(results[0]);
+			}
+
+			return videoConfig;
 		}
 
 		public static VideoConfig? GetConfigForLevel(IPreviewBeatmapLevel? level, bool isPlaylistSong = false)

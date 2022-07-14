@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using BS_Utils.Utilities;
 using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -55,31 +54,31 @@ namespace BeatSaberCinema
 
 		public static void Init()
 		{
-			BSEvents.gameSceneLoaded += SceneChanged;
-			BSEvents.lateMenuSceneLoadedFresh += SceneChanged;
-			BSEvents.menuSceneLoaded += SceneChanged;
+			SceneManager.activeSceneChanged += SceneChanged;
 		}
 
 		public static void Disable()
 		{
-			BSEvents.gameSceneLoaded -= SceneChanged;
-			BSEvents.lateMenuSceneLoadedFresh -= SceneChanged;
-			BSEvents.menuSceneLoaded -= SceneChanged;
+			SceneManager.activeSceneChanged -= SceneChanged;
 			_environmentObjectList?.Clear();
 		}
 
-		private static void SceneChanged()
+		private static void SceneChanged(Scene arg0, Scene arg1)
 		{
-			_currentEnvironmentName = Util.GetEnvironmentName();
-			if (_currentEnvironmentName == "MainMenu")
+			Log.Debug($"Scene changed from {arg0.name} to {arg1.name}");
+			for (var i = 0; i < SceneManager.sceneCount; i++)
+			{
+				var sceneName = SceneManager.GetSceneAt(i).name;
+				if (sceneName == "BeatmapLevelEditorWorldUi")
+				{
+					PlaybackController.Instance.GameSceneLoaded();
+				}
+			}
+
+			if (arg1.name == "MainMenu" || arg1.name == "PCInit")
 			{
 				Reset();
 			}
-		}
-
-		private static void SceneChanged(ScenesTransitionSetupDataSO scenesTransitionSetupDataSo)
-		{
-			SceneChanged();
 		}
 
 		public static void ModifyGameScene(VideoConfig? videoConfig)
@@ -100,6 +99,7 @@ namespace BeatSaberCinema
 			}
 
 			_environmentModified = true;
+			_currentEnvironmentName = Util.GetEnvironmentName();
 			Log.Debug("Loaded environment: "+_currentEnvironmentName);
 
 			var stopwatch = new Stopwatch();

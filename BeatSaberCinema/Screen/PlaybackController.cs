@@ -160,24 +160,26 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private float GetReferenceTime()
+		private float GetReferenceTime(float? referenceTime = null, float? playbackSpeed = null)
 		{
 			if (_activeAudioSource == null || VideoConfig == null)
 			{
 				return 0;
 			}
 
-			return (_activeAudioSource.time * VideoConfig.PlaybackSpeed) + (VideoConfig.offset / 1000f);
+			var time = referenceTime ?? _activeAudioSource.time;
+			var speed = playbackSpeed ?? VideoConfig.PlaybackSpeed;
+			return (time * speed) + (VideoConfig.offset / 1000f);
 		}
 
-		public void ResyncVideo()
+		public void ResyncVideo(float? referenceTime = null, float? playbackSpeed = null)
 		{
 			if (_activeAudioSource == null || VideoConfig == null)
 			{
 				return;
 			}
 
-			var newTime = GetReferenceTime();
+			var newTime = GetReferenceTime(referenceTime, playbackSpeed);
 
 			if (newTime < 0)
 			{
@@ -190,8 +192,16 @@ namespace BeatSaberCinema
 				newTime %= VideoPlayer.VideoDuration;
 			}
 
+			if (Math.Abs(VideoPlayer.Player.time - newTime) < 0.2f)
+			{
+				return;
+			}
+
+			if (playbackSpeed.HasValue)
+			{
+				VideoPlayer.PlaybackSpeed = playbackSpeed.Value;
+			}
 			VideoPlayer.Player.time = newTime;
-			Log.Debug("Set time to: " + newTime);
 		}
 
 		public void FrameReady(VideoPlayer videoPlayer, long frame)
@@ -202,7 +212,6 @@ namespace BeatSaberCinema
 			}
 
 			var audioSourceTime = _activeAudioSource.time;
-			_lastKnownAudioSourceTime = audioSourceTime;
 
 			if (VideoPlayer.IsFading)
 			{
@@ -253,6 +262,7 @@ namespace BeatSaberCinema
 					ResyncVideo();
 				}
 			}
+			_lastKnownAudioSourceTime = audioSourceTime;
 		}
 
 		private void Update()
@@ -266,6 +276,19 @@ namespace BeatSaberCinema
 
 				//Slowly fade out video player
 				VideoPlayer.FadeOut(1f);
+			}
+
+			if (Util.IsInEditor())
+			{
+				if (VideoPlayer.IsPlaying && ((_activeAudioSource != null && !_activeAudioSource.isPlaying) || _activeAudioSource == null))
+				{
+					PauseVideo();
+				}
+				else if (!VideoPlayer.IsPlaying && _activeAudioSource != null && _activeAudioSource.isPlaying)
+				{
+					VideoPlayer.Player.time = GetReferenceTime();
+					ResumeVideo();
+				}
 			}
 		}
 
@@ -410,6 +433,7 @@ namespace BeatSaberCinema
 			else
 			{
 				VideoPlayer.SetPlacement(Placement.CreatePlacementForConfig(config, _activeScene, VideoPlayer.GetVideoAspectRatio()));
+				//ResyncVideo(); //TODO: This fails in the editor since the audiosource time gets set to 0 when the map is paused
 			}
 
 			if (previousVideoPath != config.VideoPath)
@@ -562,7 +586,7 @@ namespace BeatSaberCinema
 			Log.Debug("Moving to game scene");
 		}
 
-		private void GameSceneLoaded()
+		public void GameSceneLoaded()
 		{
 			StopAllCoroutines();
 			Log.Debug("GameSceneLoaded");
@@ -579,17 +603,20 @@ namespace BeatSaberCinema
 			StopPlayback();
 			VideoPlayer.Hide();
 
-			if (BS_Utils.Plugin.LevelData.Mode == Mode.None)
+			if (!Util.IsInEditor())
 			{
-				Log.Debug("Level mode is None");
-				return;
-			}
+				if (BS_Utils.Plugin.LevelData.Mode == Mode.None)
+				{
+					Log.Debug("Level mode is None");
+					return;
+				}
 
-			var bsUtilsLevel = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level;
-			if (_currentLevel?.levelID != bsUtilsLevel.levelID)
-			{
-				var video = VideoLoader.GetConfigForLevel(bsUtilsLevel);
-				SetSelectedLevel(bsUtilsLevel, video);
+				var bsUtilsLevel = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level;
+				if (_currentLevel?.levelID != bsUtilsLevel.levelID)
+				{
+					var video = VideoLoader.GetConfigForLevel(bsUtilsLevel);
+					SetSelectedLevel(bsUtilsLevel, video);
+				}
 			}
 
 			if (VideoConfig == null || !VideoConfig.IsPlayable)
@@ -630,29 +657,41 @@ namespace BeatSaberCinema
 			if (!preview)
 			{
 				Log.Debug("Waiting for ATSC to be ready");
-				yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
 
-				//There can be multiple ATSC behaviors
-				if (Util.IsMultiplayer())
+				if (Util.IsInEditor())
 				{
-					//Hierarchy: MultiplayerLocalActivePlayerController(Clone)/IsActiveObjects/GameplayCore/SongController
-					_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.parent.name.Contains("(Clone)"));
+					//_editorTimeSyncController = Resources.FindObjectsOfTypeAll<BeatmapEditorAudioTimeSyncController>().FirstOrDefault(atsc => atsc.name == "BeatmapEditorAudioTimeSyncController");
+					_activeAudioSource = Resources.FindObjectsOfTypeAll<AudioSource>()
+						.FirstOrDefault(audioSource => audioSource.name == "SongPreviewAudioSource(Clone)" && audioSource.transform.parent == null);
 				}
 				else
 				{
-					//Hierarchy: Wrapper/StandardGameplay/GameplayCore/SongController
-					_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.name.Contains("StandardGameplay"));
+					yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
+
+					//There can be multiple ATSC behaviors
+					if (Util.IsMultiplayer())
+					{
+						//Hierarchy: MultiplayerLocalActivePlayerController(Clone)/IsActiveObjects/GameplayCore/SongController
+						_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.parent.name.Contains("(Clone)"));
+					}
+					else
+					{
+						//Hierarchy: Wrapper/StandardGameplay/GameplayCore/SongController
+						_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.name.Contains("StandardGameplay"));
+					}
+
+					if (_timeSyncController == null)
+					{
+						Log.Warn("Could not find ATSC the usual way. Did the object hierarchy change? Current scene name is "+SceneManager.GetActiveScene().name);
+
+						//This throws an exception if we still don't find the ATSC
+						_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
+						Log.Warn("Selected ATSC: " + _timeSyncController.name);
+					}
+
+					_activeAudioSource = _timeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
 				}
 
-				if (_timeSyncController == null)
-				{
-					Log.Warn("Could not find ATSC the usual way. Did the object hierarchy change?");
-
-					//This throws an exception if we still don't find the ATSC
-					_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
-				}
-
-				_activeAudioSource = _timeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
 			}
 
 			if (_activeAudioSource != null)

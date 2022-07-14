@@ -5,7 +5,7 @@ using UnityEngine;
 
 // ReSharper disable InconsistentNaming
 
-namespace BeatSaberCinema
+namespace BeatSaberCinema.Patches
 {
 	[HarmonyPatch(typeof(SongPreviewPlayer), nameof(SongPreviewPlayer.CrossfadeTo), typeof(AudioClip), typeof(float), typeof(float), typeof(float), typeof(bool), typeof(Action))]
 	[UsedImplicitly]

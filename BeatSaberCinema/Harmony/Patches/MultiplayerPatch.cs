@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 // ReSharper disable InconsistentNaming
 
-namespace BeatSaberCinema
+namespace BeatSaberCinema.Patches
 {
 	[HarmonyPatch(typeof(MultiplayerLobbyConnectionController), nameof(MultiplayerLobbyConnectionController.connectionType), MethodType.Setter)]
 	[UsedImplicitly]

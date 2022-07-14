@@ -93,12 +93,12 @@
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="0Harmony">
-			<HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
+		<Reference Include="BeatmapEditor3D">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapEditor3D.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="BSML">
-			<HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+		<Reference Include="0Harmony">
+			<HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="BeatSaberPlaylistsLib">

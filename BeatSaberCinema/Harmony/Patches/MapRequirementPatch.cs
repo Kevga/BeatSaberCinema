@@ -5,7 +5,7 @@ using SongCore;
 
 // ReSharper disable InconsistentNaming
 
-namespace BeatSaberCinema
+namespace BeatSaberCinema.Patches
 {
 	[HarmonyAfter("com.kyle1413.BeatSaber.SongCore")]
 	[HarmonyPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.RefreshContent))]

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using BeatmapEditor3D.DataModels;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
@@ -509,6 +510,24 @@ namespace BeatSaberCinema
 			HandleDidSelectLevel(level);
 		}
 
+		public void HandleDidSelectEditorBeatmap(IBeatmapDataModel beatmapData, string originalPath)
+		{
+			if (!Plugin.Enabled)
+			{
+				return;
+			}
+
+			PlaybackController.Instance.StopPreview(true);
+			if (_currentVideo?.NeedsToSave == true)
+			{
+				VideoLoader.SaveVideoConfig(_currentVideo);
+			}
+
+			_currentVideo = VideoLoader.GetConfigForLevel(beatmapData, originalPath);
+			VideoLoader.SetupFileSystemWatcher(originalPath);
+			PlaybackController.Instance.SetSelectedLevel(null, _currentVideo);
+		}
+
 		public void HandleDidSelectLevel(IPreviewBeatmapLevel? level, bool isPlaylistSong = false)
 		{
 			//These will be set a bit later by a Harmony patch. Clear them to not accidentally access outdated info.
@@ -547,7 +566,7 @@ namespace BeatSaberCinema
 
 			_currentVideo = VideoLoader.GetConfigForLevel(isPlaylistSong ? playlistSong : _currentLevel, isPlaylistSong);
 
-			VideoLoader.ListenForConfigChanges(_currentLevel);
+			VideoLoader.SetupFileSystemWatcher(_currentLevel);
 			PlaybackController.Instance.SetSelectedLevel(_currentLevel, _currentVideo);
 			SetupVideoDetails();
 
@@ -556,6 +575,12 @@ namespace BeatSaberCinema
 
 		private void OnLevelSelected(LevelSelectedArgs levelSelectedArgs)
 		{
+			if (levelSelectedArgs.BeatmapData != null)
+			{
+				HandleDidSelectEditorBeatmap(levelSelectedArgs.BeatmapData, levelSelectedArgs.OriginalPath!);
+				return;
+			}
+
 			HandleDidSelectLevel(levelSelectedArgs.PreviewBeatmapLevel);
 		}
 

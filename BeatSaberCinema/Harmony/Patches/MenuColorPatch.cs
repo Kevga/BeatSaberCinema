@@ -4,7 +4,7 @@ using UnityEngine;
 
 // ReSharper disable InconsistentNaming
 
-namespace BeatSaberCinema
+namespace BeatSaberCinema.Patches
 {
 	[HarmonyPatch(typeof(MenuLightsManager), nameof(MenuLightsManager.SetColorPreset))]
 	[UsedImplicitly]

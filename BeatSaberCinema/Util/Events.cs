@@ -1,4 +1,5 @@
 ﻿using System;
+using BeatmapEditor3D.DataModels;
 
 // ReSharper disable EventNeverSubscribedTo.Global
 
@@ -58,6 +59,11 @@ namespace BeatSaberCinema
 		internal static void SetSelectedLevel(IPreviewBeatmapLevel? level)
 		{
 			LevelSelected?.InvokeSafe(new LevelSelectedArgs(level), nameof(LevelSelected));
+		}
+
+		internal static void SetSelectedLevel(IBeatmapDataModel? beatmapData, string originalPath)
+		{
+			LevelSelected?.InvokeSafe(new LevelSelectedArgs(null, beatmapData, originalPath), nameof(LevelSelected));
 		}
 
 		internal static void SetExtraSongData(SongCore.Data.ExtraSongData? songData, SongCore.Data.ExtraSongData.DifficultyData? selectedDifficultyData)

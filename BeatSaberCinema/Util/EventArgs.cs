@@ -1,12 +1,18 @@
-﻿namespace BeatSaberCinema
+﻿using BeatmapEditor3D.DataModels;
+
+namespace BeatSaberCinema
 {
 	public class LevelSelectedArgs
 	{
 		public readonly IPreviewBeatmapLevel? PreviewBeatmapLevel;
+		public readonly IBeatmapDataModel? BeatmapData;
+		public readonly string? OriginalPath;
 
-		public LevelSelectedArgs(IPreviewBeatmapLevel? level)
+		public LevelSelectedArgs(IPreviewBeatmapLevel? level, IBeatmapDataModel? beatmapData = null, string? originalPath = null)
 		{
 			PreviewBeatmapLevel = level;
+			BeatmapData = beatmapData;
+			OriginalPath = originalPath;
 		}
 	}
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using BeatSaberCinema.Patches;
 using BS_Utils.Utilities;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -60,6 +61,7 @@ namespace BeatSaberCinema
 			Events.LevelSelected += OnLevelSelected;
 			BSEvents.gameSceneLoaded += OnGameSceneLoaded;
 			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
+			BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
 		}
 
 		private void OnDisable()
@@ -70,6 +72,7 @@ namespace BeatSaberCinema
 			Events.LevelSelected -= OnLevelSelected;
 			BSEvents.gameSceneLoaded -= OnGameSceneLoaded;
 			BSEvents.menuSceneLoaded -= OnMenuSceneLoaded;
+			BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoadedFresh;
 
 			VideoStopped();
 		}
@@ -99,6 +102,18 @@ namespace BeatSaberCinema
 		private void OnMenuSceneLoaded()
 		{
 			_light.intensity = DIRECTIONAL_LIGHT_INTENSITY_MENU;
+		}
+
+		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO scenesTransitionSetupDataSo)
+		{
+			try
+			{
+				GetMenuReferences();
+			}
+			catch (Exception e)
+			{
+				Log.Error(e);
+			}
 		}
 
 		private void GetMenuReferences()

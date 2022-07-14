@@ -5,7 +5,7 @@ using UnityEngine;
 
 // ReSharper disable InconsistentNaming
 
-namespace BeatSaberCinema
+namespace BeatSaberCinema.Patches
 {
 	[HarmonyBefore("com.noodle.BeatSaber.ChromaCore", "com.noodle.BeatSaber.Chroma")]
 	[HarmonyPatch(typeof(LightSwitchEventEffect), nameof(LightSwitchEventEffect.Start))]

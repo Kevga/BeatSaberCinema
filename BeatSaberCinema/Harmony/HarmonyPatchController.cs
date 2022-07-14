@@ -17,7 +17,13 @@ namespace BeatSaberCinema
 
 			_patchClassProcessorList = new List<PatchClassProcessor>();
 			(AccessTools.GetTypesFromAssembly(Assembly.GetExecutingAssembly())).Do<Type>(type =>
-				_patchClassProcessorList.Add(_harmonyInstance.CreateClassProcessor(type)));
+				{
+					if (type.FullName?.StartsWith("BeatSaberCinema.Patches") ?? false)
+					{
+						_patchClassProcessorList.Add(_harmonyInstance.CreateClassProcessor(type));
+					}
+				}
+			);
 		}
 
 		internal void PatchAll()
