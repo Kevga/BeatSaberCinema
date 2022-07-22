@@ -37,7 +37,16 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			Log.Debug("Cleaning up process");
+			int processId;
+			try
+			{
+				processId = process.Id;
+			} catch (Exception)
+			{
+				return;
+			}
+
+			Log.Debug($"[{processId}] Cleaning up process");
 
 			void WorkDelegate()
 			{

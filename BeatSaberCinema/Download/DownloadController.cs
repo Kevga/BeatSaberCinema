@@ -59,7 +59,7 @@ namespace BeatSaberCinema
 			var timeout = new Timeout(5 * 60);
 
 			downloadProcess.OutputDataReceived += (sender, e) =>
-				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadOutputDataReceived(e, video); });
+				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadOutputDataReceived((Process) sender, e, video); });
 
 			downloadProcess.ErrorDataReceived += (sender, e) =>
 				UnityMainThreadTaskScheduler.Factory.StartNew(delegate { DownloadErrorDataReceived(e, video); });
@@ -78,12 +78,12 @@ namespace BeatSaberCinema
 			yield return new WaitUntil(() => !IsProcessRunning(downloadProcess) || timeout.HasTimedOut);
 			if (timeout.HasTimedOut)
 			{
-				Log.Warn("Timeout reached, disposing download process");
+				Log.Warn($"[{downloadProcess.Id}] Timeout reached, disposing download process");
 			}
 			else
 			{
 				//When the download is finished, wait for process to exit instead of immediately killing it
-				yield return new WaitForSeconds(2f);
+				yield return new WaitForSeconds(20f);
 			}
 
 			timeout.Stop();
@@ -91,8 +91,13 @@ namespace BeatSaberCinema
 			DisposeProcess(downloadProcess);
 		}
 
-		private void DownloadOutputDataReceived(DataReceivedEventArgs eventArgs, VideoConfig video)
+		private void DownloadOutputDataReceived(Process process, DataReceivedEventArgs eventArgs, VideoConfig video)
 		{
+			if (!IsProcessRunning(process) || video.DownloadState == DownloadState.Downloaded)
+			{
+				return;
+			}
+
 			_downloadLog += eventArgs.Data + "\r\n";
 			Log.Debug(eventArgs.Data);
 			ParseDownloadProgress(video, eventArgs);
@@ -120,7 +125,7 @@ namespace BeatSaberCinema
 				video.DownloadState = DownloadState.NotDownloaded;
 			}
 
-			Log.Info($"Download process exited with code {exitCode}");
+			Log.Info($"[{process.Id}] Download process exited with code {exitCode}");
 
 			if (video.DownloadState == DownloadState.Cancelled || video.DownloadState == DownloadState.NotDownloaded)
 			{
@@ -135,8 +140,10 @@ namespace BeatSaberCinema
 				video.DownloadState = DownloadState.Downloaded;
 				video.NeedsToSave = true;
 				SharedCoroutineStarter.instance.StartCoroutine(WaitForDownloadToFinishCoroutine(video));
-				Log.Info("Download finished");
+				Log.Info($"Download of {video.title} finished");
 			}
+
+			DisposeProcess(process);
 		}
 
 		private void DownloadProcessDisposed(object sender, EventArgs eventArgs)

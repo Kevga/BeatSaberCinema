@@ -277,6 +277,12 @@ namespace BeatSaberCinema
 
 		public void SetupVideoDetails()
 		{
+			if (_videoSearchResultsViewRect == null)
+			{
+				Log.Warn("Video search results view rect is null, skipping UI setup");
+				return;
+			}
+
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
 			_levelDetailMenu.SetActive(false);
 
@@ -718,8 +724,14 @@ namespace BeatSaberCinema
 
 		private void OnDownloadFinished(VideoConfig video)
 		{
-			if (_currentVideo != video || video.DownloadError != null)
+			if (_currentVideo != video)
 			{
+				return;
+			}
+
+			if (video.DownloadError != null)
+			{
+				SetupVideoDetails();
 				return;
 			}
 

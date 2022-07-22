@@ -14,9 +14,21 @@ namespace BeatSaberCinema
 		private static void _Log(string message, Logger.Level logLevel, string filePath, string member, int line)
 		{
 #if DEBUG
+			var padding = 62;
+			switch(logLevel) {
+				case Logger.Level.Info:
+					padding += 1;
+					break;
+				case Logger.Level.Warning:
+					padding += 1;
+					break;
+				case Logger.Level.Critical:
+					padding -= 3;
+					break;
+			}
 			var pathParts = filePath.Split('\\');
 			var className = pathParts[pathParts.Length - 1].Replace(".cs", "");
-			var prefix = $"[{className}.{member}():{line}]: ".PadRight(62);
+			var prefix = $"[{className}.{member}():{line}]: ".PadRight(padding);
 			IpaLogger.Log(logLevel, $"{prefix}{message}");
 #else
 			IpaLogger.Log(logLevel, message);
