@@ -28,6 +28,7 @@ namespace BeatSaberCinema
 			"https://www.youtube.com/",
 			"https://www.dailymotion.com/",
 			"https://www.facebook.com/",
+			"https://www.bilibili.com/",
 			"https://vimeo.com/"
 		};
 
@@ -254,7 +255,7 @@ namespace BeatSaberCinema
 			}
 
 			var videoFormat = VideoQuality.ToYoutubeDLFormat(video, quality);
-			videoFormat = $" -f \"{videoFormat}\"";
+			videoFormat = videoFormat.Length > 0 ? $" -f \"{videoFormat}\"" : "";
 
 			var downloadProcessArguments = videoUrl +
 			                               videoFormat +

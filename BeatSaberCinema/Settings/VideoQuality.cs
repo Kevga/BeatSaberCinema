@@ -31,6 +31,10 @@ namespace BeatSaberCinema
 			{
 				qualityString = $"bestvideo[height<={(int) quality}][vcodec*=avc1]+bestaudio[acodec*=mp4]";
 			}
+			else if (config.videoUrl.StartsWith("https://www.bilibili.com"))
+			{
+				qualityString = $"bestvideo[height<={(int) quality}][vcodec*=avc1]+bestaudio[acodec*=mp4]";
+			}
 			else if (config.videoUrl.StartsWith("https://www.facebook.com"))
 			{
 				qualityString = "mp4";
