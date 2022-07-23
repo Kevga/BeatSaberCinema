@@ -237,13 +237,18 @@ namespace BeatSaberCinema
 				          Util.FormatFloat(audioSourceTime) + " - Error (ms): " + Math.Round(error * 1000));
 			}
 
-			if (VideoConfig.endVideoAt != null)
+			if (VideoConfig.endVideoAt.HasValue)
 			{
-				if (referenceTime >= VideoConfig.endVideoAt)
+				if (referenceTime >= VideoConfig.endVideoAt - 1f)
 				{
-					Log.Debug("Reached video endpoint as configured at "+referenceTime);
-					VideoPlayer.Pause();
+					var brightness = Math.Max(0f, VideoConfig.endVideoAt.Value - referenceTime);
+					VideoPlayer.SetBrightness(brightness);
 				}
+			}
+			else if (referenceTime >= VideoPlayer.Player.length - 1f && VideoConfig.loop != true)
+			{
+				var brightness = Math.Max(0f, VideoPlayer.Player.length - referenceTime);
+				VideoPlayer.SetBrightness((float) brightness);
 			}
 
 			if (Math.Abs(audioSourceTime - _lastKnownAudioSourceTime) > 0.3f && VideoPlayer.IsPlaying)

@@ -18,7 +18,16 @@ namespace BeatSaberCinema
 
 		public bool IsOne => Math.Abs(_easingValue - 1f) < 0.00001f;
 		public bool IsZero => _easingValue == 0;
-		public float Value => _easingValue;
+
+		public float Value
+		{
+			get => _easingValue;
+			set
+			{
+				EasingUpdate?.Invoke(_easingValue);
+				_easingValue = value;
+			}
+		}
 
 		public EasingController(float initialValue = 0f)
 		{

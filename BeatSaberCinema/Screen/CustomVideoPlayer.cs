@@ -246,6 +246,11 @@ namespace BeatSaberCinema
 			Player.frameReady -= FirstFrameReady;
 		}
 
+		public void SetBrightness(float brightness)
+		{
+			FadeController.Value = brightness;
+		}
+
 		public void SetBloomIntensity(float? bloomIntensity)
 		{
 			screenController.SetBloomIntensity(bloomIntensity);
@@ -390,7 +395,11 @@ namespace BeatSaberCinema
 		private void VideoPlayerFinished(VideoPlayer source)
 		{
 			Log.Debug("Video player loop point event");
-			VideoEnded = true;
+			if (!Player.isLooping)
+			{
+				VideoEnded = true;
+				SetBrightness(0f);
+			}
 		}
 
 		private static void VideoPlayerErrorReceived(VideoPlayer source, string message)
