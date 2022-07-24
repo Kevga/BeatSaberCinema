@@ -1,4 +1,5 @@
-﻿using BeatmapEditor.Commands;
+﻿using System.IO;
+using BeatmapEditor.Commands;
 using BeatmapEditor3D;
 using BeatmapEditor3D.BpmEditor;
 using BeatmapEditor3D.BpmEditor.Commands;
@@ -70,6 +71,41 @@ namespace BeatSaberCinema.Patches
 		{
 			//TODO: Breaks stuff. May be related to that Unity bug.
 			//PlaybackController.Instance.ResyncVideo(null, ____signal.playbackSpeed);
+		}
+	}
+
+	[HarmonyPatch(typeof(BeatmapProjectManager), nameof(BeatmapProjectManager.SaveBeatmapProject))]
+	public class SavingFixPatch
+	{
+		[UsedImplicitly]
+		public static void Prefix()
+		{
+			PlaybackController.Instance.StopPlayback();
+			VideoLoader.StopFileSystemWatcher();
+		}
+	}
+
+	[HarmonyPatch(typeof(BeatmapProjectManager), nameof(BeatmapProjectManager.SaveBeatmapProject))]
+	public class RestoreConfigPatch
+	{
+		[UsedImplicitly]
+		public static void Postfix(string ____lastBackup)
+		{
+			if (PlaybackController.Instance.VideoConfig != null)
+			{
+				var config = PlaybackController.Instance.VideoConfig;
+				config.NeedsToSave = true;
+				VideoLoader.SaveVideoConfig(config);
+				if (config.videoFile != null && config.VideoPath != null)
+				{
+					var path = Path.Combine(____lastBackup, config.videoFile);
+					if (File.Exists(path))
+					{
+						Log.Debug($"Moving {path} to {config.VideoPath}");
+						File.Move(path, config.VideoPath);
+					}
+				}
+			}
 		}
 	}
 }

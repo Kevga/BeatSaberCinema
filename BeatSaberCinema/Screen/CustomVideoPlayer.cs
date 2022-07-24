@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using BS_Utils.Utilities;
 using UnityEngine;
@@ -409,7 +407,14 @@ namespace BeatSaberCinema
 				//Expected when preparing null source
 				return;
 			}
+
 			Log.Error("Video player error: " + message);
+			PlaybackController.Instance.StopPlayback();
+			if (PlaybackController.Instance.VideoConfig != null)
+			{
+				PlaybackController.Instance.VideoConfig.UpdateDownloadState();
+				PlaybackController.Instance.VideoConfig.DownloadError = "Playback error. See logs for details.";
+			}
 		}
 
 		public float GetVideoAspectRatio()

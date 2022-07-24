@@ -112,7 +112,7 @@ namespace BeatSaberCinema
 
 		public void ResumeVideo()
 		{
-			if (!Plugin.Enabled || VideoPlayer.IsPlaying || VideoConfig == null || (VideoPlayer.VideoEnded && VideoConfig.loop != true))
+			if (!Plugin.Enabled || VideoPlayer.IsPlaying || VideoConfig == null || !VideoConfig.IsPlayable || (VideoPlayer.VideoEnded && VideoConfig.loop != true))
 			{
 				return;
 			}
@@ -174,7 +174,7 @@ namespace BeatSaberCinema
 
 		public void ResyncVideo(float? referenceTime = null, float? playbackSpeed = null)
 		{
-			if (_activeAudioSource == null || VideoConfig == null)
+			if (_activeAudioSource == null || VideoConfig == null || !VideoConfig.IsPlayable)
 			{
 				return;
 			}
