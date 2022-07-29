@@ -44,7 +44,6 @@ namespace BeatSaberCinema
 
 		private static void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO scenesTransition)
 		{
-			PlaybackController.Create();
 			VideoMenu.instance.Init();
 			SongPreviewPlayerController.Init();
 		}
@@ -54,6 +53,8 @@ namespace BeatSaberCinema
 		public void OnEnable()
 		{
 			Enabled = true;
+			PlaybackController.Create();
+			VideoMenu.instance.Init();
 			BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
 			_harmonyPatchController = new HarmonyPatchController();
 			ApplyHarmonyPatches();

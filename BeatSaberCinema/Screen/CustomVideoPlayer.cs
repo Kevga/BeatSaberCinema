@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using BS_Utils.Utilities;
 using UnityEngine;
@@ -21,7 +23,6 @@ namespace BeatSaberCinema
 		private readonly Color _screenColorOn = Color.white.ColorWithAlpha(0f) * MAX_BRIGHTNESS;
 		private readonly Color _screenColorOff = Color.clear;
 		private static readonly int MainTex = Shader.PropertyToID(MAIN_TEXTURE_NAME);
-		private bool _waitForFirstFrame;
 		private string _currentlyPlayingVideo = "";
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
@@ -230,12 +231,6 @@ namespace BeatSaberCinema
 			//When no video is playing, we want it to be black though to not blind the user.
 			//If we set the white color when calling Play(), a few frames of white screen are still visible.
 			//So, we wait before the player renders its first frame and then set the color, making the switch invisible.
-			if (!_waitForFirstFrame)
-			{
-				return;
-			}
-
-			_waitForFirstFrame = false;
 			FadeIn();
 			_firstFrameStopwatch.Stop();
 			Log.Debug("Delay from Play() to first frame: "+_firstFrameStopwatch.ElapsedMilliseconds+" ms");
@@ -304,7 +299,6 @@ namespace BeatSaberCinema
 		{
 			Log.Debug("Starting playback, waiting for first frame...");
 			_waitingForFadeOut = false;
-			_waitForFirstFrame = true;
 			_firstFrameStopwatch.Start();
 			Player.frameReady += FirstFrameReady;
 			Player.Play();
@@ -331,12 +325,18 @@ namespace BeatSaberCinema
 			Player.Prepare();
 		}
 
-		public void Update()
+		private void Update()
 		{
 			if (Player.isPlaying)
 			{
 				SetTexture(Player.texture);
 			}
+		}
+
+		//For manual invocation instead of the event function
+		public void UpdateScreenContent()
+		{
+			SetTexture(Player.texture);
 		}
 
 		private void SetTexture(Texture? texture)

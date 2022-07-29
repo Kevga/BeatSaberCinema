@@ -46,10 +46,10 @@ namespace BeatSaberCinema
 			body.transform.localPosition = new Vector3(0, 0, 0.4f); //A fixed offset is necessary for the center segments of the curved screen
 			body.transform.localScale = new Vector3(1.01f, 1.01f, 1.01f);
 			var bodyRenderer = body.GetComponent<Renderer>();
-			var sourceMaterial = new Material(Resources.FindObjectsOfTypeAll<Shader>().LastOrDefault(x => x.name == "Custom/OpaqueNeonLight"));
-			if (sourceMaterial != null)
+			var bodyShader = Resources.FindObjectsOfTypeAll<Shader>().LastOrDefault(x => x.name == "Custom/OpaqueNeonLight");
+			if (bodyShader != null)
 			{
-				bodyRenderer.material = new Material(sourceMaterial);
+				bodyRenderer.material = new Material(bodyShader);
 			}
 			else
 			{
@@ -58,8 +58,6 @@ namespace BeatSaberCinema
 			}
 
 			bodyRenderer.material.color = new Color(0, 0, 0, 0);
-
-
 			body.layer = LayerMask.NameToLayer("Environment");
 		}
 

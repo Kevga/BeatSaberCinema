@@ -176,8 +176,15 @@ namespace BeatSaberCinema
 			_fileSystemWatcher?.Dispose();
 			if (!Directory.Exists(levelPath))
 			{
-				Log.Debug($"Level directory {levelPath} does not exist");
-				return;
+				if (File.Exists(levelPath))
+				{
+					levelPath = Path.GetDirectoryName(levelPath)!;
+				}
+				else
+				{
+					Log.Debug($"Level directory {levelPath} does not exist");
+					return;
+				}
 			}
 
 			Log.Debug($"Setting up FileSystemWatcher for {levelPath}");
@@ -202,7 +209,7 @@ namespace BeatSaberCinema
 		private static void OnConfigChangedMainThread(FileSystemEventArgs e)
 		{
 			Log.Debug("Config "+e.ChangeType+" detected: "+e.FullPath);
-			if (_ignoreNextEventForPath == e.FullPath)
+			if (_ignoreNextEventForPath == e.FullPath && !Util.IsInEditor())
 			{
 				Log.Debug("Ignoring event after saving");
 				_ignoreNextEventForPath = null;

@@ -28,7 +28,8 @@ namespace BeatSaberCinema
 			}
 			var pathParts = filePath.Split('\\');
 			var className = pathParts[pathParts.Length - 1].Replace(".cs", "");
-			var prefix = $"[{className}.{member}():{line}]: ".PadRight(padding);
+			var caller = new StackFrame(3, true).GetMethod().Name;
+			var prefix = $"[{caller}->{className}.{member}:{line}]: ".PadRight(padding);
 			IpaLogger.Log(logLevel, $"{prefix}{message}");
 #else
 			IpaLogger.Log(logLevel, message);

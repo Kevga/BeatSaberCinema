@@ -69,7 +69,7 @@ namespace BeatSaberCinema
 		}
 
 		private VideoMenuStatus _menuStatus = null!;
-		private LevelDetailViewController _levelDetailMenu = null!;
+		private LevelDetailViewController? _levelDetailMenu;
 		private bool _videoMenuInitialized;
 
 		private IPreviewBeatmapLevel? _currentLevel;
@@ -87,6 +87,22 @@ namespace BeatSaberCinema
 
 		public void Init()
 		{
+			Events.LevelSelected -= OnLevelSelected;
+			Events.LevelSelected += OnLevelSelected;
+			Events.DifficultySelected -= OnDifficultySelected;
+			Events.DifficultySelected += OnDifficultySelected;
+
+			if (_root == null)
+			{
+				Log.Warn("VideoMenu root is null, not creating status listener. UI may not work properly.");
+				return;
+			}
+
+			if (_levelDetailMenu != null)
+			{
+				_levelDetailMenu.ButtonPressedAction -= OnDeleteVideoAction;
+			}
+
 			_levelDetailMenu = new LevelDetailViewController();
 			_levelDetailMenu.ButtonPressedAction += OnDeleteVideoAction;
 			CreateStatusListener();
@@ -102,9 +118,6 @@ namespace BeatSaberCinema
 			_videoMenuInitialized = true;
 			_videoDetailsViewRect.gameObject.SetActive(false);
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
-
-			Events.LevelSelected += OnLevelSelected;
-			Events.DifficultySelected += OnDifficultySelected;
 
 			_searchController.SearchProgress += SearchProgress;
 			_searchController.SearchFinished += SearchFinished;
@@ -284,7 +297,7 @@ namespace BeatSaberCinema
 			}
 
 			_videoSearchResultsViewRect.gameObject.SetActive(false);
-			_levelDetailMenu.SetActive(false);
+			_levelDetailMenu?.SetActive(false);
 
 			if (_currentVideo == null || !_downloadController.LibrariesAvailable())
 			{
@@ -351,7 +364,7 @@ namespace BeatSaberCinema
 			}
 
 			//This is the case if the map only uses environment modifications
-			if (_currentVideo.videoID == null && _currentVideo.videoUrl == null)
+			if ((_currentVideo.videoID == null && _currentVideo.videoUrl == null) || _levelDetailMenu == null)
 			{
 				return;
 			}
@@ -743,8 +756,8 @@ namespace BeatSaberCinema
 			}
 
 			SetupVideoDetails();
-			_levelDetailMenu.SetActive(true);
-			_levelDetailMenu.RefreshContent();
+			_levelDetailMenu?.SetActive(true);
+			_levelDetailMenu?.RefreshContent();
 		}
 
 		public void ShowKeyboard()
@@ -792,7 +805,7 @@ namespace BeatSaberCinema
 					VideoLoader.DeleteVideo(_currentVideo);
 					PlaybackController.Instance.VideoPlayer.FadeOut(0.2f);
 					SetupLevelDetailView(_currentVideo);
-					_levelDetailMenu.RefreshContent();
+					_levelDetailMenu?.RefreshContent();
 					break;
 			}
 
@@ -826,7 +839,7 @@ namespace BeatSaberCinema
 				_currentVideo = null;
 			}
 
-			_levelDetailMenu.SetActive(false);
+			_levelDetailMenu?.SetActive(false);
 			ResetVideoMenu();
 		}
 

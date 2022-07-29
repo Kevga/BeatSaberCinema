@@ -58,6 +58,7 @@ namespace BeatSaberCinema.Patches
 		[UsedImplicitly]
 		public static void Prefix(UpdatePlayHeadSignal ____signal, IBeatmapDataModel ____beatmapDataModel)
 		{
+			//TODO: This triggers not only during seek, but also just normal playback
 			var mapTime = AudioTimeHelper.SamplesToSeconds(____signal.sample, ____beatmapDataModel.audioClip.frequency);
 			PlaybackController.Instance.ResyncVideo(mapTime);
 		}
@@ -103,6 +104,8 @@ namespace BeatSaberCinema.Patches
 					{
 						Log.Debug($"Moving {path} to {config.VideoPath}");
 						File.Move(path, config.VideoPath);
+						VideoLoader.SetupFileSystemWatcher(config.VideoPath);
+						PlaybackController.Instance.OnConfigChanged(config, true);
 					}
 				}
 			}

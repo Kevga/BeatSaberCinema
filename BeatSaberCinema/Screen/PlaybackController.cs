@@ -167,7 +167,15 @@ namespace BeatSaberCinema
 				return 0;
 			}
 
-			var time = referenceTime ?? _activeAudioSource.time;
+			float time;
+			if (referenceTime == null && _activeAudioSource.time == 0)
+			{
+				time = _lastKnownAudioSourceTime;
+			}
+			else
+			{
+				time = referenceTime ?? _activeAudioSource.time;
+			}
 			var speed = playbackSpeed ?? VideoConfig.PlaybackSpeed;
 			return (time * speed) + (VideoConfig.offset / 1000f);
 		}
@@ -267,7 +275,11 @@ namespace BeatSaberCinema
 					ResyncVideo();
 				}
 			}
-			_lastKnownAudioSourceTime = audioSourceTime;
+
+			if (audioSourceTime > 0)
+			{
+				_lastKnownAudioSourceTime = audioSourceTime;
+			}
 		}
 
 		private void Update()
@@ -417,6 +429,11 @@ namespace BeatSaberCinema
 
 		private void OnConfigChanged(VideoConfig? config)
 		{
+			OnConfigChanged(config, false);
+		}
+
+		internal void OnConfigChanged(VideoConfig? config, bool? reloadVideo)
+		{
 			var previousVideoPath = VideoConfig?.VideoPath;
 			VideoConfig = config;
 
@@ -438,10 +455,10 @@ namespace BeatSaberCinema
 			else
 			{
 				VideoPlayer.SetPlacement(Placement.CreatePlacementForConfig(config, _activeScene, VideoPlayer.GetVideoAspectRatio()));
-				//ResyncVideo(); //TODO: This fails in the editor since the audiosource time gets set to 0 when the map is paused
+				ResyncVideo();
 			}
 
-			if (previousVideoPath != config.VideoPath)
+			if (previousVideoPath != config.VideoPath || reloadVideo == true)
 			{
 				VideoPlayer.Player.prepareCompleted += ConfigChangedPrepareHandler;
 				PrepareVideo(config);
@@ -477,11 +494,12 @@ namespace BeatSaberCinema
 			}
 
 			sender.frameReady += ConfigChangedFrameReadyHandler;
-			PlayVideo(_activeAudioSource!.time);
+			PlayVideo(_lastKnownAudioSourceTime);
 		}
 
 		private void ConfigChangedFrameReadyHandler(VideoPlayer sender, long frameIdx)
 		{
+			Log.Debug("First frame after config change is ready");
 			sender.frameReady -= ConfigChangedFrameReadyHandler;
 			if (_activeAudioSource == null)
 			{
@@ -491,7 +509,10 @@ namespace BeatSaberCinema
 			if (!_activeAudioSource.isPlaying)
 			{
 				VideoPlayer.Pause();
+				VideoPlayer.SetBrightness(1f);
 			}
+
+			VideoPlayer.UpdateScreenContent();
 		}
 
 		public void SetSelectedLevel(IPreviewBeatmapLevel? level, VideoConfig? config)
@@ -626,7 +647,7 @@ namespace BeatSaberCinema
 
 			if (VideoConfig == null || !VideoConfig.IsPlayable)
 			{
-				Log.Debug("No video configured or video is not playable");
+				Log.Debug("No video configured or video is not playable: "+VideoConfig?.VideoPath);
 
 				if (SettingsStore.Instance.CoverEnabled && (VideoConfig?.forceEnvironmentModifications == null || VideoConfig.forceEnvironmentModifications == false))
 				{
@@ -696,11 +717,11 @@ namespace BeatSaberCinema
 
 					_activeAudioSource = _timeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
 				}
-
 			}
 
 			if (_activeAudioSource != null)
 			{
+				_lastKnownAudioSourceTime = 0;
 				Log.Debug($"Waiting for AudioSource {_activeAudioSource.name} to start playing");
 				yield return new WaitUntil(() => _activeAudioSource.isPlaying);
 				startTime = _activeAudioSource.time;
@@ -820,7 +841,7 @@ namespace BeatSaberCinema
 
 			StopAllCoroutines();
 
-			if (_activeAudioSource != null)
+			if (_activeAudioSource != null && _activeAudioSource.time > 0)
 			{
 				_lastKnownAudioSourceTime = _activeAudioSource.time;
 			}
@@ -866,7 +887,7 @@ namespace BeatSaberCinema
 			yield return new WaitUntil(() => stopwatch.ElapsedTicks >= ticksUntilStart);
 			Log.Debug("Elapsed ms: "+stopwatch.ElapsedMilliseconds);
 
-			if (_activeAudioSource != null)
+			if (_activeAudioSource != null && _activeAudioSource.time > 0)
 			{
 				_lastKnownAudioSourceTime = _activeAudioSource.time;
 			}
@@ -966,6 +987,7 @@ namespace BeatSaberCinema
 		public void UpdateSongPreviewPlayer(AudioSource? activeAudioSource, float startTime, float timeRemaining, bool isDefault)
 		{
 			_activeAudioSource = activeAudioSource;
+			_lastKnownAudioSourceTime = 0;
 			if (_activeAudioSource == null)
 			{
 				Log.Debug("Active AudioSource null in SongPreviewPlayer update");
