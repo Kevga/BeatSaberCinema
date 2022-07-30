@@ -42,4 +42,24 @@ namespace BeatSaberCinema.Patches
 			Events.SetSelectedLevel(____beatmapDataModel, originalPath);
 		}
 	}
+
+	[HarmonyPatch(typeof(MainMenuViewController), "DidActivate")]
+	public class MainMenuSelectionResetPatch
+	{
+		[UsedImplicitly]
+		public static void Prefix()
+		{
+			Events.SetSelectedLevel(null);
+		}
+	}
+
+	[HarmonyPatch(typeof(LobbySetupViewController), "DidActivate")]
+	public class MultiplayerMenuSelectionResetPatch
+	{
+		[UsedImplicitly]
+		public static void Prefix()
+		{
+			Events.SetSelectedLevel(null);
+		}
+	}
 }
