@@ -59,7 +59,6 @@ namespace BeatSaberCinema
 			_customVideoPlayer.stopped += VideoStopped;
 			_customVideoPlayer.FadeController.EasingUpdate += OnFadeUpdate;
 			Events.LevelSelected += OnLevelSelected;
-			BSEvents.gameSceneLoaded += OnGameSceneLoaded;
 			BSEvents.menuSceneLoaded += OnMenuSceneLoaded;
 			BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
 		}
@@ -70,7 +69,6 @@ namespace BeatSaberCinema
 			_customVideoPlayer.stopped -= VideoStopped;
 			_customVideoPlayer.FadeController.EasingUpdate -= OnFadeUpdate;
 			Events.LevelSelected -= OnLevelSelected;
-			BSEvents.gameSceneLoaded -= OnGameSceneLoaded;
 			BSEvents.menuSceneLoaded -= OnMenuSceneLoaded;
 			BSEvents.lateMenuSceneLoadedFresh -= OnMenuSceneLoadedFresh;
 
@@ -94,7 +92,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private void OnGameSceneLoaded()
+		internal void OnGameSceneLoaded()
 		{
 			_light.intensity = DIRECTIONAL_LIGHT_INTENSITY_GAMEPLAY;
 		}

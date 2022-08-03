@@ -19,6 +19,7 @@ namespace BeatSaberCinema
 		private Scene _activeScene = Scene.Other;
 
 		public static PlaybackController Instance { get; private set; } = null!;
+		private LightController LightController { get; set; } = null!;
 		private IPreviewBeatmapLevel? _currentLevel;
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
@@ -69,7 +70,7 @@ namespace BeatSaberCinema
 			Instance = this;
 
 			VideoPlayer = gameObject.AddComponent<CustomVideoPlayer>();
-			gameObject.AddComponent<LightController>();
+			LightController = gameObject.AddComponent<LightController>();
 			VideoPlayer.Player.frameReady += FrameReady;
 			VideoPlayer.Player.sendFrameReadyEvents = true;
 			BSEvents.gameSceneActive += GameSceneActive;
@@ -625,6 +626,8 @@ namespace BeatSaberCinema
 				VideoPlayer.Hide();
 				return;
 			}
+
+			LightController.OnGameSceneLoaded();
 
 			StopPlayback();
 			VideoPlayer.Hide();
