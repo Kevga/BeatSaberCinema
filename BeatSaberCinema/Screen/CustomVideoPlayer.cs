@@ -410,11 +410,18 @@ namespace BeatSaberCinema
 
 			Log.Error("Video player error: " + message);
 			PlaybackController.Instance.StopPlayback();
-			if (PlaybackController.Instance.VideoConfig != null)
+			var config = PlaybackController.Instance.VideoConfig;
+			if (config == null)
 			{
-				PlaybackController.Instance.VideoConfig.UpdateDownloadState();
-				PlaybackController.Instance.VideoConfig.DownloadError = "Playback error. See logs for details.";
+				return;
 			}
+
+			config.UpdateDownloadState();
+			config.ErrorMessage = message.Contains("Unexpected error code (10)") && SystemInfo.graphicsDeviceVendor == "NVIDIA" ?
+				"Cinema playback error. Try disabling NVIDIA Fast Sync." :
+				"Cinema playback error. See logs for details.";
+
+			VideoMenu.instance.SetupLevelDetailView(config);
 		}
 
 		public float GetVideoAspectRatio()

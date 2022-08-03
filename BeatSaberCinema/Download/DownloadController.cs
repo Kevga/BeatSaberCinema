@@ -49,7 +49,7 @@ namespace BeatSaberCinema
 				yield break;
 			}
 
-			video.DownloadError = null;
+			video.ErrorMessage = null;
 			video.DownloadState = DownloadState.Preparing;
 			DownloadProgress?.Invoke(video);
 
@@ -113,7 +113,7 @@ namespace BeatSaberCinema
 			}
 
 			Log.Error(error);
-			video.DownloadError = ShortenErrorMessage(error);
+			video.ErrorMessage = ShortenErrorMessage(error);
 		}
 
 		private void DownloadProcessExited(Process process, VideoConfig video)

@@ -377,6 +377,11 @@ namespace BeatSaberCinema
 						_levelDetailMenu.SetActive(true);
 						_levelDetailMenu.SetText("Please add Cinema as a suggestion", null, Color.red);
 					}
+					else if (videoConfig.ErrorMessage != null)
+					{
+						_levelDetailMenu.SetActive(true);
+						_levelDetailMenu.SetText(videoConfig.ErrorMessage, null, Color.red, Color.red);
+					}
 					else
 					{
 						_levelDetailMenu.SetText("Video ready!", null, Color.green);
@@ -408,9 +413,9 @@ namespace BeatSaberCinema
 					break;
 				case DownloadState.NotDownloaded:
 					_levelDetailMenu.SetActive(true);
-					if (videoConfig.DownloadError != null)
+					if (videoConfig.ErrorMessage != null)
 					{
-						_levelDetailMenu.SetText(videoConfig.DownloadError, "Retry", Color.red, Color.red);
+						_levelDetailMenu.SetText(videoConfig.ErrorMessage, "Retry", Color.red, Color.red);
 					}
 					else if (_difficultyData?.HasCinemaRequirement() == true)
 					{
@@ -475,7 +480,7 @@ namespace BeatSaberCinema
 					_previewButton.interactable = true;
 					break;
 				case DownloadState.NotDownloaded:
-					_videoStatusText.text = videoConfig.DownloadError ?? "Not downloaded";
+					_videoStatusText.text = videoConfig.ErrorMessage ?? "Not downloaded";
 					_videoStatusText.color = Color.red;
 					_previewButton.interactable = false;
 					break;
@@ -742,7 +747,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (video.DownloadError != null)
+			if (video.ErrorMessage != null)
 			{
 				SetupVideoDetails();
 				return;

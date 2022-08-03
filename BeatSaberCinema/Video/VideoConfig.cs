@@ -56,7 +56,7 @@ namespace BeatSaberCinema
 		public ScreenConfig[]? additionalScreens;
 
 		[JsonIgnore, NonSerialized] public DownloadState DownloadState;
-		[JsonIgnore, NonSerialized] public string? DownloadError;
+		[JsonIgnore, NonSerialized] public string? ErrorMessage;
 		[JsonIgnore, NonSerialized] public bool BackCompat;
 		[JsonIgnore, NonSerialized] public bool NeedsToSave;
 		[JsonIgnore, NonSerialized] public bool PlaybackDisabledByMissingSuggestion;
