@@ -136,6 +136,11 @@ namespace BeatSaberCinema
             PlaybackController.Instance.StopPlayback();
             PlaybackController.Instance.VideoPlayer.FadeIn(FADE_DURATION);
             SetSettingsTexture();
+
+            if (!SettingsStore.Instance.TransparencyEnabled)
+            {
+	            PlaybackController.Instance.VideoPlayer.ShowScreenBody();
+            }
         }
 
         protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)

@@ -19,6 +19,7 @@ namespace BeatSaberCinema
 		private static readonly int VignetteRadius = Shader.PropertyToID("_VignetteRadius");
 		private static readonly int VignetteSoftness = Shader.PropertyToID("_VignetteSoftness");
 		private static readonly int VignetteElliptical = Shader.PropertyToID("_VignetteOval");
+		private const string BODY_SHADER_NAME = "Custom/OpaqueNeonLight";
 
 		public ScreenController()
 		{
@@ -45,20 +46,37 @@ namespace BeatSaberCinema
 			body.transform.parent = parent.transform;
 			body.transform.localPosition = new Vector3(0, 0, 0.4f); //A fixed offset is necessary for the center segments of the curved screen
 			body.transform.localScale = new Vector3(1.01f, 1.01f, 1.01f);
-			var bodyRenderer = body.GetComponent<Renderer>();
-			var bodyShader = Resources.FindObjectsOfTypeAll<Shader>().LastOrDefault(x => x.name == "Custom/OpaqueNeonLight");
+			body.layer = LayerMask.NameToLayer("Environment");
+		}
+
+		internal void OnGameSceneLoadedFresh()
+		{
+			Screens.ForEach(s =>
+			{
+				var body = s.transform.Find("Body");
+				var bodyRenderer = body.GetComponent<Renderer>();
+				if (bodyRenderer == null)
+				{
+					Log.Error("Could not find body renderer for screen");
+					return;
+				}
+
+				if (bodyRenderer.material == null || bodyRenderer.material.shader == null || bodyRenderer.material.shader.name != BODY_SHADER_NAME)
+				{
+					AssignBodyMaterial(bodyRenderer);
+				}
+			});
+		}
+
+		private static void AssignBodyMaterial(Renderer bodyRenderer)
+		{
+			var bodyShader = Resources.FindObjectsOfTypeAll<Shader>().LastOrDefault(x => x.name == BODY_SHADER_NAME);
 			if (bodyShader != null)
 			{
 				bodyRenderer.material = new Material(bodyShader);
 			}
-			else
-			{
-				Log.Error("Source material for body was not found!");
-				body.transform.localScale = Vector3.zero;
-			}
 
 			bodyRenderer.material.color = new Color(0, 0, 0, 0);
-			body.layer = LayerMask.NameToLayer("Environment");
 		}
 
 		public void SetScreensActive(bool active)

@@ -38,14 +38,14 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		public void OnApplicationStart()
 		{
+			Log.Debug("Hardware info:", true);
+			Log.Debug(Util.GetHardwareInfo(), true);
 			BSEvents.OnLoad();
 			VideoLoader.Init();
 		}
 
 		private static void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO scenesTransition)
 		{
-			Log.Debug("Hardware info:", true);
-			Log.Debug(Util.GetHardwareInfo(), true);
 			VideoMenu.instance.Init();
 			SongPreviewPlayerController.Init();
 		}
@@ -64,7 +64,6 @@ namespace BeatSaberCinema
 			VideoMenu.instance.AddTab();
 			EnvironmentController.Init();
 			Collections.RegisterCapability(CAPABILITY);
-			Log.Info($"{nameof(BeatSaberCinema)} enabled");
 			if (File.Exists(Path.Combine(UnityGame.InstallPath, "dxgi.dll")))
 			{
 				Log.Warn("dxgi.dll is present, video may fail to play. To fix this, delete the file dxgi.dll from your main Beat Saber folder (not in Plugins).");

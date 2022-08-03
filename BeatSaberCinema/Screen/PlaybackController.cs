@@ -426,6 +426,8 @@ namespace BeatSaberCinema
 			{
 				VideoPlayer.VolumeScale = _mainSettingsModel.volume.value;
 			}
+
+			VideoPlayer.screenController.OnGameSceneLoadedFresh();
 		}
 
 		private void OnConfigChanged(VideoConfig? config)
