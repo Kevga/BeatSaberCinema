@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -6,6 +7,7 @@ using System.Text.RegularExpressions;
 using BeatSaberCinema.Patches;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR;
 
 namespace BeatSaberCinema
 {
@@ -135,6 +137,27 @@ namespace BeatSaberCinema
 			}
 
 			return environmentName;
+		}
+
+		public static string GetHardwareInfo()
+		{
+			var info = new List<string>();
+			try
+			{
+				info.Add("OS: "+SystemInfo.operatingSystem);
+				info.Add("Graphics device: "+SystemInfo.graphicsDeviceName);
+				info.Add("Processor: "+SystemInfo.processorType);
+				info.Add("Device type: "+Enum.GetName(typeof(DeviceType), SystemInfo.deviceType));
+				info.Add("VR device: "+XRSettings.loadedDeviceName);
+				info.Add("VR active: "+XRSettings.isDeviceActive);
+				info.Add("System Language: "+(Application.systemLanguage == SystemLanguage.English ? "English" : "Other"));
+			}
+			catch (Exception e)
+			{
+				Log.Error(e);
+			}
+
+			return string.Join("\n", info);
 		}
 	}
 }

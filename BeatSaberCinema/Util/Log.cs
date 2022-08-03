@@ -48,6 +48,11 @@ namespace BeatSaberCinema
 			IpaLogger.Log(Logger.Level.Debug, exception);
 		}
 
+		public static void Debug(string message, bool evenInReleaseBuild, [CallerFilePath] string filePath = "", [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
+		{
+			_Log(message, Logger.Level.Debug, filePath, member, line);
+		}
+
 		public static void Info(string message, [CallerFilePath] string filePath = "", [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
 		{
 			_Log(message, Logger.Level.Info, filePath, member, line);

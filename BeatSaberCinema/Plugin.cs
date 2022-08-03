@@ -44,6 +44,8 @@ namespace BeatSaberCinema
 
 		private static void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO scenesTransition)
 		{
+			Log.Debug("Hardware info:", true);
+			Log.Debug(Util.GetHardwareInfo(), true);
 			VideoMenu.instance.Init();
 			SongPreviewPlayerController.Init();
 		}
