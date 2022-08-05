@@ -417,9 +417,18 @@ namespace BeatSaberCinema
 			}
 
 			config.UpdateDownloadState();
-			config.ErrorMessage = message.Contains("Unexpected error code (10)") && SystemInfo.graphicsDeviceVendor == "NVIDIA" ?
-				"Cinema playback error. Try disabling NVIDIA Fast Sync." :
-				"Cinema playback error. See logs for details.";
+			config.ErrorMessage =  "Cinema playback error.";
+			if (message.Contains("Unexpected error code (10)") && SystemInfo.graphicsDeviceVendor == "NVIDIA")
+			{
+				config.ErrorMessage += " Try disabling NVIDIA Fast Sync.";
+			} else if (message.Contains("It seems that the Microsoft Media Foundation is not installed on this machine"))
+			{
+				config.ErrorMessage += " Install Microsoft Media Foundation.";
+			}
+			else
+			{
+				config.ErrorMessage += " See logs for details.";
+			}
 
 			VideoMenu.instance.SetupLevelDetailView(config);
 		}
