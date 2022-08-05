@@ -826,6 +826,24 @@ namespace BeatSaberCinema
 						rightLightGroup.transform.position = new Vector3(11.1f, 1.99f, 59f);
 						rightLightGroup.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
 					}
+
+					var cloneConfigLeft = new EnvironmentModification { cloneFrom = "ScafoldTriangularLeft" };
+					var leftScaffoldingList = SelectObjectsFromScene(cloneConfigLeft, true);
+					if (leftScaffoldingList.Any())
+					{
+						var original = leftScaffoldingList.First();
+						var clone = CloneObject(original.gameObject, cloneConfigLeft, videoConfig, true);
+						clone.gameObject.transform.position = new Vector3(original.position.x, 1.97f, original.position.z);
+					}
+
+					var cloneConfigRight = new EnvironmentModification { cloneFrom = "ScafoldTriangularRight" };
+					var rightScaffoldingList = SelectObjectsFromScene(cloneConfigRight, true);
+					if (rightScaffoldingList.Any())
+					{
+						var original = rightScaffoldingList.First();
+						var clone = CloneObject(original.gameObject, cloneConfigRight, videoConfig, true);
+						clone.gameObject.transform.position = new Vector3(original.position.x, 1.97f, original.position.z);
+					}
 					break;
 				}
 			}
@@ -997,12 +1015,6 @@ namespace BeatSaberCinema
 			}
 
 			Log.Debug("Cloning objects");
-			var lightManager = Resources.FindObjectsOfTypeAll<LightWithIdManager>().LastOrDefault();
-			if (lightManager == null)
-			{
-				Log.Error("Failed to find LightWithIdManager. Cannot clone lights.");
-			}
-
 			var cloneCounter = 0;
 			foreach (var objectToBeCloned in config.environment)
 			{
@@ -1019,41 +1031,51 @@ namespace BeatSaberCinema
 				}
 
 				var originalObject = environmentObjectList.Last().gameObject;
-
-				var clone = Object.Instantiate(originalObject, originalObject.transform.parent);
-
-				//Move the new object far away to prevent changing the prop IDs that chroma assigns, but only if "mergePropGroups" is not set
-				var position = clone.transform.position;
-				var zOffset = (config.mergePropGroups == null || config.mergePropGroups == false ? CLONED_OBJECT_Z_OFFSET : 0);
-				var newPosition = new Vector3(position.x, position.y, position.z + zOffset);
-				clone.transform.position = newPosition;
-
-				//If the object has no position specified, add a position that reverts the z-offset
-				objectToBeCloned.position ??= position;
-
-				if (!clone.name.EndsWith(CLONED_OBJECT_NAME_SUFFIX))
-				{
-					clone.name = objectToBeCloned.name + CLONED_OBJECT_NAME_SUFFIX;
-				}
-
-				try
-				{
-					RegisterLights(clone, lightManager);
-					RegisterMirror(clone);
-					RegisterSpectrograms(clone);
-				}
-				catch (Exception e)
-				{
-					Log.Error(e);
-				}
-
-				var cloneEnvironmentObject = new EnvironmentObject(clone, true);
-				objectToBeCloned.gameObjectClone = cloneEnvironmentObject;
-				_environmentObjectList?.Add(cloneEnvironmentObject);
-
+				CloneObject(originalObject, objectToBeCloned, config);
 				cloneCounter++;
 			}
 			Log.Debug("Cloned "+cloneCounter+" objects");
+		}
+
+		private static EnvironmentObject CloneObject(GameObject originalObject, EnvironmentModification objectToBeCloned, VideoConfig? config, bool disableZOffset = false)
+		{
+			var lightManager = EnvironmentObjects.LastOrDefault(x => x.name == "LightWithIdManager");
+			if (lightManager == null)
+			{
+				Log.Error("Failed to find LightWithIdManager. Cannot clone lights.");
+			}
+
+			var clone = Object.Instantiate(originalObject, originalObject.transform.parent);
+
+			//Move the new object far away to prevent changing the prop IDs that chroma assigns, but only if "mergePropGroups" is not set
+			var position = clone.transform.position;
+			var zOffset = disableZOffset ? 0 : (config?.mergePropGroups == null || config.mergePropGroups == false ? CLONED_OBJECT_Z_OFFSET : 0);
+			var newPosition = new Vector3(position.x, position.y, position.z + zOffset);
+			clone.transform.position = newPosition;
+
+			//If the object has no position specified, add a position that reverts the z-offset
+			objectToBeCloned.position ??= position;
+
+			if (!clone.name.EndsWith(CLONED_OBJECT_NAME_SUFFIX))
+			{
+				clone.name = (objectToBeCloned.name ?? originalObject.transform.name)  + CLONED_OBJECT_NAME_SUFFIX;
+			}
+
+			try
+			{
+				RegisterLights(clone, lightManager?.transform.GetComponent<LightWithIdManager>());
+				RegisterMirror(clone);
+				RegisterSpectrograms(clone);
+			}
+			catch (Exception e)
+			{
+				Log.Error(e);
+			}
+
+			var cloneEnvironmentObject = new EnvironmentObject(clone, true);
+			objectToBeCloned.gameObjectClone = cloneEnvironmentObject;
+			_environmentObjectList?.Add(cloneEnvironmentObject);
+			return cloneEnvironmentObject;
 		}
 
 		private static void RegisterLights(GameObject clone, LightWithIdManager? lightWithIdManager)

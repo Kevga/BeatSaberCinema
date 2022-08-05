@@ -169,7 +169,7 @@ namespace BeatSaberCinema
 		[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
 		public class EnvironmentModification
 		{
-			[JsonRequired] public string name = null!;
+			[JsonRequired] public string? name;
 			public string? parentName;
 			public string? cloneFrom;
 
