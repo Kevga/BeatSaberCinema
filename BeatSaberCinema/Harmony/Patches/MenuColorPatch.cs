@@ -17,7 +17,7 @@ namespace BeatSaberCinema.Patches
 		[UsedImplicitly]
 		public static void Postfix(MenuLightsManager __instance, ref MenuLightsPresetSO preset)
 		{
-			if (preset.lightIdColorPairs.Length > 0)
+			if (preset != null && preset.lightIdColorPairs != null && preset.lightIdColorPairs.Length > 0 && preset.lightIdColorPairs[0] != null)
 			{
 				BaseColor = preset.lightIdColorPairs[0].baseColor;
 			}
