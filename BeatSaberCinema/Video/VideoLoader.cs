@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,7 @@ using BeatmapEditor3D.DataModels;
 using IPA.Utilities;
 using IPA.Utilities.Async;
 using Newtonsoft.Json;
+using SongCore;
 using UnityEngine;
 
 namespace BeatSaberCinema
@@ -30,6 +32,8 @@ namespace BeatSaberCinema
 
 		private static AudioClipAsyncLoader? _audioClipAsyncLoader;
 
+		//This should ideally be a HashSet, but there is no concurrent version of it. We also don't need the value, so use the smallest possible type.
+		internal static readonly ConcurrentDictionary<string, byte> MapsWithVideo = new ConcurrentDictionary<string, byte>();
 		private static readonly ConcurrentDictionary<string, VideoConfig> CachedConfigs = new ConcurrentDictionary<string, VideoConfig>();
 		private static readonly ConcurrentDictionary<string, VideoConfig> BundledConfigs = new ConcurrentDictionary<string, VideoConfig>();
 
@@ -112,9 +116,78 @@ namespace BeatSaberCinema
 			}
 		}
 
+		internal static async void IndexMaps(Loader? loader = null, ConcurrentDictionary<string, CustomPreviewBeatmapLevel>? customPreviewBeatmapLevels = null)
+		{
+			Log.Debug("Indexing maps...");
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
+
+			var officialMaps = GetOfficialMaps();
+
+			void Action()
+			{
+				var options = new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, (Environment.ProcessorCount / 2) - 1) };
+				Parallel.ForEach(Loader.CustomLevels, options, IndexMap);
+				if (officialMaps.Count > 0)
+				{
+					Parallel.ForEach(officialMaps, options, IndexMap);
+				}
+			}
+
+			var loadingTask = new Task((Action) Action, CancellationToken.None);
+			var loadingAwaiter = loadingTask.ConfigureAwait(false);
+			loadingTask.Start();
+			await loadingAwaiter;
+
+			Log.Debug($"Indexing took {stopwatch.ElapsedMilliseconds} ms");
+		}
+
+		private static List<IPreviewBeatmapLevel> GetOfficialMaps()
+		{
+			var officialMaps = new List<IPreviewBeatmapLevel>();
+
+			if (BeatmapLevelsModel == null)
+			{
+				return officialMaps;
+			}
+
+			void AddOfficialPackCollection(IBeatmapLevelPackCollection packCollection)
+			{
+				officialMaps.AddRange(packCollection.beatmapLevelPacks.SelectMany(pack => pack.beatmapLevelCollection.beatmapLevels));
+			}
+
+			AddOfficialPackCollection(BeatmapLevelsModel.ostAndExtrasPackCollection);
+			AddOfficialPackCollection(BeatmapLevelsModel.dlcBeatmapLevelPackCollection);
+
+			return officialMaps;
+		}
+
+		private static void IndexMap(KeyValuePair<string, CustomPreviewBeatmapLevel> levelKeyValuePair)
+		{
+			IndexMap(levelKeyValuePair.Value);
+		}
+
+		private static void IndexMap(IPreviewBeatmapLevel level)
+		{
+			var path = GetLevelPath(level);
+			try
+			{
+				var results = Directory.GetFiles(path, CONFIG_FILENAME, SearchOption.AllDirectories);
+				if (results.Length > 0)
+				{
+					MapsWithVideo.TryAdd(level.levelID, 0);
+				}
+			}
+			catch (Exception)
+			{
+				// ignored
+			}
+		}
+
 		public static void AddConfigToCache(VideoConfig config, IPreviewBeatmapLevel level)
 		{
 			var success = CachedConfigs.TryAdd(level.levelID, config);
+			MapsWithVideo.TryAdd(level.levelID, 0);
 			if (success)
 			{
 				Log.Debug($"Adding config for {level.levelID} to cache");
@@ -472,6 +545,8 @@ namespace BeatSaberCinema
 				{
 					File.Delete(mvpConfigPath);
 				}
+
+				MapsWithVideo.TryRemove(level.levelID, out _);
 			}
 			catch (Exception e)
 			{
