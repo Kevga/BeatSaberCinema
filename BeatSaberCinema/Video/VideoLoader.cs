@@ -169,18 +169,11 @@ namespace BeatSaberCinema
 
 		private static void IndexMap(IPreviewBeatmapLevel level)
 		{
-			var path = GetLevelPath(level);
-			try
+			var levelPath = GetLevelPath(level);
+			var configPath = Path.Combine(levelPath, CONFIG_FILENAME);
+			if (File.Exists(configPath))
 			{
-				var results = Directory.GetFiles(path, CONFIG_FILENAME, SearchOption.AllDirectories);
-				if (results.Length > 0)
-				{
-					MapsWithVideo.TryAdd(level.levelID, 0);
-				}
-			}
-			catch (Exception)
-			{
-				// ignored
+				MapsWithVideo.TryAdd(level.levelID, 0);
 			}
 		}
 
