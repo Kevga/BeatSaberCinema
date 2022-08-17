@@ -44,13 +44,6 @@ namespace BeatSaberCinema.Patches
 					}
 				}
 
-				if (video.EnvironmentModified)
-				{
-					Log.Debug("Environment is modified, disabling environment override");
-					overrideEnvironmentSettings = null!;
-					return;
-				}
-
 				var overrideEnvironmentEnabled = SettingsStore.Instance.OverrideEnvironment;
 				if (!overrideEnvironmentEnabled)
 				{
@@ -69,6 +62,7 @@ namespace BeatSaberCinema.Patches
 					"Dragons2Environment",
 					"LinkinParkEnvironment",
 					"KaleidoscopeEnvironment",
+					"InterscopeEnvironment",
 					"GlassDesertEnvironment",
 					"MonstercatEnvironment",
 					"CrabRaveEnvironment",
@@ -82,12 +76,7 @@ namespace BeatSaberCinema.Patches
 				var mapEnvironmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();
 				if (overrideEnvironmentSettings is { overrideEnvironments: true })
 				{
-					var overrideEnvironmentInfo = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(mapEnvironmentInfoSo.environmentType);
-					if (environmentWhitelist.Contains(overrideEnvironmentInfo.serializedName))
-					{
-						Log.Debug("Environment override by user is in whitelist, allowing override");
-						return;
-					}
+					return;
 				}
 
 				if (environmentWhitelist.Contains(mapEnvironmentInfoSo.serializedName))
