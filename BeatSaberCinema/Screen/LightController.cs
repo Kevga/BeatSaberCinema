@@ -184,7 +184,7 @@ namespace BeatSaberCinema
 			}
 
 			//Darken the base menu lighting
-			var baseColor = MenuColor.BaseColor * (Color.white - (_customVideoPlayer.ScreenColor * 0.5f));
+			var baseColor = MenuColorPatch.BaseColor * (Color.white - (_customVideoPlayer.ScreenColor * 0.5f));
 			baseColor.a = 1;
 
 			if (_menuFloorLight != null)
