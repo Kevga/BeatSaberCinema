@@ -411,11 +411,6 @@ namespace BeatSaberCinema
 			VideoPlayer.Hide();
 			StopAllCoroutines();
 			_previewWaitingForPreviewPlayer = true;
-
-			if (VideoConfig != null)
-			{
-				PrepareVideo(VideoConfig);
-			}
 		}
 
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)

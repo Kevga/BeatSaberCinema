@@ -47,6 +47,12 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			if (_currentAudioClip.name == "LevelCleared")
+			{
+				//Prevents preview from playing when new highscore is reached
+				isDefault = true;
+			}
+
 			_activeAudioSource = AudioSourceControllers[_activeChannel].audioSource;
 			Log.Debug($"SongPreviewPatch -- channel {_activeChannel} -- startTime {startTime} -- timeRemaining {timeToDefault} -- audioclip {_currentAudioClip.name}");
 			if (PlaybackController.Instance != null)

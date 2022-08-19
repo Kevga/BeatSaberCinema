@@ -271,7 +271,7 @@ namespace BeatSaberCinema
 			FadeOut(0);
 		}
 
-		public void FadeOut(float duration = 0.4f)
+		public void FadeOut(float duration = 0.7f)
 		{
 			_waitingForFadeOut = true;
 			FadeController.EaseOut(duration);
