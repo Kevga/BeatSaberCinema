@@ -138,6 +138,7 @@ namespace BeatSaberCinema
 				process.Disposed -= DownloadProcessDisposed;
 				_downloadProcesses.TryRemove(video, out _);
 				video.DownloadState = DownloadState.Downloaded;
+				video.ErrorMessage = null;
 				video.NeedsToSave = true;
 				SharedCoroutineStarter.instance.StartCoroutine(WaitForDownloadToFinishCoroutine(video));
 				Log.Info($"Download of {video.title} finished");
