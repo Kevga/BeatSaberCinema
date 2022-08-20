@@ -14,7 +14,6 @@ namespace BeatSaberCinema
 	public class DownloadController: YoutubeDLController
 	{
 		private readonly ConcurrentDictionary<VideoConfig, Process> _downloadProcesses = new ConcurrentDictionary<VideoConfig, Process>();
-		private string _downloadLog = "";
 
 		private static readonly Regex DownloadProgressRegex = new Regex(
 			@"(?<percentage>\d+\.?\d*)%",
@@ -40,8 +39,6 @@ namespace BeatSaberCinema
 		private IEnumerator DownloadVideoCoroutine(VideoConfig video, VideoQuality.Mode quality)
 		{
 			Log.Info($"Starting download of {video.title}");
-
-			_downloadLog = "";
 
 			var downloadProcess = CreateDownloadProcess(video, quality);
 			if (downloadProcess == null)
@@ -87,7 +84,6 @@ namespace BeatSaberCinema
 			}
 
 			timeout.Stop();
-			_downloadLog = "";
 			DisposeProcess(downloadProcess);
 		}
 
@@ -98,7 +94,6 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			_downloadLog += eventArgs.Data + "\r\n";
 			Log.Debug(eventArgs.Data);
 			ParseDownloadProgress(video, eventArgs);
 			DownloadProgress?.Invoke(video);
@@ -121,7 +116,6 @@ namespace BeatSaberCinema
 			var exitCode = process.ExitCode;
 			if (exitCode != 0)
 			{
-				Log.Warn(_downloadLog.Length > 0 ? _downloadLog : "Empty youtube-dl log");
 				video.DownloadState = DownloadState.NotDownloaded;
 			}
 

@@ -94,7 +94,6 @@ namespace BeatSaberCinema
 
 			if (_root == null)
 			{
-				Log.Warn("VideoMenu root is null, not creating status listener. UI may not work properly.");
 				return;
 			}
 

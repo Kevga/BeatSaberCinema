@@ -39,8 +39,7 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		public void OnApplicationStart()
 		{
-			Log.Debug("Hardware info:", true);
-			Log.Debug(Util.GetHardwareInfo(), true);
+			Log.Debug("Hardware info:\n"+Util.GetHardwareInfo(), true);
 			BSEvents.OnLoad();
 			VideoLoader.Init();
 		}
@@ -100,7 +99,6 @@ namespace BeatSaberCinema
 			EnvironmentController.Disable();
 			VideoLoader.StopFileSystemWatcher();
 			Collections.DeregisterizeCapability(CAPABILITY);
-			Log.Info($"{nameof(BeatSaberCinema)} disabled");
 		}
 
 		private void ApplyHarmonyPatches()

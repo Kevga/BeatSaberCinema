@@ -14,7 +14,7 @@ namespace BeatSaberCinema
 		private static void _Log(string message, Logger.Level logLevel, string filePath, string member, int line)
 		{
 #if DEBUG
-			var padding = 62;
+			var padding = 82;
 			switch(logLevel) {
 				case Logger.Level.Info:
 					padding += 1;
