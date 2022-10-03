@@ -81,7 +81,6 @@ namespace BeatSaberCinema.Patches
 		[UsedImplicitly]
 		public static void Prefix()
 		{
-			PlaybackController.Instance.StopPlayback();
 			VideoLoader.StopFileSystemWatcher();
 		}
 	}
@@ -94,19 +93,13 @@ namespace BeatSaberCinema.Patches
 		{
 			if (PlaybackController.Instance.VideoConfig != null)
 			{
+				Log.Debug("Restoring config and fs watcher after editor save...", true);
 				var config = PlaybackController.Instance.VideoConfig;
 				config.NeedsToSave = true;
 				VideoLoader.SaveVideoConfig(config);
 				if (config.videoFile != null && config.VideoPath != null)
 				{
-					var path = Path.Combine(____lastBackup, config.videoFile);
-					if (File.Exists(path))
-					{
-						Log.Debug($"Moving {path} to {config.VideoPath}");
-						File.Move(path, config.VideoPath);
-						VideoLoader.SetupFileSystemWatcher(config.VideoPath);
-						PlaybackController.Instance.OnConfigChanged(config, true);
-					}
+					VideoLoader.SetupFileSystemWatcher(config.VideoPath);
 				}
 			}
 		}

@@ -66,11 +66,23 @@ namespace BeatSaberCinema
 		{
 			get
 			{
-				if (videoFile != null && IsLocal && LevelDir != null)
+				if (LevelDir != null && LevelDir.Contains(VideoLoader.WIP_MAPS_FOLDER))
+				{
+					var path = Path.Combine(
+						Environment.CurrentDirectory,
+						"Beat Saber_Data",
+						VideoLoader.WIP_MAPS_FOLDER,
+						VideoLoader.WIP_DIRECTORY_NAME,
+						videoFile
+					);
+					return path;
+				}
+
+				if (IsLocal && LevelDir != null)
 				{
 					try
 					{
-						return Path.Combine(LevelDir, videoFile);
+						return Path.Combine(LevelDir, videoFile!);
 					}
 					catch (Exception e)
 					{
@@ -79,11 +91,12 @@ namespace BeatSaberCinema
 					}
 				}
 
-				if (videoFile != null && IsStreamable)
+				if (IsStreamable)
 				{
 					return videoFile;
 				}
 
+				Log.Debug("VideoPath is null");
 				return null;
 			}
 		}
@@ -91,7 +104,7 @@ namespace BeatSaberCinema
 		[JsonIgnore] public bool IsStreamable => videoFile != null && (videoFile.StartsWith("http://") || videoFile.StartsWith("https://"));
 		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
 		[JsonIgnore] public bool IsPlayable => (DownloadState == DownloadState.Downloaded || IsStreamable) && !PlaybackDisabledByMissingSuggestion;
-		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains(VideoLoader.WIP_DIRECTORY_NAME);
+		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains(VideoLoader.WIP_MAPS_FOLDER);
 		[JsonIgnore] public bool EnvironmentModified => (environment != null && environment.Length > 0) || screenPosition != null || screenHeight != null;
 		[JsonIgnore] public float PlaybackSpeed => playbackSpeed ?? 1;
 
@@ -149,6 +162,8 @@ namespace BeatSaberCinema
 			duration = searchResult.Duration;
 
 			LevelDir = levelPath;
+			videoFile = Util.ReplaceIllegalFilesystemChars(title ?? videoID ?? "video") + ".mp4";
+			videoFile = Util.ShortenFilename(VideoPath!, videoFile);
 		}
 
 		public new string ToString()
