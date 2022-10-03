@@ -34,6 +34,7 @@ namespace BeatSaberCinema
 		private DateTime _previewSyncStartTime;
 		private DateTime _audioSourceStartTime;
 		private float _offsetAfterPrepare;
+		private Stopwatch? _playbackDelayStopwatch;
 
 		public VideoConfig? VideoConfig { get; private set; }
 
@@ -123,7 +124,7 @@ namespace BeatSaberCinema
 			{
 				VideoPlayer.Play();
 			}
-			else
+			else if (_playbackDelayStopwatch is { IsRunning: false })
 			{
 				StartCoroutine(PlayVideoDelayedCoroutine(-referenceTime));
 			}
@@ -878,14 +879,16 @@ namespace BeatSaberCinema
 		private IEnumerator PlayVideoDelayedCoroutine(float delayStartTime)
 		{
 			Log.Debug("Waiting for "+delayStartTime+" seconds before playing video");
-			var stopwatch = new Stopwatch();
-			stopwatch.Start();
+			_playbackDelayStopwatch ??= new Stopwatch();
+			_playbackDelayStopwatch.Start();
 			VideoPlayer.Pause();
 			VideoPlayer.Hide();
 			VideoPlayer.Player.time = 0;
 			var ticksUntilStart = (delayStartTime) * TimeSpan.TicksPerSecond;
-			yield return new WaitUntil(() => stopwatch.ElapsedTicks >= ticksUntilStart);
-			Log.Debug("Elapsed ms: "+stopwatch.ElapsedMilliseconds);
+			yield return new WaitUntil(() => _playbackDelayStopwatch.ElapsedTicks >= ticksUntilStart);
+			Log.Debug("Elapsed ms: "+_playbackDelayStopwatch.ElapsedMilliseconds);
+			_playbackDelayStopwatch.Stop();
+			_playbackDelayStopwatch.Reset();
 
 			if (_activeAudioSource != null && _activeAudioSource.time > 0)
 			{

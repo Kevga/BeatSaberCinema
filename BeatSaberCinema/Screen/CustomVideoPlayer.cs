@@ -297,9 +297,15 @@ namespace BeatSaberCinema
 
 		public void Play()
 		{
+			if (_firstFrameStopwatch.IsRunning)
+			{
+				return;
+			}
+
 			Log.Debug("Starting playback, waiting for first frame...");
 			_waitingForFadeOut = false;
 			_firstFrameStopwatch.Start();
+			Player.frameReady -= FirstFrameReady;
 			Player.frameReady += FirstFrameReady;
 			Player.Play();
 		}
@@ -307,6 +313,7 @@ namespace BeatSaberCinema
 		public void Pause()
 		{
 			Player.Pause();
+			_firstFrameStopwatch.Reset();
 		}
 
 		public void Stop()
@@ -316,6 +323,7 @@ namespace BeatSaberCinema
 			stopped?.Invoke();
 			SetStaticTexture(null);
 			screenController.SetScreensActive(false);
+			_firstFrameStopwatch.Reset();
 		}
 
 		public void Prepare()
