@@ -223,15 +223,12 @@ namespace BeatSaberCinema
 				return null;
 			}
 
-			if (!Directory.Exists(video.LevelDir))
+			var path = Path.GetFileName(Path.GetDirectoryName(video.VideoPath));
+			if (video.VideoPath != null && path != null && !Directory.Exists(path))
 			{
-				//Needed for OST videos
-				Directory.CreateDirectory(video.LevelDir);
+				//Needed for OST/WIP videos
+				Directory.CreateDirectory(path);
 			}
-
-			var videoFileName = Util.ReplaceIllegalFilesystemChars(video.title ?? video.videoID ?? "video");
-			videoFileName = Util.ShortenFilename(video.LevelDir, videoFileName);
-			video.videoFile = videoFileName + ".mp4";
 
 			string videoUrl;
 			if (video.videoUrl != null)
@@ -262,7 +259,7 @@ namespace BeatSaberCinema
 			var downloadProcessArguments = videoUrl +
 			                               videoFormat +
 			                               " --no-cache-dir" + // Don't use temp storage
-			                               $" -o \"{videoFileName}.%(ext)s\"" +
+			                               $" -o \"{video.VideoPath}\"" +
 			                               " --no-playlist" + // Don't download playlists, only the first video
 			                               " --no-part" + // Don't store download in parts, write directly to file
 			                               " --recode-video mp4" + //Re-encode to mp4 (will be skipped most of the time, since it's already in an mp4 container)

@@ -21,7 +21,8 @@ namespace BeatSaberCinema
 	public static class VideoLoader
 	{
 		private const string OST_DIRECTORY_NAME = "CinemaOSTVideos";
-		internal const string WIP_DIRECTORY_NAME = "CustomWIPLevels";
+		internal const string WIP_DIRECTORY_NAME = "CinemaWIPVideos";
+		internal const string WIP_MAPS_FOLDER = "CustomWIPLevels";
 		private const string CONFIG_FILENAME = "cinema-video.json";
 		private const string CONFIG_FILENAME_MVP = "video.json";
 		private const string MOD_ID_MVP = "Music Video Player";
