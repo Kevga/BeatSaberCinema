@@ -846,6 +846,23 @@ namespace BeatSaberCinema
 					}
 					break;
 				}
+				case "LizzoEnvironment":
+				{
+					var rainbow = EnvironmentObjects.LastOrDefault(x => x.name == "Rainbow" && x.activeInHierarchy);
+					if (rainbow != null)
+					{
+						rainbow.transform.position = new Vector3(0f, 2.1f, 64.51f);
+						rainbow.transform.localScale = new Vector3(2f, 2f, 2f);
+					}
+
+					var rainbowLights = EnvironmentObjects.LastOrDefault(x => x.name == "BehindRainbowSpotlights" && x.activeInHierarchy);
+					if (rainbowLights != null)
+					{
+						rainbowLights.transform.position = new Vector3(0f, 2.1f, 62.24f);
+						rainbowLights.transform.localScale = new Vector3(2f, 2f, 2f);
+					}
+					break;
+				}
 			}
 		}
 

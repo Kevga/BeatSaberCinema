@@ -75,6 +75,7 @@ namespace BeatSaberCinema.Patches
 					"WeaveEnvironment",
 					"PyroEnvironment",
 					"EDMEnvironment",
+					"LizzoEnvironment",
 				};
 
 				var mapEnvironmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();

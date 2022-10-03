@@ -51,7 +51,7 @@ If you want to add a video to your map, you can simply set it up in the game fro
 
 If you include a video config, please **add "Cinema" as a suggestion** in your map editor, same as you would do with Chroma. Don't set Cinema as a requirement though, since your map should always be playable without it.
 
-You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments (**Big Mirror, Origins, KDA, Rocket, BTS, Dragons, Linkin Park, Kaleidoscope, Monstercat**) to make the video screen fit in seamlessly. If your chosen environment is not yet supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
+You do not need to pay much attention to the environment your map uses. Cinema modifies some of the built-in environments (**Big Mirror, Origins, KDA, Rocket, BTS, Dragons, Linkin Park, Kaleidoscope, Monstercat, Skrillex, Pyro/FOB, Weave, Lizzo**) to make the video screen fit in seamlessly. If your chosen environment is not in this list of environments supported by Cinema, the mod will automatically load Big Mirror, which is one of the best looking ones with the video screen.
 
 If you have any questions, please contact me on Discord (Dakari#0638).
 
