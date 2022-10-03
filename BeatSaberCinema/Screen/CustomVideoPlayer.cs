@@ -327,7 +327,7 @@ namespace BeatSaberCinema
 
 		private void Update()
 		{
-			if (Player.isPlaying)
+			if (Player.isPlaying || (Player.isPrepared && Player.isPaused))
 			{
 				SetTexture(Player.texture);
 			}

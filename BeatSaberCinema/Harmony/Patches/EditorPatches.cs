@@ -1,5 +1,4 @@
-﻿using System.IO;
-using BeatmapEditor.Commands;
+﻿using BeatmapEditor.Commands;
 using BeatmapEditor3D;
 using BeatmapEditor3D.BpmEditor;
 using BeatmapEditor3D.BpmEditor.Commands;
@@ -61,6 +60,7 @@ namespace BeatSaberCinema.Patches
 			//TODO: This triggers not only during seek, but also just normal playback
 			var mapTime = AudioTimeHelper.SamplesToSeconds(____signal.sample, ____beatmapDataModel.audioClip.frequency);
 			PlaybackController.Instance.ResyncVideo(mapTime);
+			PlaybackController.Instance.VideoPlayer.UpdateScreenContent();
 		}
 	}
 
