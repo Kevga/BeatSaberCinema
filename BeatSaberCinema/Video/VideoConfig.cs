@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using SongCore.Data;
 using UnityEngine;
 
 // ReSharper disable InconsistentNaming
@@ -104,7 +106,12 @@ namespace BeatSaberCinema
 		[JsonIgnore] public bool IsStreamable => videoFile != null && (videoFile.StartsWith("http://") || videoFile.StartsWith("https://"));
 		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
 		[JsonIgnore] public bool IsPlayable => (DownloadState == DownloadState.Downloaded || IsStreamable) && !PlaybackDisabledByMissingSuggestion;
-		[JsonIgnore] public bool IsWIPLevel => LevelDir != null && LevelDir.Contains(VideoLoader.WIP_MAPS_FOLDER);
+		[JsonIgnore] public bool IsWIPLevel =>
+			LevelDir != null &&
+			(LevelDir.Contains(VideoLoader.WIP_MAPS_FOLDER) ||
+			 SongCore.Loader.SeperateSongFolders.Any(folder => (folder.SongFolderEntry.Pack == FolderLevelPack.CustomWIPLevels || folder.SongFolderEntry.WIP) && LevelDir.Contains(folder.SongFolderEntry.Name))
+			);
+
 		[JsonIgnore] public bool EnvironmentModified => (environment != null && environment.Length > 0) || screenPosition != null || screenHeight != null;
 		[JsonIgnore] public float PlaybackSpeed => playbackSpeed ?? 1;
 
