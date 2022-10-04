@@ -210,7 +210,7 @@ namespace BeatSaberCinema
 
 		private Process? CreateDownloadProcess(VideoConfig video, VideoQuality.Mode quality)
 		{
-			if (video.LevelDir == null)
+			if (video.LevelDir == null || video.VideoPath == null)
 			{
 				Log.Error("LevelDir was null during download");
 				return null;
@@ -221,13 +221,6 @@ namespace BeatSaberCinema
 			{
 				Log.Warn("Existing process not cleaned up yet. Cancelling download attempt.");
 				return null;
-			}
-
-			var path = Path.GetFileName(Path.GetDirectoryName(video.VideoPath));
-			if (video.VideoPath != null && path != null && !Directory.Exists(path))
-			{
-				//Needed for OST/WIP videos
-				Directory.CreateDirectory(path);
 			}
 
 			string videoUrl;

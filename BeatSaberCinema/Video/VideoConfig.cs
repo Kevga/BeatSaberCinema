@@ -68,15 +68,14 @@ namespace BeatSaberCinema
 		{
 			get
 			{
-				if (LevelDir != null && LevelDir.Contains(VideoLoader.WIP_MAPS_FOLDER))
+				videoFile ??= GetVideoFileName();
+
+				if (LevelDir != null && IsWIPLevel)
 				{
-					var path = Path.Combine(
-						Environment.CurrentDirectory,
-						"Beat Saber_Data",
-						VideoLoader.WIP_MAPS_FOLDER,
-						VideoLoader.WIP_DIRECTORY_NAME,
-						videoFile
-					);
+					var path = Path.Combine(LevelDir, @"..\");
+					path = Path.GetFullPath(path);
+					var mapFolderName = new DirectoryInfo(LevelDir).Name;
+					path = Path.Combine(path, VideoLoader.WIP_DIRECTORY_NAME, mapFolderName!, videoFile);
 					return path;
 				}
 
@@ -84,7 +83,7 @@ namespace BeatSaberCinema
 				{
 					try
 					{
-						return Path.Combine(LevelDir, videoFile!);
+						return Path.Combine(LevelDir, videoFile);
 					}
 					catch (Exception e)
 					{
@@ -109,7 +108,11 @@ namespace BeatSaberCinema
 		[JsonIgnore] public bool IsWIPLevel =>
 			LevelDir != null &&
 			(LevelDir.Contains(VideoLoader.WIP_MAPS_FOLDER) ||
-			 SongCore.Loader.SeperateSongFolders.Any(folder => (folder.SongFolderEntry.Pack == FolderLevelPack.CustomWIPLevels || folder.SongFolderEntry.WIP) && LevelDir.Contains(folder.SongFolderEntry.Name))
+			 SongCore.Loader.SeperateSongFolders.Any(folder =>
+			 {
+				 var isWIP = (folder.SongFolderEntry.Pack == FolderLevelPack.CustomWIPLevels || folder.SongFolderEntry.WIP) && LevelDir.Contains(new DirectoryInfo(folder.SongFolderEntry.Path).Name);
+				 return isWIP;
+			 })
 			);
 
 		[JsonIgnore] public bool EnvironmentModified => (environment != null && environment.Length > 0) || screenPosition != null || screenHeight != null;
@@ -169,8 +172,14 @@ namespace BeatSaberCinema
 			duration = searchResult.Duration;
 
 			LevelDir = levelPath;
-			videoFile = Util.ReplaceIllegalFilesystemChars(title ?? videoID ?? "video") + ".mp4";
+			videoFile = GetVideoFileName();
+		}
+
+		private string GetVideoFileName()
+		{
+			videoFile ??= (Util.ReplaceIllegalFilesystemChars(title ?? videoID ?? "video") + ".mp4");
 			videoFile = Util.ShortenFilename(VideoPath!, videoFile);
+			return videoFile;
 		}
 
 		public new string ToString()
