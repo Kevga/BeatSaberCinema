@@ -47,7 +47,7 @@ namespace BeatSaberCinema.Patches
 		public static void Prefix(SetPlayHeadSignal ____signal, BpmEditorSongPreviewController ____bpmEditorSongPreviewController)
 		{
 			var mapTime = AudioTimeHelper.SamplesToSeconds(____signal.sample, ____bpmEditorSongPreviewController.audioClip.frequency);
-			PlaybackController.Instance.ResyncVideo(mapTime);
+			PlaybackController.Instance.ResyncVideo(mapTime != 0 ? mapTime : (float?) null);
 		}
 	}
 
@@ -60,7 +60,7 @@ namespace BeatSaberCinema.Patches
 			if (PlaybackController.Instance.VideoPlayer.IsPrepared && !PlaybackController.Instance.VideoPlayer.IsPlaying)
 			{
 				var mapTime = AudioTimeHelper.SamplesToSeconds(____signal.sample, ____beatmapDataModel.audioClip.frequency);
-				PlaybackController.Instance.ResyncVideo(mapTime);
+				PlaybackController.Instance.ResyncVideo(mapTime != 0 ? mapTime : (float?) null);
 				PlaybackController.Instance.VideoPlayer.UpdateScreenContent();
 			}
 		}
