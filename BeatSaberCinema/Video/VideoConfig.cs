@@ -102,6 +102,8 @@ namespace BeatSaberCinema
 			}
 		}
 
+		[JsonIgnore] public string? ConfigPath => LevelDir != null ? VideoLoader.GetConfigPath(LevelDir) : null;
+
 		[JsonIgnore] public bool IsStreamable => videoFile != null && (videoFile.StartsWith("http://") || videoFile.StartsWith("https://"));
 		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
 		[JsonIgnore] public bool IsPlayable => (DownloadState == DownloadState.Downloaded || IsStreamable) && !PlaybackDisabledByMissingSuggestion;
