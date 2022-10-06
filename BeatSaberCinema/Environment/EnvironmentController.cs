@@ -851,7 +851,7 @@ namespace BeatSaberCinema
 					var rainbow = EnvironmentObjects.LastOrDefault(x => x.name == "Rainbow" && x.activeInHierarchy);
 					if (rainbow != null)
 					{
-						rainbow.transform.position = new Vector3(0f, 2.1f, 64.51f);
+						rainbow.transform.position = new Vector3(0f, 2.1f, 65.51f);
 						rainbow.transform.localScale = new Vector3(2f, 2f, 2f);
 					}
 
