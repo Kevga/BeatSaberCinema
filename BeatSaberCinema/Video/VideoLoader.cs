@@ -170,12 +170,22 @@ namespace BeatSaberCinema
 
 		private static void IndexMap(IPreviewBeatmapLevel level)
 		{
-			var levelPath = GetLevelPath(level);
-			var configPath = Path.Combine(levelPath, CONFIG_FILENAME);
+			var configPath = GetConfigPath(level);
 			if (File.Exists(configPath))
 			{
 				MapsWithVideo.TryAdd(level.levelID, 0);
 			}
+		}
+
+		public static string GetConfigPath(IPreviewBeatmapLevel level)
+		{
+			var levelPath = GetLevelPath(level);
+			return Path.Combine(levelPath, CONFIG_FILENAME);
+		}
+
+		public static string GetConfigPath(string levelPath)
+		{
+			return Path.Combine(levelPath, CONFIG_FILENAME);
 		}
 
 		public static void AddConfigToCache(VideoConfig config, IPreviewBeatmapLevel level)
@@ -257,7 +267,7 @@ namespace BeatSaberCinema
 			Log.Debug($"Setting up FileSystemWatcher for {levelPath}");
 
 			_fileSystemWatcher = new FileSystemWatcher();
-			var configPath = Path.Combine(levelPath, CONFIG_FILENAME);
+			var configPath = GetConfigPath(levelPath);
 			_fileSystemWatcher.Path = Path.GetDirectoryName(configPath);
 			_fileSystemWatcher.Filter = Path.GetFileName(configPath);
 			_fileSystemWatcher.EnableRaisingEvents = true;
@@ -346,7 +356,7 @@ namespace BeatSaberCinema
 			return AdditionalContentModel.EntitlementStatus.Owned;
 		}
 
-		public static VideoConfig? GetConfigForLevel(IBeatmapDataModel beatmapData, string originalPath)
+		public static VideoConfig? GetConfigForEditorLevel(IBeatmapDataModel _, string originalPath)
 		{
 			if (!Directory.Exists(originalPath))
 			{
@@ -354,12 +364,8 @@ namespace BeatSaberCinema
 				return null;
 			}
 
-			VideoConfig? videoConfig = null;
-			var results = Directory.GetFiles(originalPath, CONFIG_FILENAME, SearchOption.AllDirectories);
-			if (results.Length != 0)
-			{
-				videoConfig = LoadConfig(results[0]);
-			}
+			var configPath = GetConfigPath(originalPath);
+			var videoConfig = LoadConfig(configPath);
 
 			return videoConfig;
 		}
@@ -394,18 +400,15 @@ namespace BeatSaberCinema
 				return null;
 			}
 
-			VideoConfig? videoConfig;
-			var results = Directory.GetFiles(levelPath, CONFIG_FILENAME, SearchOption.AllDirectories);
-			if (results.Length == 0 && !Util.IsModInstalled(MOD_ID_MVP))
+			var videoConfig = LoadConfig(GetConfigPath(levelPath));
+			if (videoConfig == null && !Util.IsModInstalled(MOD_ID_MVP))
 			{
 				//Back compatiblity with MVP configs, but only if MVP is not installed
-				results = Directory.GetFiles(levelPath, CONFIG_FILENAME_MVP, SearchOption.AllDirectories);
+				videoConfig = LoadConfig(Path.Combine(levelPath, CONFIG_FILENAME_MVP));
 			}
 
-			if (results.Length != 0)
+			if (videoConfig != null)
 			{
-				videoConfig = LoadConfig(results[0]);
-
 				//Update bundled configs with new environmentName parameter to fix broken configs
 				var bundledConfig = GetConfigFromBundledConfigs(level);
 				if (bundledConfig != null && videoConfig?.videoID == bundledConfig.videoID && bundledConfig.environmentName != null)
@@ -465,7 +468,7 @@ namespace BeatSaberCinema
 
 		public static void SaveVideoConfig(VideoConfig videoConfig)
 		{
-			if (videoConfig.LevelDir == null || !Directory.Exists(videoConfig.LevelDir))
+			if (videoConfig.LevelDir == null || videoConfig.ConfigPath == null || !Directory.Exists(videoConfig.LevelDir))
 			{
 				Log.Warn("Failed to save video. Path "+videoConfig.LevelDir+" does not exist.");
 				return;
@@ -476,19 +479,33 @@ namespace BeatSaberCinema
 				videoConfig.configByMapper = true;
 			}
 
-			var videoJsonPath = Path.Combine(videoConfig.LevelDir, CONFIG_FILENAME);
-			_ignoreNextEventForPath = videoJsonPath;
-			Log.Info($"Saving video config to {videoJsonPath}");
+			var configPath = videoConfig.ConfigPath;
+			SaveVideoConfigToPath(videoConfig, configPath);
+		}
+
+		public static void SaveVideoConfigToPath(VideoConfig config, string configPath)
+		{
+			_ignoreNextEventForPath = configPath;
+			Log.Info($"Saving video config to {configPath}");
 
 			try
 			{
-				File.WriteAllText(videoJsonPath, JsonConvert.SerializeObject(videoConfig, Formatting.Indented));
-				videoConfig.NeedsToSave = false;
+				File.WriteAllText(configPath, JsonConvert.SerializeObject(config, Formatting.Indented));
+				config.NeedsToSave = false;
 			}
 			catch (Exception e)
 			{
 				Log.Error("Failed to save level data: ");
 				Log.Error(e);
+			}
+
+			if (!File.Exists(configPath))
+			{
+				Log.Error("Config file doesn't exist after saving!");
+			}
+			else
+			{
+				Log.Debug("Config save successful");
 			}
 		}
 
@@ -528,7 +545,7 @@ namespace BeatSaberCinema
 
 			try
 			{
-				var cinemaConfigPath = Path.Combine(videoConfig.LevelDir, CONFIG_FILENAME);
+				var cinemaConfigPath = GetConfigPath(videoConfig.LevelDir);
 				if (File.Exists(cinemaConfigPath))
 				{
 					File.Delete(cinemaConfigPath);

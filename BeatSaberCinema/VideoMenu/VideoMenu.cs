@@ -546,7 +546,7 @@ namespace BeatSaberCinema
 				VideoLoader.SaveVideoConfig(_currentVideo);
 			}
 
-			_currentVideo = VideoLoader.GetConfigForLevel(beatmapData, originalPath);
+			_currentVideo = VideoLoader.GetConfigForEditorLevel(beatmapData, originalPath);
 			VideoLoader.SetupFileSystemWatcher(originalPath);
 			PlaybackController.Instance.SetSelectedLevel(null, _currentVideo);
 		}

@@ -1,10 +1,12 @@
-﻿using BeatmapEditor.Commands;
+﻿using System.IO;
+using BeatmapEditor.Commands;
 using BeatmapEditor3D;
 using BeatmapEditor3D.BpmEditor;
 using BeatmapEditor3D.BpmEditor.Commands;
 using BeatmapEditor3D.Controller;
 using BeatmapEditor3D.DataModels;
 using HarmonyLib;
+using IPA.Utilities.Async;
 using JetBrains.Annotations;
 
 // ReSharper disable InconsistentNaming
@@ -80,10 +82,51 @@ namespace BeatSaberCinema.Patches
 	[HarmonyPatch(typeof(BeatmapProjectManager), nameof(BeatmapProjectManager.SaveBeatmapProject))]
 	public class SavingFixPatch
 	{
+		internal static FileSystemWatcher? deletionFSWatcher;
+
 		[UsedImplicitly]
-		public static void Prefix()
+		public static void Prefix(bool clearDirty)
 		{
+			deletionFSWatcher?.Dispose();
+
+			if (!clearDirty || PlaybackController.Instance.VideoConfig == null)
+			{
+				return;
+			}
+
+			Log.Info("Editor is creating backup...");
 			VideoLoader.StopFileSystemWatcher();
+			var config = PlaybackController.Instance.VideoConfig;
+			deletionFSWatcher = new FileSystemWatcher();
+			deletionFSWatcher.Path = Path.GetDirectoryName(config.ConfigPath);
+			deletionFSWatcher.Filter = Path.GetFileName(config.ConfigPath);
+			deletionFSWatcher.EnableRaisingEvents = true;
+
+			deletionFSWatcher.Deleted -= configFileDeleted;
+			deletionFSWatcher.Deleted += configFileDeleted;
+		}
+
+		private static void configFileDeleted(object sender, FileSystemEventArgs e)
+		{
+			UnityMainThreadTaskScheduler.Factory.StartNew(onConfigDeleted);
+		}
+
+		private static void onConfigDeleted()
+		{
+			Log.Debug("Restoring config and fs watcher after editor save...");
+			var config = PlaybackController.Instance.VideoConfig;
+			if (config == null)
+			{
+				Log.Debug("Config was null");
+				return;
+			}
+			config.NeedsToSave = true;
+			VideoLoader.SaveVideoConfig(config);
+			deletionFSWatcher?.Dispose();
+			if (config.videoFile != null && config.VideoPath != null)
+			{
+				VideoLoader.SetupFileSystemWatcher(config.VideoPath);
+			}
 		}
 	}
 
@@ -91,19 +134,14 @@ namespace BeatSaberCinema.Patches
 	public class RestoreConfigPatch
 	{
 		[UsedImplicitly]
-		public static void Postfix(string ____lastBackup)
+		public static void Postfix(string ____lastBackup, bool clearDirty)
 		{
-			if (PlaybackController.Instance.VideoConfig != null)
+			if (!clearDirty || PlaybackController.Instance.VideoConfig == null)
 			{
-				Log.Debug("Restoring config and fs watcher after editor save...", true);
-				var config = PlaybackController.Instance.VideoConfig;
-				config.NeedsToSave = true;
-				VideoLoader.SaveVideoConfig(config);
-				if (config.videoFile != null && config.VideoPath != null)
-				{
-					VideoLoader.SetupFileSystemWatcher(config.VideoPath);
-				}
+				return;
 			}
+
+			Log.Debug("Editor save complete");
 		}
 	}
 }
