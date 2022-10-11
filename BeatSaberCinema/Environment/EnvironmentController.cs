@@ -66,16 +66,14 @@ namespace BeatSaberCinema
 		private static void SceneChanged(Scene arg0, Scene arg1)
 		{
 			Log.Debug($"Scene changed from {arg0.name} to {arg1.name}");
-			for (var i = 0; i < SceneManager.sceneCount; i++)
+			var sceneName = arg1.name;
+			if (sceneName == "BeatmapLevelEditorWorldUi")
 			{
-				var sceneName = SceneManager.GetSceneAt(i).name;
-				if (sceneName == "BeatmapLevelEditorWorldUi")
-				{
-					PlaybackController.Instance.GameSceneLoaded();
-				}
+				Reset();
+				PlaybackController.Instance.GameSceneLoaded();
 			}
 
-			if (arg1.name == "MainMenu" || arg1.name == "PCInit")
+			if (sceneName == "MainMenu" || sceneName == "PCInit")
 			{
 				Reset();
 			}
