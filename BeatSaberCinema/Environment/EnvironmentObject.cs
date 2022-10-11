@@ -8,7 +8,7 @@ namespace BeatSaberCinema
 	[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
 	public class EnvironmentObject
 	{
-		[JsonIgnore] public GameObject gameObject;
+		[JsonIgnore] public readonly GameObject gameObject;
 		public string name;
 		public string? parentName;
 		[JsonIgnore] public Vector3 position;
@@ -41,6 +41,32 @@ namespace BeatSaberCinema
 			scale = cachedTransform.localScale;
 			this.clone = clone;
 			activeInHierarchy = gameObject.activeInHierarchy;
+		}
+
+		public override bool Equals(object? obj)
+		{
+			if (obj == null)
+			{
+				return gameObject == null;
+			}
+
+			var other = (EnvironmentObject) obj;
+			return gameObject == other.gameObject;
+		}
+
+		public override int GetHashCode()
+		{
+			return gameObject.GetHashCode();
+		}
+
+		public static bool operator ==(EnvironmentObject obj1, EnvironmentObject? obj2)
+		{
+			return obj1.Equals(obj2);
+		}
+
+		public static bool operator !=(EnvironmentObject obj1, EnvironmentObject? obj2)
+		{
+			return !obj1.Equals(obj2);
 		}
 	}
 }
