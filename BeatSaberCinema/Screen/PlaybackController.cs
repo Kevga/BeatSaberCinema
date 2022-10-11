@@ -685,7 +685,7 @@ namespace BeatSaberCinema
 			{
 				Log.Debug("Waiting for ATSC to be ready");
 
-				if (Util.IsInEditor())
+				if (Util.IsInEditor() && SceneManager.GetActiveScene().name != "GameCore")
 				{
 					//_editorTimeSyncController = Resources.FindObjectsOfTypeAll<BeatmapEditorAudioTimeSyncController>().FirstOrDefault(atsc => atsc.name == "BeatmapEditorAudioTimeSyncController");
 					_activeAudioSource = Resources.FindObjectsOfTypeAll<AudioSource>()
