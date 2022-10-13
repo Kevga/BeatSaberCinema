@@ -491,7 +491,7 @@ namespace BeatSaberCinema
 					var trackLaneRings = EnvironmentObjects.Where(x => x.name.Contains("PanelsTrackLaneRing") && x.activeInHierarchy);
 					foreach (var ring in trackLaneRings)
 					{
-						ring.transform.localScale = new Vector3(5f, 5f, 1f);
+						ring.SetActive(false);
 					}
 					break;
 				}
@@ -817,15 +817,63 @@ namespace BeatSaberCinema
 					var leftLightGroup = EnvironmentObjects.LastOrDefault(x => x.name == "LightGroupLeft" && x.activeInHierarchy);
 					if (leftLightGroup != null)
 					{
-						leftLightGroup.transform.position = new Vector3(-11.1f, 1.99f, 59f);
+						leftLightGroup.transform.position = new Vector3(-11.1f, 0.99f, 59f);
 						leftLightGroup.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
 					}
 
 					var rightLightGroup = EnvironmentObjects.LastOrDefault(x => x.name == "LightGroupRight" && x.activeInHierarchy);
 					if (rightLightGroup != null)
 					{
-						rightLightGroup.transform.position = new Vector3(11.1f, 1.99f, 59f);
+						rightLightGroup.transform.position = new Vector3(11.1f, 0.99f, 59f);
 						rightLightGroup.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+					}
+
+					var video = EnvironmentObjects.LastOrDefault(x => x.name == "Video" && x.activeInHierarchy);
+					if (video != null)
+					{
+						video.SetActive(false);
+					}
+
+					var screens = EnvironmentObjects.Where(x => x.name.Contains("ScreenSetup") && x.activeInHierarchy);
+					foreach (var screen in screens)
+					{
+						screen.SetActive(false);
+					}
+
+					var lightboxLeft = EnvironmentObjects.LastOrDefault(x => x.name == "LightBoxesScaffoldingLeft" && x.activeInHierarchy);
+					if (lightboxLeft != null)
+					{
+						lightboxLeft.transform.position = new Vector3(-37.65f, -2.92f, 50.54f);
+					}
+
+					var lightboxRight = EnvironmentObjects.LastOrDefault(x => x.name == "LightBoxesScaffoldingRight" && x.activeInHierarchy);
+					if (lightboxRight != null)
+					{
+						lightboxRight.transform.position = new Vector3(37.65f, -2.92f, 50.54f);
+					}
+
+					var mainLasersLeft = EnvironmentObjects.LastOrDefault(x => x.name == "LightGroupCloserLeft" && x.activeInHierarchy);
+					if (mainLasersLeft != null)
+					{
+						mainLasersLeft.transform.position = new Vector3(-35.13f, -0.02f, 66.74f);
+					}
+
+					var mainLasersRight = EnvironmentObjects.LastOrDefault(x => x.name == "LightGroupCloserRight" && x.activeInHierarchy);
+					if (mainLasersRight != null)
+					{
+						mainLasersRight.transform.position = new Vector3(35.13f, -0.02f, 66.74f);
+					}
+
+					var stairs = EnvironmentObjects.LastOrDefault(x => x.name == "Stairs" && x.activeInHierarchy);
+					if (stairs != null)
+					{
+						stairs.transform.position = new Vector3(0f, -1f, 51.31f);
+					}
+
+					var crowd = EnvironmentObjects.LastOrDefault(x => x.name == "CrowdFlipbookGroup" && x.activeInHierarchy);
+					if (crowd != null)
+					{
+						crowd.transform.position = new Vector3(-4.83f, -0.40f, -1.80f);
 					}
 
 					var cloneConfigLeft = new EnvironmentModification { cloneFrom = "ScafoldTriangularLeft" };
@@ -834,7 +882,8 @@ namespace BeatSaberCinema
 					{
 						var original = leftScaffoldingList.First();
 						var clone = CloneObject(original.gameObject, cloneConfigLeft, videoConfig, true);
-						clone.gameObject.transform.position = new Vector3(original.position.x, 1.97f, original.position.z);
+						clone.gameObject.transform.position = new Vector3(original.position.x, 0.97f, original.position.z);
+						clone.gameObject.transform.localScale = new Vector3(original.scale.x, 4f, original.scale.z);
 					}
 
 					var cloneConfigRight = new EnvironmentModification { cloneFrom = "ScafoldTriangularRight" };
@@ -843,7 +892,8 @@ namespace BeatSaberCinema
 					{
 						var original = rightScaffoldingList.First();
 						var clone = CloneObject(original.gameObject, cloneConfigRight, videoConfig, true);
-						clone.gameObject.transform.position = new Vector3(original.position.x, 1.97f, original.position.z);
+						clone.gameObject.transform.position = new Vector3(original.position.x, 0.97f, original.position.z);
+						clone.gameObject.transform.localScale = new Vector3(original.scale.x, 4f, original.scale.z);
 					}
 					break;
 				}
@@ -926,6 +976,15 @@ namespace BeatSaberCinema
 
 				foreach (var environmentObject in selectedObjectsList)
 				{
+					if (_currentEnvironmentName == "PyroEnvironment" &&
+					    environmentObject.name.StartsWith("LightGroup") &&
+					    environmentModification.position.HasValue &&
+					    Math.Abs(environmentModification.position.Value.y - 1.99f) < 0.1f)
+					{
+						//Fixes configs that were made before Pyro changes
+						continue;
+					}
+
 					if (environmentModification.active.HasValue)
 					{
 						environmentObject.SetActive(environmentModification.active.Value);
