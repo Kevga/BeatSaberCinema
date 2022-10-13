@@ -949,7 +949,7 @@ namespace BeatSaberCinema
 				timeout.Stop();
 				if (timeout.HasTimedOut && Util.IsFileLocked(videoFileInfo))
 				{
-					Log.Warn("Video file locked");
+					Log.Warn("Video file locked: "+videoPath);
 				}
 			}
 
