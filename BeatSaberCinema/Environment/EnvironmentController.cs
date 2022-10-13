@@ -187,6 +187,9 @@ namespace BeatSaberCinema
 			if (PlaybackController.Instance != null && PlaybackController.Instance.VideoPlayer != null)
 			{
 				PlaybackController.Instance.VideoPlayer.SetSoftParent(null);
+
+				//Some maps with bad Chroma regex can end up disabling this
+				PlaybackController.Instance.LightController.Enable();
 			}
 		}
 
