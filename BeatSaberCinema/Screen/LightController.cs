@@ -114,6 +114,11 @@ namespace BeatSaberCinema
 			}
 		}
 
+		internal void Enable()
+		{
+			_lightGameObject.SetActive(true);
+		}
+
 		private void GetMenuReferences()
 		{
 			_menuFloorLight = Resources.FindObjectsOfTypeAll<MaterialLightWithId>().FirstOrDefault(x => x.gameObject.name == "BasicMenuGround");

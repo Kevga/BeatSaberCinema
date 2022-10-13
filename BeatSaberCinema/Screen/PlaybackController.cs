@@ -19,7 +19,7 @@ namespace BeatSaberCinema
 		private Scene _activeScene = Scene.Other;
 
 		public static PlaybackController Instance { get; private set; } = null!;
-		private LightController LightController { get; set; } = null!;
+		internal LightController LightController { get; set; } = null!;
 		private IPreviewBeatmapLevel? _currentLevel;
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
