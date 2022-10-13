@@ -179,8 +179,9 @@ namespace BeatSaberCinema
 
 		private string GetVideoFileName()
 		{
-			videoFile ??= (Util.ReplaceIllegalFilesystemChars(title ?? videoID ?? "video") + ".mp4");
+			videoFile ??= (Util.ReplaceIllegalFilesystemChars(title ?? videoID ?? "video"));
 			videoFile = Util.ShortenFilename(VideoPath!, videoFile);
+			videoFile += ".mp4";
 			return videoFile;
 		}
 

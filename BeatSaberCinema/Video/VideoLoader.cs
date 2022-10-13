@@ -575,7 +575,6 @@ namespace BeatSaberCinema
 		{
 			if (!File.Exists(configPath))
 			{
-				Log.Warn($"Config file {configPath} does not exist");
 				return null;
 			}
 
