@@ -73,7 +73,7 @@ namespace BeatSaberCinema
 				PlaybackController.Instance.GameSceneLoaded();
 			}
 
-			if (sceneName == "MainMenu" || sceneName == "PCInit")
+			if (sceneName == "MainMenu" || sceneName == "PCInit" || sceneName == "EmptyTransition")
 			{
 				Reset();
 			}
