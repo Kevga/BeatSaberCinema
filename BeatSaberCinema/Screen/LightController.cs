@@ -94,11 +94,36 @@ namespace BeatSaberCinema
 
 		internal void OnGameSceneLoaded()
 		{
+			var euler = _lightGameObject.transform.eulerAngles;
+			euler.x = LIGHT_X_ROTATION;
 			_light.intensity = DIRECTIONAL_LIGHT_INTENSITY_GAMEPLAY;
+
+			switch (Util.GetEnvironmentName())
+			{
+				case "BillieEnvironment":
+					//Tone down lighting on this env a bit, since clouds get pretty bright
+					_light.intensity = 1.2f;
+					euler.x = 42;
+					break;
+				case "BTSEnvironment":
+					//Same as with Billie, clouds are too bright
+					_light.intensity = 1.5f;
+					euler.x = 55;
+					break;
+				case "LizzoEnvironment":
+					//Background objects behind player too bright
+					_light.intensity = 1f;
+					euler.x = 42;
+					break;
+			}
+			_lightGameObject.transform.eulerAngles = euler;
 		}
 
 		private void OnMenuSceneLoaded()
 		{
+			var euler = _lightGameObject.transform.eulerAngles;
+			euler.x = LIGHT_X_ROTATION;
+			_lightGameObject.transform.eulerAngles = euler;
 			_light.intensity = DIRECTIONAL_LIGHT_INTENSITY_MENU;
 		}
 

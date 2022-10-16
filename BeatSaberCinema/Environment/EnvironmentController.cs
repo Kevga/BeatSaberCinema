@@ -914,6 +914,35 @@ namespace BeatSaberCinema
 					}
 					break;
 				}
+				case "WeaveEnvironment":
+				{
+					var lightGroupLeft = EnvironmentObjects.LastOrDefault(x => x.name == "LightGroup14" && x.activeInHierarchy);
+					if (lightGroupLeft != null)
+					{
+						lightGroupLeft.transform.position = new Vector3(-3.85f, 1.50f, 20.90f);
+					}
+
+					var lightGroupRight = EnvironmentObjects.LastOrDefault(x => x.name == "LightGroup15" && x.activeInHierarchy);
+					if (lightGroupRight != null)
+					{
+						lightGroupRight.transform.position = new Vector3(3.85f, 1.50f, 20.90f);
+					}
+
+					break;
+				}
+
+				case "EDMEnvironment":
+				{
+					var spectrograms = EnvironmentObjects.LastOrDefault(x => x.name == "Spectrograms" && x.activeInHierarchy);
+					if (spectrograms != null)
+					{
+						spectrograms.transform.position = new Vector3(0f, -2f, 1.2f);
+					}
+
+
+
+					break;
+				}
 			}
 		}
 
