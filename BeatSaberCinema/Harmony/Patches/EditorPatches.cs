@@ -3,7 +3,6 @@ using BeatmapEditor.Commands;
 using BeatmapEditor3D;
 using BeatmapEditor3D.BpmEditor;
 using BeatmapEditor3D.BpmEditor.Commands;
-using BeatmapEditor3D.Controller;
 using BeatmapEditor3D.DataModels;
 using HarmonyLib;
 using IPA.Utilities.Async;
@@ -21,24 +20,6 @@ namespace BeatSaberCinema.Patches
 		{
 			Log.Debug("EditBeatmapLevelViewControllerDidActivate");
 			//PlaybackController.Instance.GameSceneLoaded();
-		}
-	}
-
-	[HarmonyPatch(typeof(EditBeatmapLevelViewController),"TogglePlayPause")]
-	public class EditBeatmapLevelViewControllerPlayPause
-	{
-		[UsedImplicitly]
-		public static void Prefix(ISongPreviewController ____songPreviewController)
-		{
-			//TODO: This method doesn't seem to be called at all
-			if (____songPreviewController.isPlaying)
-			{
-				PlaybackController.Instance.PauseVideo();
-			}
-			else
-			{
-				PlaybackController.Instance.ResumeVideo();
-			}
 		}
 	}
 
