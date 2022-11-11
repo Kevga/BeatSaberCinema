@@ -68,14 +68,14 @@ namespace BeatSaberCinema
 		{
 			get
 			{
-				videoFile ??= GetVideoFileName();
-
 				if (LevelDir != null && IsWIPLevel)
 				{
 					var path = Path.Combine(LevelDir, @"..\");
 					path = Path.GetFullPath(path);
 					var mapFolderName = new DirectoryInfo(LevelDir).Name;
-					path = Path.Combine(path, VideoLoader.WIP_DIRECTORY_NAME, mapFolderName!, videoFile);
+					var folder = Path.Combine(path, VideoLoader.WIP_DIRECTORY_NAME, mapFolderName);
+					videoFile = GetVideoFileName(folder);
+					path = Path.Combine(folder, videoFile);
 					return path;
 				}
 
@@ -83,6 +83,7 @@ namespace BeatSaberCinema
 				{
 					try
 					{
+						videoFile = GetVideoFileName(LevelDir);
 						return Path.Combine(LevelDir, videoFile);
 					}
 					catch (Exception e)
@@ -174,15 +175,18 @@ namespace BeatSaberCinema
 			duration = searchResult.Duration;
 
 			LevelDir = levelPath;
-			videoFile = GetVideoFileName();
+			videoFile = GetVideoFileName(levelPath);
 		}
 
-		private string GetVideoFileName()
+		private string GetVideoFileName(string levelPath)
 		{
-			videoFile ??= (Util.ReplaceIllegalFilesystemChars(title ?? videoID ?? "video"));
-			videoFile = Util.ShortenFilename(VideoPath!, videoFile);
-			videoFile += ".mp4";
-			return videoFile;
+			var fileName = videoFile ?? (Util.ReplaceIllegalFilesystemChars(title ?? videoID ?? "video"));
+			fileName = Util.ShortenFilename(levelPath, fileName);
+			if (!fileName.EndsWith(".mp4"))
+			{
+				fileName += ".mp4";
+			}
+			return fileName;
 		}
 
 		public new string ToString()
