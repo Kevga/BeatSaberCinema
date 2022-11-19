@@ -43,6 +43,7 @@ namespace BeatSaberCinema
 			var downloadProcess = CreateDownloadProcess(video, quality);
 			if (downloadProcess == null)
 			{
+				Log.Warn("Failed to create download process");
 				yield break;
 			}
 
@@ -221,6 +222,18 @@ namespace BeatSaberCinema
 			{
 				Log.Warn("Existing process not cleaned up yet. Cancelling download attempt.");
 				return null;
+			}
+
+			var path = Path.GetDirectoryName(video.VideoPath);
+			if (video.VideoPath != null && path != null && !Directory.Exists(path))
+			{
+				Log.Debug("Creating folder: "+path);
+				//Needed for OST/WIP videos
+				Directory.CreateDirectory(path);
+			}
+			else
+			{
+				Log.Debug("Folder already exists: "+path);
 			}
 
 			string videoUrl;
