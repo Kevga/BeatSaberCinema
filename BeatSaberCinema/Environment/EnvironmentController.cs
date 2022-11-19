@@ -178,8 +178,6 @@ namespace BeatSaberCinema
 						}
 					}
 				}
-
-				Log.Debug($"Screen count: {PlaybackController.Instance.VideoPlayer.screenController.Screens.Count}");
 			}
 
 			_environmentModified = false;
