@@ -412,6 +412,7 @@ namespace BeatSaberCinema
 			VideoPlayer.Hide();
 			StopAllCoroutines();
 			_previewWaitingForPreviewPlayer = true;
+			gameObject.SetActive(true);
 		}
 
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)
@@ -656,6 +657,9 @@ namespace BeatSaberCinema
 				}
 				return;
 			}
+
+			//Some mappers disable this accidentally
+			gameObject.SetActive(true);
 
 			if (VideoConfig.NeedsToSave)
 			{
