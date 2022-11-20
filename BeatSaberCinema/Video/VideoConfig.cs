@@ -79,7 +79,7 @@ namespace BeatSaberCinema
 					return path;
 				}
 
-				if (IsLocal && LevelDir != null)
+				if (LevelDir != null)
 				{
 					try
 					{
@@ -93,21 +93,13 @@ namespace BeatSaberCinema
 					}
 				}
 
-				if (IsStreamable)
-				{
-					return videoFile;
-				}
-
 				Log.Debug("VideoPath is null");
 				return null;
 			}
 		}
 
 		[JsonIgnore] public string? ConfigPath => LevelDir != null ? VideoLoader.GetConfigPath(LevelDir) : null;
-
-		[JsonIgnore] public bool IsStreamable => videoFile != null && (videoFile.StartsWith("http://") || videoFile.StartsWith("https://"));
-		[JsonIgnore] public bool IsLocal => videoFile != null && !IsStreamable;
-		[JsonIgnore] public bool IsPlayable => (DownloadState == DownloadState.Downloaded || IsStreamable) && !PlaybackDisabledByMissingSuggestion;
+		[JsonIgnore] public bool IsPlayable => (DownloadState == DownloadState.Downloaded) && !PlaybackDisabledByMissingSuggestion;
 		[JsonIgnore] public bool IsWIPLevel =>
 			LevelDir != null &&
 			(LevelDir.Contains(VideoLoader.WIP_MAPS_FOLDER) ||
@@ -201,7 +193,7 @@ namespace BeatSaberCinema
 
 		public DownloadState UpdateDownloadState()
 		{
-			return (DownloadState = (VideoPath != null && (videoID != null || videoUrl != null) && IsLocal && File.Exists(VideoPath) ? DownloadState.Downloaded : DownloadState.NotDownloaded));
+			return (DownloadState = (VideoPath != null && (videoID != null || videoUrl != null) && File.Exists(VideoPath) ? DownloadState.Downloaded : DownloadState.NotDownloaded));
 		}
 
 		[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]

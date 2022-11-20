@@ -917,7 +917,7 @@ namespace BeatSaberCinema
 			VideoConfig = video;
 
 			VideoPlayer.Pause();
-			if (!(VideoConfig.DownloadState == DownloadState.Downloaded || VideoConfig.IsStreamable))
+			if (VideoConfig.DownloadState != DownloadState.Downloaded)
 			{
 				Log.Debug("Video is not downloaded, stopping prepare");
 				VideoPlayer.FadeOut();
@@ -936,7 +936,7 @@ namespace BeatSaberCinema
 			var videoPath = video.VideoPath;
 			Log.Info($"Loading video: {videoPath}");
 
-			if (VideoConfig.IsLocal)
+			if (video.videoFile != null)
 			{
 				var videoFileInfo = new FileInfo(videoPath);
 				var timeout = new Timeout(0.25f);

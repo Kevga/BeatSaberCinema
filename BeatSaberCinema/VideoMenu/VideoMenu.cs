@@ -408,8 +408,6 @@ namespace BeatSaberCinema
 					_levelDetailMenu.SetText($"Converting...",
 						"Cancel", Color.yellow, Color.red);
 					break;
-				case DownloadState.NotDownloaded when videoConfig.IsStreamable:
-					break;
 				case DownloadState.NotDownloaded:
 					_levelDetailMenu.SetActive(true);
 					if (videoConfig.ErrorMessage != null)
@@ -472,11 +470,6 @@ namespace BeatSaberCinema
 					_videoStatusText.text = $"Converting...";
 					_videoStatusText.color = Color.yellow;
 					_previewButton.interactable = false;
-					break;
-				case DownloadState.NotDownloaded when videoConfig.IsStreamable:
-					_videoStatusText.text = "Streaming";
-					_videoStatusText.color = Color.yellow;
-					_previewButton.interactable = true;
 					break;
 				case DownloadState.NotDownloaded:
 					_videoStatusText.text = videoConfig.ErrorMessage ?? "Not downloaded";
