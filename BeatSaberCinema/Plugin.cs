@@ -17,7 +17,6 @@ namespace BeatSaberCinema
 		internal const string CAPABILITY = "Cinema";
 		private HarmonyPatchController? _harmonyPatchController;
 		private static bool _enabled;
-		private static bool _filterAdded;
 
 		public static bool Enabled
 		{
@@ -48,11 +47,6 @@ namespace BeatSaberCinema
 		{
 			VideoMenu.instance.Init();
 			SongPreviewPlayerController.Init();
-
-			if (Util.IsModInstalled("BetterSongList", "0.3.2") && !_filterAdded)
-			{
-				AddBetterSongListFilter();
-			}
 		}
 
 		[OnEnable]
@@ -109,22 +103,6 @@ namespace BeatSaberCinema
 		private void RemoveHarmonyPatches()
 		{
 			_harmonyPatchController?.UnpatchAll();
-		}
-
-		private static void AddBetterSongListFilter()
-		{
-			var filter = new HasVideoFilter();
-			var success = BetterSongList.FilterMethods.Register(filter);
-			if (success)
-			{
-				_filterAdded = true;
-				Log.Debug($"Registered {nameof(HasVideoFilter)}");
-
-			}
-			else
-			{
-				Log.Error($"Failed to register {nameof(HasVideoFilter)}");
-			}
 		}
 	}
 }

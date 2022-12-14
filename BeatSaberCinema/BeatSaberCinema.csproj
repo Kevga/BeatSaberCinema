@@ -32,9 +32,6 @@
         <Reference Include="BSML">
           <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
         </Reference>
-		<Reference Include="BetterSongList">
-			<HintPath>$(BeatSaberDir)\Plugins\BetterSongList.dll</HintPath>
-		</Reference>
         <Reference Include="BS_Utils">
           <HintPath>$(BeatSaberDir)\Plugins\BS_Utils.dll</HintPath>
         </Reference>
