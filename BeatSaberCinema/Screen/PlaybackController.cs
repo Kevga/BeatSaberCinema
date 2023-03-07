@@ -1002,6 +1002,11 @@ namespace BeatSaberCinema
 
 			if (IsPreviewPlaying)
 			{
+				if (isDefault)
+				{
+					StopPreview(false);
+					return;
+				}
 				_previewWaitingForPreviewPlayer = true;
 				Log.Debug($"Ignoring SongPreviewPlayer update");
 				return;
