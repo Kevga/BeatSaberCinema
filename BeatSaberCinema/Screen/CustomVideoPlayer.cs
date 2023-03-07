@@ -261,6 +261,11 @@ namespace BeatSaberCinema
 
 		public void FadeIn(float duration = 0.4f)
 		{
+			if (EnvironmentController.IsScreenHidden)
+			{
+				return;
+			}
+
 			screenController.SetScreensActive(true);
 			_waitingForFadeOut = false;
 			FadeController.EaseIn(duration);

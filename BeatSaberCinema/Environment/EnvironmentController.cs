@@ -15,9 +15,11 @@ namespace BeatSaberCinema
 	{
 		private const float CLONED_OBJECT_Z_OFFSET = 200f;
 		private const string CLONED_OBJECT_NAME_SUFFIX = " (CinemaClone)";
+		private const string HIDE_CINEMA_SCREEN_OBJECT_NAME = "HideCinemaScreen";
 
 		private static bool _environmentModified;
 		private static string _currentEnvironmentName = "MainMenu";
+		internal static bool IsScreenHidden { get; private set; }
 		private static List<EnvironmentObject>? _environmentObjectList;
 		private static IEnumerable<EnvironmentObject> EnvironmentObjects
 		{
@@ -35,13 +37,16 @@ namespace BeatSaberCinema
 				var gameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
 				Log.Debug($"Resource call finished after {stopwatch.ElapsedMilliseconds} ms");
 				var activeScene = SceneManager.GetActiveScene();
+				var currentEnvironmentScene = SceneManager.GetSceneByName(_currentEnvironmentName);
+				var pcInitScene = SceneManager.GetSceneByName("PCInit"); //This scene is used by CustomPlatforms
 				foreach (var gameObject in gameObjects)
 				{
 					//Relevant GameObjects are mostly in "GameCore" or the scene of the current environment, so filter out everything else
-					if (gameObject.scene != activeScene && gameObject.scene.name != _currentEnvironmentName)
+					if (gameObject.scene != activeScene && gameObject.scene != currentEnvironmentScene && gameObject.scene != pcInitScene)
 					{
 						continue;
 					}
+
 					_environmentObjectList.Add(new EnvironmentObject(gameObject, false));
 				}
 
@@ -139,8 +144,11 @@ namespace BeatSaberCinema
 				return;
 			}
 
+			PlaybackController.Instance.VideoPlayer.screenController.SetScreensActive(true);
 			var mainScreen = PlaybackController.Instance.VideoPlayer.screenController.Screens[0];
 			mainScreen.gameObject.GetComponent<CustomBloomPrePass>().enabled = true;
+			PlaybackController.Instance.LightController.enabled = true;
+			IsScreenHidden = false;
 
 			if (PlaybackController.Instance.VideoPlayer.screenController.Screens.Count > 0)
 			{
@@ -193,6 +201,16 @@ namespace BeatSaberCinema
 
 		private static void DefaultSceneModifications(VideoConfig? videoConfig)
 		{
+			//Scuffed way for custom platforms to hide the screen while keeping the video running
+			if (EnvironmentObjects.FirstOrDefault(x => x.name == HIDE_CINEMA_SCREEN_OBJECT_NAME) != null)
+			{
+				PlaybackController.Instance.VideoPlayer.screenController.SetScreensActive(false);
+				IsScreenHidden = true;
+				/*mainScreen.GetComponent<CustomBloomPrePass>().enabled = false;
+				PlaybackController.Instance.LightController.enabled = false;*/
+				Log.Info("Hiding video screen due to custom platform");
+			}
+
 			//FrontLights appear in many environments and need to be removed in all of them
 			var frontLights = EnvironmentObjects.LastOrDefault(x => (x.name == "FrontLights" || x.name == "FrontLight") && x.activeInHierarchy);
 			frontLights?.SetActive(false);
