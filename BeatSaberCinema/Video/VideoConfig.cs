@@ -70,8 +70,7 @@ namespace BeatSaberCinema
 			{
 				if (LevelDir != null && IsWIPLevel)
 				{
-					var path = Path.Combine(LevelDir, @"..\");
-					path = Path.GetFullPath(path);
+					var path = Directory.GetParent(LevelDir)!.FullName;
 					var mapFolderName = new DirectoryInfo(LevelDir).Name;
 					var folder = Path.Combine(path, VideoLoader.WIP_DIRECTORY_NAME, mapFolderName);
 					videoFile = GetVideoFileName(folder);
