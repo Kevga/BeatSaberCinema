@@ -115,7 +115,6 @@ namespace BeatSaberCinema
 			_bloomPrePassDict.Add(camera, bloomPrePass);
 			if (bloomPrePass == null)
 			{
-				Log.Info($"Failed to find BloomPrePass for camera {camera.name}");
 				return;
 			}
 

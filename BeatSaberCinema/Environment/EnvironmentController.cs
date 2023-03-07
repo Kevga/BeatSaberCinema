@@ -511,6 +511,57 @@ namespace BeatSaberCinema
 					}
 					break;
 				}
+				case "Dragons2Environment":
+				{
+					var directionalLightLeft = EnvironmentObjects.LastOrDefault(x => (x.name == "Left" && x.parentName == "CoreLighting"));
+					directionalLightLeft?.SetActive(false);
+					var directionalLightRight = EnvironmentObjects.LastOrDefault(x => (x.name == "Right" && x.parentName == "CoreLighting"));
+					directionalLightRight?.SetActive(false);
+
+					var spectrograms = EnvironmentObjects.Where(x => x.name == "Spectrogram" && x.activeInHierarchy);
+					foreach (var spectrogram in spectrograms)
+					{
+						var pos = spectrogram.transform.position;
+						var newX = 16;
+						if (pos.x < 0)
+						{
+							newX *= -1;
+						}
+						spectrogram.transform.position = new Vector3(newX, pos.y, pos.z);
+					}
+
+					//Move rotating lasers BaseL and BaseR from x = -8/+8 to something farther away
+					var rotatingLaserPairs = EnvironmentObjects.Where(x => x.name.Contains("RotatingLasersPair") && x.activeInHierarchy);
+					foreach (var laser in rotatingLaserPairs)
+					{
+						foreach (Transform child in laser.transform)
+						{
+							var pos = child.transform.position;
+							var newX = 20;
+							if (pos.x < 0)
+							{
+								newX *= -1;
+							}
+							child.transform.position = new Vector3(newX, pos.y, pos.z);
+						}
+
+					}
+
+					var hallConstruction = EnvironmentObjects.LastOrDefault(x => x.name == "HallConstruction" && x.activeInHierarchy);
+					if (hallConstruction != null)
+					{
+						var pos = hallConstruction.transform.position;
+						hallConstruction.transform.position = new Vector3(pos.x, 17.2f, pos.z);
+						hallConstruction.transform.localScale = new Vector3(1f, 0.7f, 1f);
+					}
+
+					var trackLaneRings = EnvironmentObjects.Where(x => x.name.Contains("PanelsTrackLaneRing") && x.activeInHierarchy);
+					foreach (var ring in trackLaneRings)
+					{
+						ring.SetActive(false);
+					}
+					break;
+				}
 				case "LinkinParkEnvironment":
 				{
 					var logo = EnvironmentObjects.LastOrDefault(x =>

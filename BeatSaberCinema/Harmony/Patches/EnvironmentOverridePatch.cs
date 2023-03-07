@@ -66,6 +66,7 @@ namespace BeatSaberCinema.Patches
 					"KDAEnvironment",
 					"RocketEnvironment",
 					"DragonsEnvironment",
+					"Dragons2Environment",
 					"LinkinParkEnvironment",
 					"KaleidoscopeEnvironment",
 					"GlassDesertEnvironment",
