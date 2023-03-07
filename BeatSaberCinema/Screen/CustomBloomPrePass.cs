@@ -161,7 +161,7 @@ namespace BeatSaberCinema
 		{
 			//TODO Fix SmoothCamera instead of skipping. Current workaround is to use CameraPlus instead. Investigate what BloomPrePassRendererSO does differently
 			//Mirror cam has no BloomPrePass
-			if (camera.name == "SmoothCamera" || camera.name.StartsWith("MirrorCam"))
+			if (camera.name == "SmoothCamera" || camera.name.StartsWith("MirrorCam") || camera.name == "BurnMarksCamera")
 			{
 				return;
 			}
