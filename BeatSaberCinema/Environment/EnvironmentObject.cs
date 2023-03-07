@@ -59,13 +59,23 @@ namespace BeatSaberCinema
 			return gameObject.GetHashCode();
 		}
 
-		public static bool operator ==(EnvironmentObject obj1, EnvironmentObject? obj2)
+		public static bool operator ==(EnvironmentObject? obj1, EnvironmentObject? obj2)
 		{
+			if (obj1 is null)
+			{
+				return obj2 is null;
+			}
+
 			return obj1.Equals(obj2);
 		}
 
-		public static bool operator !=(EnvironmentObject obj1, EnvironmentObject? obj2)
+		public static bool operator !=(EnvironmentObject? obj1, EnvironmentObject? obj2)
 		{
+			if (obj1 is null)
+			{
+				return !(obj2 is null);
+			}
+
 			return !obj1.Equals(obj2);
 		}
 	}
