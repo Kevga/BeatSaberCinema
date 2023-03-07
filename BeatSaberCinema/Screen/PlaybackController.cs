@@ -413,6 +413,7 @@ namespace BeatSaberCinema
 			StopAllCoroutines();
 			_previewWaitingForPreviewPlayer = true;
 			gameObject.SetActive(true);
+			SceneChanged();
 		}
 
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)
@@ -425,6 +426,11 @@ namespace BeatSaberCinema
 			}
 
 			VideoPlayer.screenController.OnGameSceneLoadedFresh();
+		}
+
+		private void SceneChanged()
+		{
+			VideoPlayer.screenController.SetShaderParameters(VideoConfig);
 		}
 
 		private void OnConfigChanged(VideoConfig? config)
@@ -679,6 +685,7 @@ namespace BeatSaberCinema
 			SetAudioSourcePanning(0);
 			VideoPlayer.Mute();
 			StartCoroutine(PlayVideoAfterAudioSourceCoroutine(false));
+			SceneChanged();
 		}
 
 		private IEnumerator PlayVideoAfterAudioSourceCoroutine(bool preview)

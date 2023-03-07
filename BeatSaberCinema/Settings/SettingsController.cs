@@ -106,6 +106,17 @@ namespace BeatSaberCinema
 	        }
         }
 
+        [UIValue("color-blending-enabled")]
+        public bool ColorBlendingEnabled
+        {
+	        get => SettingsStore.Instance.ColorBlendingEnabled;
+	        set
+	        {
+		        SettingsStore.Instance.ColorBlendingEnabled = value;
+		        PlaybackController.Instance.VideoPlayer.screenController.EnableColorBlending(value);
+	        }
+        }
+
         [UIValue("cover-enabled")]
         public bool CoverEnabled
         {

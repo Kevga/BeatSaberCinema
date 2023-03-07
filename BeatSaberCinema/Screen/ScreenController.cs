@@ -19,6 +19,10 @@ namespace BeatSaberCinema
 		private static readonly int VignetteRadius = Shader.PropertyToID("_VignetteRadius");
 		private static readonly int VignetteSoftness = Shader.PropertyToID("_VignetteSoftness");
 		private static readonly int VignetteElliptical = Shader.PropertyToID("_VignetteOval");
+		private static readonly int SrcColor = Shader.PropertyToID("_SrcColor");
+		private static readonly int DestColor = Shader.PropertyToID("_DestColor");
+		private static readonly int SrcAlpha = Shader.PropertyToID("_SrcAlpha");
+		private static readonly int DestAlpha = Shader.PropertyToID("_DestAlpha");
 		private const string BODY_SHADER_NAME = "Custom/OpaqueNeonLight";
 
 		public ScreenController()
@@ -98,6 +102,13 @@ namespace BeatSaberCinema
 		public Renderer GetRenderer()
 		{
 			return Screens[0].GetComponent<Renderer>();
+		}
+
+		public RenderTexture CreateRenderTexture()
+		{
+			var renderTexture = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
+			renderTexture.Create();
+			return renderTexture;
 		}
 
 		public void SetPlacement(Placement placement)
@@ -194,6 +205,7 @@ namespace BeatSaberCinema
 				SetShaderFloat(Exposure, colorCorrection?.exposure, 0f, 5f, 1f);
 				SetShaderFloat(Gamma, colorCorrection?.gamma, 0f, 5f, 1f);
 
+				EnableColorBlending((SettingsStore.Instance.ColorBlendingEnabled && (config?.colorBlending != false)) || config is { colorBlending: true } || Util.GetEnvironmentName() == "MainMenu");
 				SetVignette(vignette, _materialPropertyBlock);
 
 				screenRenderer.SetPropertyBlock(_materialPropertyBlock);
@@ -230,6 +242,44 @@ namespace BeatSaberCinema
 		private void SetShaderFloat(int nameID, float? value, float min, float max, float defaultValue)
 		{
 			_materialPropertyBlock.SetFloat(nameID, Math.Min(max, Math.Max(min, value ?? defaultValue)));
+		}
+
+		public void EnableColorBlending(bool enable)
+		{
+			Log.Debug("Enabling color blending: "+enable);
+			var screenRenderer = Screens[0].GetComponent<Renderer>();
+			SetBlendMode(enable ? BlendMode.SoftAdditive : BlendMode.PerfectVisibility, screenRenderer.material);
+		}
+
+		private static void SetBlendMode(BlendMode blendMode, Material material)
+		{
+			switch (blendMode)
+			{
+				case BlendMode.SoftAdditive:
+				{
+					material.SetInt(SrcColor, (int) UnityEngine.Rendering.BlendMode.OneMinusDstColor);
+					material.SetInt(DestColor, (int) UnityEngine.Rendering.BlendMode.One);
+					material.SetInt(SrcAlpha, (int) UnityEngine.Rendering.BlendMode.OneMinusDstColor);
+					material.SetInt(DestAlpha, (int) UnityEngine.Rendering.BlendMode.One);
+					break;
+				}
+				case BlendMode.PerfectVisibility:
+					material.SetInt(SrcColor, (int) UnityEngine.Rendering.BlendMode.One);
+					material.SetInt(DestColor, (int) UnityEngine.Rendering.BlendMode.Zero);
+					material.SetInt(SrcAlpha, (int) UnityEngine.Rendering.BlendMode.Zero);
+					material.SetInt(DestAlpha, (int) UnityEngine.Rendering.BlendMode.One);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(blendMode), blendMode, null);
+			}
+
+			Log.Debug("Set blend mode to " + blendMode);
+		}
+
+		private enum BlendMode
+		{
+			SoftAdditive,
+			PerfectVisibility
 		}
 	}
 }

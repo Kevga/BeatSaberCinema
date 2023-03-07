@@ -50,6 +50,7 @@ namespace BeatSaberCinema
 		public bool? forceEnvironmentModifications;
 		public bool? allowCustomPlatform;
 		public bool? mergePropGroups;
+		public bool? colorBlending;
 
 		public ColorCorrection? colorCorrection;
 		public Vignette? vignette;

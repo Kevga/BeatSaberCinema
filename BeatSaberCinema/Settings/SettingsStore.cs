@@ -15,6 +15,7 @@ namespace BeatSaberCinema
         public virtual bool Enable360Rotation { get; set; } = true;
         public virtual bool CurvedScreen { get; set; } = true;
         public virtual bool TransparencyEnabled { get; set; } = true;
+        public virtual bool ColorBlendingEnabled { get; set; } = true;
         public virtual bool CoverEnabled { get; set; }
         public virtual int BloomIntensity { get; set; } = 100;
         public virtual float CornerRoundness { get; set; }

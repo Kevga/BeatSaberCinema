@@ -16,13 +16,16 @@ namespace BeatSaberCinema
 		private AudioSource _videoPlayerAudioSource = null!;
 		internal ScreenController screenController = null!;
 		private Renderer _screenRenderer  = null!;
+		private RenderTexture _renderTexture = null!;
 		internal EasingController FadeController = null!;
 
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
+		private const string CINEMA_TEXTURE_NAME = "_CinemaVideoTexture";
 		private const float MAX_BRIGHTNESS = 0.92f;
 		private readonly Color _screenColorOn = Color.white.ColorWithAlpha(0f) * MAX_BRIGHTNESS;
 		private readonly Color _screenColorOff = Color.clear;
 		private static readonly int MainTex = Shader.PropertyToID(MAIN_TEXTURE_NAME);
+		private static readonly int CinemaVideoTexture = Shader.PropertyToID(CINEMA_TEXTURE_NAME);
 		private string _currentlyPlayingVideo = "";
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
@@ -77,9 +80,9 @@ namespace BeatSaberCinema
 
 			Player = gameObject.AddComponent<VideoPlayer>();
 			Player.source = VideoSource.Url;
-			Player.renderMode = VideoRenderMode.MaterialOverride;
-			Player.targetMaterialProperty = MAIN_TEXTURE_NAME;
-			Player.targetMaterialRenderer = _screenRenderer;
+			Player.renderMode = VideoRenderMode.RenderTexture;
+			_renderTexture = screenController.CreateRenderTexture();
+			Player.targetTexture = _renderTexture;
 
 			Player.playOnAwake = false;
 			Player.waitForFirstFrame = true;
@@ -100,6 +103,7 @@ namespace BeatSaberCinema
 			_videoPlayerAudioSource.playOnAwake = false;
 			_videoPlayerAudioSource.spatialize = false;
 
+			screenController.EnableColorBlending(true);
 			FadeController = new EasingController();
 			FadeController.EasingUpdate += FadeControllerUpdate;
 			Hide();
@@ -127,6 +131,7 @@ namespace BeatSaberCinema
 		{
 			BSEvents.menuSceneLoaded -= OnMenuSceneLoaded;
 			FadeController.EasingUpdate -= FadeControllerUpdate;
+			_renderTexture.Release();
 		}
 
 #if DEBUG
@@ -179,7 +184,7 @@ namespace BeatSaberCinema
 				myLoadedAssetBundle = AssetBundle.LoadFromFile(path);
 			}
 
-			var shader = myLoadedAssetBundle.LoadAsset<Shader>("ScreenShader");
+			var shader = myLoadedAssetBundle.LoadAsset<Shader>("VideoShader");
 			myLoadedAssetBundle.Unload(false);
 
 			return shader;
@@ -354,18 +359,17 @@ namespace BeatSaberCinema
 
 		private void SetTexture(Texture? texture)
 		{
-			_screenRenderer.material.SetTexture(MainTex, texture);
+			Shader.SetGlobalTexture(CinemaVideoTexture, texture);
 		}
 
 		public void SetCoverTexture(Texture? texture)
 		{
+			SetTexture(texture);
+
 			if (texture == null)
 			{
-				SetTexture(texture);
 				return;
 			}
-
-			SetStaticTexture(texture);
 
 			var placement = Placement.CoverPlacement;
 			var width = ((float) texture.width / texture.height) * placement.Height;
@@ -376,13 +380,13 @@ namespace BeatSaberCinema
 
 		public void SetStaticTexture(Texture? texture)
 		{
+			SetTexture(texture);
+
 			if (texture == null)
 			{
-				SetTexture(texture);
 				return;
 			}
 
-			SetTexture(texture);
 			var width = ((float) texture.width / texture.height) * Placement.MenuPlacement.Height;
 			SetDefaultMenuPlacement(width);
 			screenController.SetShaderParameters(null);

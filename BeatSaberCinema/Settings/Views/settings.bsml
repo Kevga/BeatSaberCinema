@@ -1,6 +1,6 @@
 <!--suppress CheckTagEmptyBody -->
 <vertical child-control-height='false' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-                    xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+>
 
 	<tab-selector tab-tag='tabs' id='tabSelector'/>
 
@@ -24,6 +24,8 @@
 		<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
 			<bool-setting apply-on-change="true" text='Curved Screen' value='curved-screen'
 						  hover-hint='Curves the screen slightly towards you, which corrects for perspective distortion.&#xD;&#xA;&#xD;&#xA;Recommended: On'></bool-setting>
+			<!--<bool-setting apply-on-change="true" text='Color Blending' value='color-blending-enabled'
+						  hover-hint="Blends the environment lighting with the video. Makes the video player fit into the environment and allows for the use of transparency effects.&#xD;&#xA;&#xD;&#xA;Recommended: On"></bool-setting>-->
 			<bool-setting apply-on-change="true" text='Transparent Screen' value='transparency-enabled'
 						  hover-hint="Allows you to see through the screen. Turning this off makes the video clearer, but some transparency effects look much worse.&#xD;&#xA;&#xD;&#xA;Recommended: On"></bool-setting>
 			<slider-setting apply-on-change="true" integer-only="true" value="bloom-intensity" text="Bloom Intensity" hover-hint="Change the amount of glow around the screen when the image is bright. The effect is not visible on the image used in this menu.&#xD;&#xA;&#xD;&#xA;Recommended: 100" min="0" max="150" increment="10"></slider-setting>
