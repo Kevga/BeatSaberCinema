@@ -47,7 +47,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			if (_currentAudioClip.name == "LevelCleared")
+			if (_currentAudioClip.name == "LevelCleared" || _currentAudioClip.name.EndsWith(".egg"))
 			{
 				//Prevents preview from playing when new highscore is reached
 				isDefault = true;
