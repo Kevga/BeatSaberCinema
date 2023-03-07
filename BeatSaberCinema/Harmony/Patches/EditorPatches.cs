@@ -60,7 +60,7 @@ namespace BeatSaberCinema.Patches
 		}
 	}
 
-	[HarmonyPatch(typeof(BeatmapProjectManager), nameof(BeatmapProjectManager.SaveBeatmapProject))]
+	[HarmonyPatch(typeof(BeatmapProjectManager), nameof(BeatmapProjectManager.SaveBeatmapLevel))]
 	public class SavingFixPatch
 	{
 		internal static FileSystemWatcher? deletionFSWatcher;
