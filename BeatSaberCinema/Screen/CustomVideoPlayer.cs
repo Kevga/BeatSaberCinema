@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using BS_Utils.Utilities;
 using UnityEngine;
@@ -380,16 +378,25 @@ namespace BeatSaberCinema
 
 		public void SetStaticTexture(Texture? texture)
 		{
-			SetTexture(texture);
-
 			if (texture == null)
 			{
+				ClearTexture();
 				return;
 			}
 
+			SetTexture(texture);
 			var width = ((float) texture.width / texture.height) * Placement.MenuPlacement.Height;
 			SetDefaultMenuPlacement(width);
 			screenController.SetShaderParameters(null);
+		}
+
+		public void ClearTexture()
+		{
+			var rt = RenderTexture.active;
+			RenderTexture.active = _renderTexture;
+			GL.Clear(true, true, Color.black);
+			RenderTexture.active = rt;
+			SetTexture(_renderTexture);
 		}
 
 		private static void VideoPlayerPrepareComplete(VideoPlayer source)

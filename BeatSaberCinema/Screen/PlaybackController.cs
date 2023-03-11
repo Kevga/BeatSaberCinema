@@ -530,7 +530,7 @@ namespace BeatSaberCinema
 			VideoConfig = config;
 			Log.Debug($"Selected Level: {level?.levelID ?? "null"}");
 
-			if (VideoConfig == null)
+			if (VideoConfig == null || ( level != null && VideoLoader.IsDlcSong(level)))
 			{
 				VideoPlayer.FadeOut();
 				StopAllCoroutines();
@@ -919,6 +919,8 @@ namespace BeatSaberCinema
 				StopCoroutine(_prepareVideoCoroutine);
 			}
 
+			VideoPlayer.ClearTexture();
+
 			_prepareVideoCoroutine = PrepareVideoCoroutine(video);
 			StartCoroutine(_prepareVideoCoroutine);
 		}
@@ -977,6 +979,7 @@ namespace BeatSaberCinema
 				VideoPlayer.Player.time = offset;
 			}
 			_offsetAfterPrepare = 0;
+			VideoPlayer.ClearTexture();
 
 			if (_activeScene != Scene.Menu)
 			{
