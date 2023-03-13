@@ -522,29 +522,15 @@ namespace BeatSaberCinema
 					foreach (var spectrogram in spectrograms)
 					{
 						var pos = spectrogram.transform.position;
-						var newX = 16;
+						var newX = 18;
+						var newYRotation = 10;
 						if (pos.x < 0)
 						{
 							newX *= -1;
+							newYRotation = 180 - newYRotation;
 						}
 						spectrogram.transform.position = new Vector3(newX, pos.y, pos.z);
-					}
-
-					//Move rotating lasers BaseL and BaseR from x = -8/+8 to something farther away
-					var rotatingLaserPairs = EnvironmentObjects.Where(x => x.name.Contains("RotatingLasersPair") && x.activeInHierarchy);
-					foreach (var laser in rotatingLaserPairs)
-					{
-						foreach (Transform child in laser.transform)
-						{
-							var pos = child.transform.position;
-							var newX = 20;
-							if (pos.x < 0)
-							{
-								newX *= -1;
-							}
-							child.transform.position = new Vector3(newX, pos.y, pos.z);
-						}
-
+						spectrogram.transform.eulerAngles = new Vector3(0, newYRotation, 0);
 					}
 
 					var hallConstruction = EnvironmentObjects.LastOrDefault(x => x.name == "HallConstruction" && x.activeInHierarchy);

@@ -94,7 +94,7 @@ namespace BeatSaberCinema
 				"PyroEnvironment" => new Placement(new Vector3(0f, 12f, 60f), Vector3.zero, 24f, null, 0f),
 				"EDMEnvironment" => new Placement(new Vector3(0f, 1.5f, 25f), Vector3.zero, 8f),
 				"LizzoEnvironment" => new Placement(new Vector3(0f, 8f, 63f), Vector3.zero, 16f),
-				"Dragons2Environment" => new Placement(new Vector3(0f, 6.4f, 67f), Vector3.zero, 16f),
+				"Dragons2Environment" => new Placement(new Vector3(0f, 5.8f, 67f), Vector3.zero, 33f),
 				_ => null
 			};
 		}
