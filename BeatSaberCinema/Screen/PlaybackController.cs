@@ -530,7 +530,7 @@ namespace BeatSaberCinema
 			VideoConfig = config;
 			Log.Debug($"Selected Level: {level?.levelID ?? "null"}");
 
-			if (VideoConfig == null || ( level != null && VideoLoader.IsDlcSong(level)))
+			if (VideoConfig == null)
 			{
 				VideoPlayer.FadeOut();
 				StopAllCoroutines();
@@ -539,6 +539,10 @@ namespace BeatSaberCinema
 
 			Log.Debug("Preparing video...");
 			PrepareVideo(VideoConfig);
+			if (level != null && VideoLoader.IsDlcSong(level))
+			{
+				VideoPlayer.FadeOut();
+			}
 		}
 
 		private async void ShowSongCover()
