@@ -714,7 +714,7 @@ namespace BeatSaberCinema
 			var item = new CustomListTableData.CustomCellInfo(title, description);
 			var request = UnityWebRequestTexture.GetTexture($"https://i.ytimg.com/vi/{result.ID}/mqdefault.jpg");
 			yield return request.SendWebRequest();
-			if (!request.isNetworkError && !request.isHttpError)
+			if (request.result != UnityWebRequest.Result.ConnectionError && request.result != UnityWebRequest.Result.ProtocolError)
 			{
 				var tex = ((DownloadHandlerTexture) request.downloadHandler).texture;
 				item.icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, 100, 1);
