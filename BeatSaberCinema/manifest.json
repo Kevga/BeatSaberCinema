@@ -4,8 +4,8 @@
 	"name": "Cinema",
 	"description": "Play videos in the background of your beatmaps",
 	"author": "Dakari",
-	"gameVersion": "1.28.0",
-	"version": "1.7.3",
+	"gameVersion": "1.29.1",
+	"version": "1.7.4",
 	"dependsOn": {
 		"BSIPA": "^4.2.2",
 		"BeatSaberMarkupLanguage": "^1.6.0",

@@ -5,6 +5,7 @@ using BeatmapEditor3D.BpmEditor;
 using BeatmapEditor3D.BpmEditor.Commands;
 using BeatmapEditor3D.DataModels;
 using HarmonyLib;
+using IPA.Utilities;
 using IPA.Utilities.Async;
 using JetBrains.Annotations;
 
@@ -12,14 +13,21 @@ using JetBrains.Annotations;
 
 namespace BeatSaberCinema.Patches
 {
-	[HarmonyPatch(typeof(EditBeatmapLevelViewController), "DidActivate")]
-	public class EditBeatmapLevelViewControllerDidActivate
+	[HarmonyPatch(typeof(BeatmapProjectManager), nameof(BeatmapProjectManager.LoadBeatmapProject))]
+	public class EditorSelectionPatch
 	{
 		[UsedImplicitly]
-		public static void Postfix()
+		public static void Postfix(BeatmapProjectManager __instance, IBeatmapDataModel ____beatmapDataModel)
 		{
-			Log.Debug("EditBeatmapLevelViewControllerDidActivate");
-			//PlaybackController.Instance.GameSceneLoaded();
+			try
+			{
+				var originalPath = __instance.GetField<string, BeatmapProjectManager>("_originalBeatmapProject");
+				Events.SetSelectedLevel(____beatmapDataModel, originalPath);
+			} catch (System.Exception e)
+			{
+				Log.Error(e);
+				Events.SetSelectedLevel(null);
+			}
 		}
 	}
 
