@@ -19,11 +19,13 @@ namespace BeatSaberCinema
 
 		private const string MAIN_TEXTURE_NAME = "_MainTex";
 		private const string CINEMA_TEXTURE_NAME = "_CinemaVideoTexture";
+		private const string STATUS_PROPERTY_NAME = "_CinemaVideoIsPlaying";
 		private const float MAX_BRIGHTNESS = 0.92f;
 		private readonly Color _screenColorOn = Color.white.ColorWithAlpha(0f) * MAX_BRIGHTNESS;
 		private readonly Color _screenColorOff = Color.clear;
 		private static readonly int MainTex = Shader.PropertyToID(MAIN_TEXTURE_NAME);
 		private static readonly int CinemaVideoTexture = Shader.PropertyToID(CINEMA_TEXTURE_NAME);
+		private static readonly int CinemaStatusProperty = Shader.PropertyToID(STATUS_PROPERTY_NAME);
 		private string _currentlyPlayingVideo = "";
 		private readonly Stopwatch _firstFrameStopwatch = new Stopwatch();
 
@@ -316,6 +318,7 @@ namespace BeatSaberCinema
 			Player.frameReady -= FirstFrameReady;
 			Player.frameReady += FirstFrameReady;
 			Player.Play();
+			Shader.SetGlobalInt(CinemaStatusProperty, 1);
 		}
 
 		public void Pause()
@@ -330,6 +333,7 @@ namespace BeatSaberCinema
 			Player.Stop();
 			stopped?.Invoke();
 			SetStaticTexture(null);
+			Shader.SetGlobalInt(CinemaStatusProperty, 0);
 			screenController.SetScreensActive(false);
 			_firstFrameStopwatch.Reset();
 		}
