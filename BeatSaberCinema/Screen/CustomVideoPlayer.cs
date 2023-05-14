@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using BS_Utils.Utilities;
 using UnityEngine;
@@ -82,6 +84,7 @@ namespace BeatSaberCinema
 			Player.source = VideoSource.Url;
 			Player.renderMode = VideoRenderMode.RenderTexture;
 			_renderTexture = screenController.CreateRenderTexture();
+			_renderTexture.wrapMode = TextureWrapMode.Mirror;
 			Player.targetTexture = _renderTexture;
 
 			Player.playOnAwake = false;
