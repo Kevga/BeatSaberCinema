@@ -79,6 +79,7 @@ namespace BeatSaberCinema
 			CreateScreen();
 			_screenRenderer = screenController.GetRenderer();
 			_screenRenderer.material = new Material(GetShader()) {color = _screenColorOff};
+			_screenRenderer.material.enableInstancing = true;
 
 			Player = gameObject.AddComponent<VideoPlayer>();
 			Player.source = VideoSource.Url;
