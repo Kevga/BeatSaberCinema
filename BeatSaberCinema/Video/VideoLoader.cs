@@ -63,8 +63,13 @@ namespace BeatSaberCinema
 			{
 				if (_additionalContentModel == null)
 				{
-					//The game has instances for AdditionalContentModels for each platform. The "true" one has (Clone) in its name.
-					_additionalContentModel = BeatmapLevelsModel!.GetField<AdditionalContentModel, BeatmapLevelsModel>("_additionalContentModel");
+					if (BeatmapLevelsModel == null)
+					{
+						Log.Error("BeatmapLevelsModel is null");
+						return null;
+					}
+
+					_additionalContentModel = BeatmapLevelsModel._additionalContentModel;
 					if (!_additionalContentModel)
 					{
 						Log.Error("Failed to get the AdditionalContentModel from BeatmapLevelsModel");
@@ -81,7 +86,7 @@ namespace BeatSaberCinema
 			{
 				if (_audioClipAsyncLoader == null)
 				{
-					_audioClipAsyncLoader = BeatmapLevelsModel!.GetField<AudioClipAsyncLoader, BeatmapLevelsModel>("_audioClipAsyncLoader");
+					_audioClipAsyncLoader = BeatmapLevelsModel!._audioClipAsyncLoader;
 					if (_audioClipAsyncLoader == null)
 					{
 						Log.Error("Failed to get a reference to AudioClipAsyncLoader");
@@ -96,10 +101,10 @@ namespace BeatSaberCinema
 		{
 			get
 			{
-				var levelDataLoader = Resources.FindObjectsOfTypeAll<BeatmapLevelDataLoaderSO>().FirstOrDefault();
+				var levelDataLoader = Plugin.menuContainer.Resolve<BeatmapLevelDataLoader>();
 				if (levelDataLoader != null)
 				{
-					_beatmapLevelAsyncCache = levelDataLoader.GetField<AsyncCache<string, IBeatmapLevel>, BeatmapLevelDataLoaderSO>("_beatmapLevelsAsyncCache");
+					_beatmapLevelAsyncCache = levelDataLoader._beatmapLevelsAsyncCache;
 				}
 
 				return _beatmapLevelAsyncCache;
@@ -586,6 +591,11 @@ namespace BeatSaberCinema
 				{
 					//Back compatiblity with MVP configs
 					var videoConfigListBackCompat = JsonConvert.DeserializeObject<VideoConfigListBackCompat>(json);
+					if (videoConfigListBackCompat == null)
+					{
+						Log.Warn($"Deserializing video config at {configPath} failed");
+						return null;
+					}
 					videoConfig = new VideoConfig(videoConfigListBackCompat);
 				}
 				else
@@ -635,6 +645,12 @@ namespace BeatSaberCinema
 					Log.Error(e);
 					return null;
 				}
+
+				if (videoConfig == null)
+				{
+					Log.Warn($"Deserializing video config for {playlistSong.Name} failed");
+					return null;
+				}
 				videoConfig.LevelDir = levelPath;
 				videoConfig.UpdateDownloadState();
 
@@ -650,6 +666,11 @@ namespace BeatSaberCinema
 			var buffer = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberCinema.Resources.configs.json");
 			var jsonString = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
 			var configs = JsonConvert.DeserializeObject<BundledConfig[]>(jsonString);
+			if (configs == null)
+			{
+				Log.Error("Failed to deserialize bundled configs");
+				return Enumerable.Empty<BundledConfig>();
+			}
 			return configs;
 		}
 	}

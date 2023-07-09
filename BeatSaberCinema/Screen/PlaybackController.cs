@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
-using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
@@ -700,38 +699,64 @@ namespace BeatSaberCinema
 			{
 				Log.Debug("Waiting for ATSC to be ready");
 
-				if (Util.IsInEditor() && SceneManager.GetActiveScene().name != "GameCore")
+				try
 				{
-					//_editorTimeSyncController = Resources.FindObjectsOfTypeAll<BeatmapEditorAudioTimeSyncController>().FirstOrDefault(atsc => atsc.name == "BeatmapEditorAudioTimeSyncController");
-					_activeAudioSource = Resources.FindObjectsOfTypeAll<AudioSource>()
-						.FirstOrDefault(audioSource => audioSource.name == "SongPreviewAudioSource(Clone)" && audioSource.transform.parent == null);
-				}
-				else
-				{
-					yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
-
-					//There can be multiple ATSC behaviors
-					if (Util.IsMultiplayer())
+					if (Util.IsInEditor() && SceneManager.GetActiveScene().name != "GameCore")
 					{
-						//Hierarchy: MultiplayerLocalActivePlayerController(Clone)/IsActiveObjects/GameplayCore/SongController
-						_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.parent.name.Contains("(Clone)"));
+						var songPreviewPlayer = Plugin.gameCoreContainer.Resolve<SongPreviewPlayer>();
+						if (songPreviewPlayer._audioSourceControllers.Any())
+						{
+							_activeAudioSource = songPreviewPlayer._audioSourceControllers.First().audioSource;
+							Log.Debug("Got ATSC from SongPreviewPlayer");
+						}
 					}
 					else
 					{
-						//Hierarchy: Wrapper/StandardGameplay/GameplayCore/SongController
-						_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.name.Contains("StandardGameplay"));
+						var atsc = Plugin.gameCoreContainer.Resolve<AudioTimeSyncController>();
+						_activeAudioSource = atsc._audioSource;
+						Log.Debug("Got ATSC from ATSC");
 					}
+				}
+				catch
+				{
+					Log.Debug("Failed to get AudioSource from DiContainer");
+				}
 
-					if (_timeSyncController == null)
+				if (_activeAudioSource == null)
+				{
+					if (Util.IsInEditor() && SceneManager.GetActiveScene().name != "GameCore")
 					{
-						Log.Warn("Could not find ATSC the usual way. Did the object hierarchy change? Current scene name is "+SceneManager.GetActiveScene().name);
-
-						//This throws an exception if we still don't find the ATSC
-						_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
-						Log.Warn("Selected ATSC: " + _timeSyncController.name);
+						//_editorTimeSyncController = Resources.FindObjectsOfTypeAll<BeatmapEditorAudioTimeSyncController>().FirstOrDefault(atsc => atsc.name == "BeatmapEditorAudioTimeSyncController");
+						_activeAudioSource = Resources.FindObjectsOfTypeAll<AudioSource>()
+							.FirstOrDefault(audioSource => audioSource.name == "SongPreviewAudioSource(Clone)" && audioSource.transform.parent == null);
 					}
+					else
+					{
+						yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Any());
 
-					_activeAudioSource = _timeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
+						//There can be multiple ATSC behaviors
+						if (Util.IsMultiplayer())
+						{
+							//Hierarchy: MultiplayerLocalActivePlayerController(Clone)/IsActiveObjects/GameplayCore/SongController
+							_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.parent.name.Contains("(Clone)"));
+						}
+						else
+						{
+							//Hierarchy: Wrapper/StandardGameplay/GameplayCore/SongController
+							_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault(atsc => atsc.transform.parent.parent.name.Contains("StandardGameplay"));
+						}
+
+						if (_timeSyncController == null)
+						{
+							Log.Warn("Could not find ATSC the usual way. Did the object hierarchy change? Current scene name is " + SceneManager.GetActiveScene().name);
+
+							//This throws an exception if we still don't find the ATSC
+							_timeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().Last();
+							Log.Warn("Selected ATSC: " + _timeSyncController.name);
+						}
+
+						_activeAudioSource = _timeSyncController._audioSource;
+					}
 				}
 			}
 

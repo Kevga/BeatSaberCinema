@@ -21,7 +21,7 @@ namespace BeatSaberCinema.Patches
 		{
 			try
 			{
-				var originalPath = __instance.GetField<string, BeatmapProjectManager>("_originalBeatmapProject");
+				var originalPath = __instance._originalBeatmapProject;
 				Events.SetSelectedLevel(____beatmapDataModel, originalPath);
 			} catch (System.Exception e)
 			{

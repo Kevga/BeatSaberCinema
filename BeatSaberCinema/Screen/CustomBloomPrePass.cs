@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BS_Utils.Utilities;
-using IPA.Utilities;
 using UnityEngine;
 
 namespace BeatSaberCinema
@@ -118,10 +117,10 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			_bloomPrePassRendererDict.Add(camera, bloomPrePass.GetField<BloomPrePassRendererSO, BloomPrePass>("_bloomPrepassRenderer"));
-			_bloomPrePassRenderDataDict.Add(camera, bloomPrePass.GetField<BloomPrePassRenderDataSO.Data, BloomPrePass>("_renderData"));
-			var effectsContainer = bloomPrePass.GetField<BloomPrePassEffectContainerSO, BloomPrePass>("_bloomPrePassEffectContainer");
-			_bloomPrePassParamsDict.Add(camera, effectsContainer.GetField<BloomPrePassEffectSO, BloomPrePassEffectContainerSO>("_bloomPrePassEffect"));
+			_bloomPrePassRendererDict.Add(camera, bloomPrePass._bloomPrepassRenderer);
+			_bloomPrePassRenderDataDict.Add(camera, bloomPrePass._renderData);
+			var effectsContainer = bloomPrePass._bloomPrePassEffectContainer;
+			_bloomPrePassParamsDict.Add(camera, effectsContainer._bloomPrePassEffect);
 		}
 
 		public void OnCameraPostRender(Camera camera)

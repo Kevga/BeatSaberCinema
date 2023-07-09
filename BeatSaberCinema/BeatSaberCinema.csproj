@@ -41,18 +41,18 @@
 		<Reference Include="SongCore">
 			<HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
 		</Reference>
-        <Reference Include="GameplayCore, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Reference Include="GameplayCore, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" Publicize="true">
           <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
         </Reference>
-        <Reference Include="HMRendering, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Reference Include="HMRendering, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" Publicize="true">
           <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
         </Reference>
         <Reference Include="Microsoft.CSharp" />
         <Reference Include="mscorlib" />
-        <Reference Include="Rendering, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Reference Include="Rendering, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" Publicize="true">
           <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Rendering.dll</HintPath>
         </Reference>
-		<Reference Include="BGNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+		<Reference Include="BGNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" Publicize="true">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll</HintPath>
 		</Reference>
 		<Reference Include="Colors, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -86,15 +86,15 @@
 			<HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="Main">
+		<Reference Include="Main" Publicize="true">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="BeatmapCore">
+		<Reference Include="BeatmapCore" Publicize="true">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="BeatmapEditor3D">
+		<Reference Include="BeatmapEditor3D" Publicize="true">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapEditor3D.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
@@ -106,10 +106,10 @@
 			<HintPath>$(BeatSaberDir)\Libs\BeatSaberPlaylistsLib.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="HMLib">
+		<Reference Include="HMLib" Publicize="true">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
 		</Reference>
-		<Reference Include="HMUI">
+		<Reference Include="HMUI" Publicize="true">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.VideoModule">
@@ -121,7 +121,7 @@
 		<Reference Include="VRUI">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\VRUI.dll</HintPath>
 		</Reference>
-		<Reference Include="Zenject">
+		<Reference Include="Zenject" Publicize="true">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.AssetBundleModule">
@@ -183,6 +183,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all" />
 	</ItemGroup>
 
 </Project>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using IPA.Logging;
 
 namespace BeatSaberCinema
@@ -13,24 +14,10 @@ namespace BeatSaberCinema
 #if DEBUG
 		private static void _Log(string message, Logger.Level logLevel, string filePath, string member, int line)
 		{
-			var padding = 82;
-			switch (logLevel)
-			{
-				case Logger.Level.Info:
-					padding += 1;
-					break;
-				case Logger.Level.Warning:
-					padding += 1;
-					break;
-				case Logger.Level.Critical:
-					padding -= 3;
-					break;
-			}
-
 			var pathParts = filePath.Split('\\');
 			var className = pathParts[pathParts.Length - 1].Replace(".cs", "");
 			var caller = new StackFrame(3, true).GetMethod().Name;
-			var prefix = $"[{caller}->{className}.{member}:{line}]: ".PadRight(padding);
+			var prefix = $"[{caller}->{className}.{member}:{line}]: ";
 			IpaLogger.Log(logLevel, $"{prefix}{message}");
 		}
 

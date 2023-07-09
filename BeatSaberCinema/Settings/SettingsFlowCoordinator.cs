@@ -16,7 +16,7 @@ namespace BeatSaberCinema
             }
         }
 
-        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             try
             {
@@ -31,11 +31,11 @@ namespace BeatSaberCinema
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                BeatSaberCinema.Log.Error(ex);
             }
         }
 
-        protected override void BackButtonWasPressed(ViewController viewController)
+        public override void BackButtonWasPressed(ViewController viewController)
         {
             BeatSaberUI.MainFlowCoordinator.DismissFlowCoordinator(this);
         }

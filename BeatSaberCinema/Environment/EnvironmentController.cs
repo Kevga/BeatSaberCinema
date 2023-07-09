@@ -1268,12 +1268,12 @@ namespace BeatSaberCinema
 			}
 
 			Log.Debug("Cloned a mirror surface");
-			var originalMirrorRenderer = mirror.GetField<MirrorRendererSO, Mirror>("_mirrorRenderer");
-			var originalMaterial = mirror.GetField<Material, Mirror>("_mirrorMaterial");
+			var originalMirrorRenderer = mirror._mirrorRenderer;
+			var originalMaterial = mirror._mirrorMaterial;
 			var clonedMirrorRenderer = Object.Instantiate(originalMirrorRenderer);
 			var clonedMaterial = Object.Instantiate(originalMaterial);
-			mirror.SetField("_mirrorRenderer", clonedMirrorRenderer);
-			mirror.SetField("_mirrorMaterial", clonedMaterial);
+			mirror._mirrorRenderer = clonedMirrorRenderer;
+			mirror._mirrorMaterial = clonedMaterial;
 		}
 
 		private static void RegisterSpectrograms(GameObject clone)
@@ -1289,9 +1289,9 @@ namespace BeatSaberCinema
 			}
 
 			var spectrogramMeshRenderers = clone.GetComponentsInChildren<MeshRenderer>();
-			var meshRendererList = component.GetField<MeshRenderer[], Spectrogram>("_meshRenderers").ToList();
+			var meshRendererList = component._meshRenderers.ToList();
 			meshRendererList.AddRange(spectrogramMeshRenderers);
-			component.SetField("_meshRenderers", meshRendererList.ToArray());
+			component._meshRenderers = meshRendererList.ToArray();
 		}
 
 		private static EnvironmentModification TranslateNameForBackwardsCompatibility(EnvironmentModification modification)

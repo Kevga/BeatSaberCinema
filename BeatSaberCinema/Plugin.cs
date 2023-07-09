@@ -6,6 +6,7 @@ using IPA.Logging;
 using IPA.Utilities;
 using JetBrains.Annotations;
 using SongCore;
+using Zenject;
 using Config = IPA.Config.Config;
 
 namespace BeatSaberCinema
@@ -18,6 +19,9 @@ namespace BeatSaberCinema
 		private HarmonyPatchController? _harmonyPatchController;
 		private static bool _enabled;
 		private static bool _filterAdded;
+
+		internal static DiContainer menuContainer = null!;
+		internal static DiContainer gameCoreContainer = null!;
 
 		public static bool Enabled
 		{
