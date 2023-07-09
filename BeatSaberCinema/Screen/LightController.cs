@@ -25,9 +25,9 @@ namespace BeatSaberCinema
 		private bool _menuReferencesSet;
 
 		private const int INITIAL_DOWNSCALING_SIZE = 128;
-		private const float DIRECTIONAL_LIGHT_INTENSITY_MENU = 1.2f;
+		private const float DIRECTIONAL_LIGHT_INTENSITY_MENU = 1.1f;
 
-		private const float DIRECTIONAL_LIGHT_INTENSITY_GAMEPLAY = 2.2f;
+		private const float DIRECTIONAL_LIGHT_INTENSITY_GAMEPLAY = 2.0f;
 
 		//TODO: Radius should ideally depend on screen size and maybe distance
 		private const int LIGHT_RADIUS = 250;
@@ -107,7 +107,7 @@ namespace BeatSaberCinema
 					break;
 				case "BTSEnvironment":
 					//Same as with Billie, clouds are too bright
-					_light.intensity = 1.5f;
+					_light.intensity = 1.6f;
 					euler.x = 55;
 					break;
 				case "LizzoEnvironment":
