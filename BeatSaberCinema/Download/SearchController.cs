@@ -22,10 +22,10 @@ namespace BeatSaberCinema
 		{
 			if (_searchCoroutine != null)
 			{
-				SharedCoroutineStarter.instance.StopCoroutine(_searchCoroutine);
+				CoroutineStarter.Instance.StopCoroutine(_searchCoroutine);
 			}
 
-			_searchCoroutine = SharedCoroutineStarter.instance.StartCoroutine(SearchCoroutine(query));
+			_searchCoroutine = CoroutineStarter.Instance.StartCoroutine(SearchCoroutine(query));
 		}
 
 		private IEnumerator SearchCoroutine(string query, int expectedResultCount = 20)

@@ -15,7 +15,7 @@ namespace BeatSaberCinema.Patches
 		[UsedImplicitly]
 		private static void Prefix(LightSwitchEventEffect __instance, BasicBeatmapEventType ____event)
 		{
-			SharedCoroutineStarter.instance.StartCoroutine(WaitThenStart());
+			CoroutineStarter.Instance.StartCoroutine(WaitThenStart());
 		}
 
 		private static IEnumerator WaitThenStart()

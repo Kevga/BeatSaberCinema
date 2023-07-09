@@ -33,7 +33,7 @@ namespace BeatSaberCinema
 
 		public void StartDownload(VideoConfig video, VideoQuality.Mode quality)
 		{
-			SharedCoroutineStarter.instance.StartCoroutine(DownloadVideoCoroutine(video, quality));
+			CoroutineStarter.Instance.StartCoroutine(DownloadVideoCoroutine(video, quality));
 		}
 
 		private IEnumerator DownloadVideoCoroutine(VideoConfig video, VideoQuality.Mode quality)
@@ -135,7 +135,7 @@ namespace BeatSaberCinema
 				video.DownloadState = DownloadState.Downloaded;
 				video.ErrorMessage = null;
 				video.NeedsToSave = true;
-				SharedCoroutineStarter.instance.StartCoroutine(WaitForDownloadToFinishCoroutine(video));
+				CoroutineStarter.Instance.StartCoroutine(WaitForDownloadToFinishCoroutine(video));
 				Log.Info($"Download of {video.title} finished");
 			}
 

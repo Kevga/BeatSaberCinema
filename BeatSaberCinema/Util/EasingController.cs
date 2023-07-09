@@ -48,13 +48,14 @@ namespace BeatSaberCinema
 		{
 			if (_easingCoroutine != null)
 			{
-				SharedCoroutineStarter.instance.StopCoroutine(_easingCoroutine);
+				CoroutineStarter.Instance.StopCoroutine(_easingCoroutine);
 			}
 
 			IsFading = true;
 			var speed = (int) easingDirection / (float) Math.Max(0.0001, duration);
 			_easingCoroutine = Ease(speed);
-			SharedCoroutineStarter.instance.StartCoroutine(_easingCoroutine);
+
+			CoroutineStarter.Instance.StartCoroutine(_easingCoroutine);
 		}
 
 		private IEnumerator Ease(float speed)

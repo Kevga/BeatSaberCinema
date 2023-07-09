@@ -9,6 +9,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.Parser;
+using BeatSaberMarkupLanguage.Util;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -47,6 +48,9 @@ namespace BeatSaberCinema
 		[UIObject("offset-controls")] private readonly GameObject _offsetControls = null!;
 		[UIObject("customize-offset-toggle")] private readonly GameObject _customizeOffsetToggle = null!;
 		[UIParams] private readonly BSMLParserParams _bsmlParserParams = null!;
+
+		private Coroutine? _searchLoadingCoroutine;
+		private Coroutine? _updateSearchResultsCoroutine;
 
 		[UIValue("customize-offset")]
 		public bool CustomizeOffset
@@ -166,7 +170,7 @@ namespace BeatSaberCinema
 			{
 				_menuStatus.DidEnable -= StatusViewerDidEnable;
 				_menuStatus.DidDisable -= StatusViewerDidDisable;
-				Destroy(_menuStatus);
+				UnityEngine.Object.Destroy(_menuStatus);
 			}
 
 			_menuStatus = _root.AddComponent<VideoMenuStatus>();
@@ -859,7 +863,7 @@ namespace BeatSaberCinema
 
 			ResetSearchView();
 			_downloadButton.interactable = false;
-			StartCoroutine(SearchLoadingCoroutine());
+			_searchLoadingCoroutine = CoroutineStarter.Instance.StartCoroutine(SearchLoadingCoroutine());
 
 			_searchController.Search(query);
 			_searchText = query;
@@ -875,7 +879,7 @@ namespace BeatSaberCinema
 
 			_searchResults.Add(result);
 			var updateSearchResultsCoroutine = UpdateSearchResults(result);
-			StartCoroutine(updateSearchResultsCoroutine);
+			_updateSearchResultsCoroutine = CoroutineStarter.Instance.StartCoroutine(updateSearchResultsCoroutine);
 		}
 
 		private void SearchFinished()
@@ -892,7 +896,14 @@ namespace BeatSaberCinema
 
 		private void ResetSearchView()
 		{
-			StopAllCoroutines();
+			if (_searchLoadingCoroutine != null)
+			{
+				CoroutineStarter.Instance.StopCoroutine(_searchLoadingCoroutine);
+			}
+			if (_updateSearchResultsCoroutine != null)
+			{
+				CoroutineStarter.Instance.StopCoroutine(_updateSearchResultsCoroutine);
+			}
 
 			if (_customListTableData.data != null && _customListTableData.data.Count > 0)
 			{

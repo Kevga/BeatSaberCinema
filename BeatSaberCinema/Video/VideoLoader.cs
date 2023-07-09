@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatmapEditor3D.DataModels;
-using IPA.Utilities;
 using IPA.Utilities.Async;
 using Newtonsoft.Json;
 using SongCore;
@@ -297,7 +296,7 @@ namespace BeatSaberCinema
 				_ignoreNextEventForPath = null;
 				return;
 			}
-			SharedCoroutineStarter.instance.StartCoroutine(WaitForConfigWriteCoroutine(e));
+			CoroutineStarter.Instance.StartCoroutine(WaitForConfigWriteCoroutine(e));
 		}
 
 		private static IEnumerator WaitForConfigWriteCoroutine(FileSystemEventArgs e)
