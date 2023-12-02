@@ -5,6 +5,7 @@ using BeatmapEditor3D.BpmEditor;
 using BeatmapEditor3D.BpmEditor.Commands;
 using BeatmapEditor3D.DataModels;
 using HarmonyLib;
+using IPA.Utilities;
 using JetBrains.Annotations;
 
 // ReSharper disable InconsistentNaming

@@ -9,7 +9,8 @@
 		<!--Output assembly path without extension-->
 		<OutputAssemblyName>$(OutputPath)$(AssemblyName)</OutputAssemblyName>
 		<!--Path to folder to be zipped. Needs to be relative to the project directory to work without changes to the 'BuildForCI' target.-->
-		<ArtifactDestination>$(OutputPath)Final</ArtifactDestination>
+		<ArtifactDestination>$(SolutionDir)ReleaseDir\Cinema\out</ArtifactDestination>
+		<ZipDestination>$(SolutionDir)ReleaseDir\Cinema</ZipDestination>
 		<ErrorOnMismatchedVersions Condition="'$(Configuration)' == 'Release'">True</ErrorOnMismatchedVersions>
 	</PropertyGroup>
 	<!--Build Targets-->
@@ -62,15 +63,16 @@
 		<PropertyGroup>
 			<!--Set 'ArtifactName' if it failed before.-->
 			<ArtifactName Condition="'$(ArtifactName)' == ''">$(AssemblyName)</ArtifactName>
-			<DestinationDirectory>$(OutDir)zip\</DestinationDirectory>
+			<DestinationDirectory>$(ArtifactDestination)\</DestinationDirectory>
 		</PropertyGroup>
 		<ItemGroup>
 			<OldZips Include="$(DestinationDirectory)$(AssemblyName)*.zip"/>
 		</ItemGroup>
 		<Copy SourceFiles="$(OutputAssemblyName).dll" DestinationFiles="$(ArtifactDestination)\Plugins\$(AssemblyName).dll" />
 		<Message Text="PluginVersion: $(PluginVersion), AssemblyVersion: $(AssemblyVersion), GameVersion: $(GameVersion)" Importance="high" />
-		<Delete Files="@(OldZips)" TreatErrorsAsWarnings="true" ContinueOnError="true" />
-		<ZipDir SourceDirectory="$(ArtifactDestination)" DestinationFile="$(DestinationDirectory)$(ArtifactName).zip" />
+		<!--<Delete Files="@(OldZips)" TreatErrorsAsWarnings="true" ContinueOnError="true" />-->
+		<ZipDir SourceDirectory="$(ArtifactDestination)" DestinationFile="$(ZipDestination)\$(ArtifactName).zip" />
+		<!--<Copy SourceFiles="$(DestinationDirectory)$(ArtifactName).zip" DestinationFiles="$(ArtifactDestionation)\..\$(ArtifactName).zip" />-->
 	</Target>
 	<!--Copies the assembly and pdb to the Beat Saber folder.-->
 	<Target Name="CopyToPlugins" AfterTargets="Build" Condition="'$(DisableCopyToPlugins)' != 'True' AND '$(ContinuousIntegrationBuild)' != 'True'">

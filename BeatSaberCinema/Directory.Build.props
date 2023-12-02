@@ -5,7 +5,7 @@
 		<SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
 	</ItemGroup>
 	<PropertyGroup>
-		<DisableZipRelease>true</DisableZipRelease>
+		<DisableZipRelease>false</DisableZipRelease>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
