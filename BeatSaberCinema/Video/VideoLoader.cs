@@ -55,8 +55,8 @@ namespace BeatSaberCinema
 				return _beatmapLevelsModel;
 			}
 		}
-		private static AdditionalContentModel? _additionalContentModel;
-		private static AdditionalContentModel? AdditionalContentModel
+		private static IAdditionalContentModel? _additionalContentModel;
+		private static IAdditionalContentModel? AdditionalContentModel
 		{
 			get
 			{
@@ -69,7 +69,7 @@ namespace BeatSaberCinema
 					}
 
 					_additionalContentModel = BeatmapLevelsModel._additionalContentModel;
-					if (!_additionalContentModel)
+					if (_additionalContentModel == null)
 					{
 						Log.Error("Failed to get the AdditionalContentModel from BeatmapLevelsModel");
 					}
@@ -350,14 +350,14 @@ namespace BeatSaberCinema
 			return await loaderTask;
 		}
 
-		public static async Task<AdditionalContentModel.EntitlementStatus> GetEntitlementForLevel(IPreviewBeatmapLevel level)
+		public static async Task<EntitlementStatus> GetEntitlementForLevel(IPreviewBeatmapLevel level)
 		{
 			if (AdditionalContentModel != null)
 			{
 				return await AdditionalContentModel.GetLevelEntitlementStatusAsync(level.levelID, CancellationToken.None);
 			}
 
-			return AdditionalContentModel.EntitlementStatus.Owned;
+			return EntitlementStatus.Owned;
 		}
 
 		public static VideoConfig? GetConfigForEditorLevel(IBeatmapDataModel _, string originalPath)

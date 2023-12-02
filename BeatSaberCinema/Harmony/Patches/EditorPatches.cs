@@ -1,8 +1,8 @@
 ﻿using System.IO;
-using BeatmapEditor.Commands;
 using BeatmapEditor3D;
 using BeatmapEditor3D.BpmEditor;
 using BeatmapEditor3D.BpmEditor.Commands;
+using BeatmapEditor3D.Commands;
 using BeatmapEditor3D.DataModels;
 using HarmonyLib;
 using JetBrains.Annotations;

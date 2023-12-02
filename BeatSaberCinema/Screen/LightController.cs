@@ -21,11 +21,14 @@ namespace BeatSaberCinema
 		private List<RenderTexture> _downscaleTextures = null!;
 		private Color _color;
 		private MaterialLightWithId? _menuFloorLight;
+		private TubeBloomPrePassLight? _groundLaser;
+		private BloomPrePassBackgroundColor? _menuBackground;
 		private InstancedMaterialLightWithId? _menuFogRing;
+		private static readonly Dictionary<string, Color> ColorDictionary = new Dictionary<string, Color>();
 		private bool _menuReferencesSet;
 
 		private const int INITIAL_DOWNSCALING_SIZE = 128;
-		private const float DIRECTIONAL_LIGHT_INTENSITY_MENU = 1.1f;
+		private const float DIRECTIONAL_LIGHT_INTENSITY_MENU = 3.1f;
 
 		private const float DIRECTIONAL_LIGHT_INTENSITY_GAMEPLAY = 2.0f;
 
@@ -33,7 +36,8 @@ namespace BeatSaberCinema
 		private const int LIGHT_RADIUS = 250;
 		private const int LIGHT_X_ROTATION = 15;
 		private const float MENU_FLOOR_INTENSITY = 0.7f;
-		private const float MENU_FOG_INTENSITY = 0.35f;
+		private const float MENU_FOG_INTENSITY = 0.75f;
+		private const float MENU_LIGHT_DARKENING = 0.7f;
 		private const float MAX_BYTE_AS_FLOAT = byte.MaxValue;
 
 		private void Awake()
@@ -116,6 +120,7 @@ namespace BeatSaberCinema
 					euler.x = 42;
 					break;
 			}
+
 			_lightGameObject.transform.eulerAngles = euler;
 		}
 
@@ -125,6 +130,8 @@ namespace BeatSaberCinema
 			euler.x = LIGHT_X_ROTATION;
 			_lightGameObject.transform.eulerAngles = euler;
 			_light.intensity = DIRECTIONAL_LIGHT_INTENSITY_MENU;
+			ColorDictionary.Clear();
+			SaveDefaultColors();
 		}
 
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO scenesTransitionSetupDataSo)
@@ -146,8 +153,10 @@ namespace BeatSaberCinema
 
 		private void GetMenuReferences()
 		{
-			_menuFloorLight = Resources.FindObjectsOfTypeAll<MaterialLightWithId>().FirstOrDefault(x => x.gameObject.name == "BasicMenuGround");
-			_menuFogRing = Resources.FindObjectsOfTypeAll<InstancedMaterialLightWithId>().FirstOrDefault(x => x.gameObject.name == "MenuFogRing");
+			_menuFloorLight = Resources.FindObjectsOfTypeAll<MaterialLightWithId>().FirstOrDefault(x => x.gameObject.name == "BasicMenuGround" && x.isActiveAndEnabled);
+			_groundLaser = Resources.FindObjectsOfTypeAll<TubeBloomPrePassLight>().FirstOrDefault(x => x.gameObject.name == "GroundLaser" && x.isActiveAndEnabled);
+			_menuBackground = Resources.FindObjectsOfTypeAll<BloomPrePassBackgroundColor>().FirstOrDefault(x => x.gameObject.name == "BackgroundColor" && x.isActiveAndEnabled);
+			_menuFogRing = Resources.FindObjectsOfTypeAll<InstancedMaterialLightWithId>().FirstOrDefault(x => x.gameObject.name == "MenuFogRing" && x.isActiveAndEnabled);
 			_menuReferencesSet = true;
 		}
 
@@ -203,6 +212,37 @@ namespace BeatSaberCinema
 			});
 		}
 
+		private void SaveDefaultColors()
+		{
+			if (_menuFloorLight != null)
+			{
+				SetColorName(_menuFloorLight.name, _menuFloorLight.color);
+			}
+
+			if (_groundLaser != null)
+			{
+				SetColorName(_groundLaser.name, _groundLaser.color);
+			}
+			else
+			{
+				Log.Debug("Ground laser not found");
+			}
+
+			if (_menuFogRing != null)
+			{
+				SetColorName(_menuFogRing.name, _menuFogRing._color);
+			}
+			else
+			{
+				Log.Debug("Menu fog ring not found");
+			}
+
+			if (_menuBackground != null)
+			{
+				SetColorName(_menuBackground.name, _menuBackground.color);
+			}
+		}
+
 		private void UpdateColor(Color color)
 		{
 			_color = color;
@@ -214,21 +254,97 @@ namespace BeatSaberCinema
 			}
 
 			//Darken the base menu lighting
-			var baseColor = MenuColorPatch.BaseColor * (Color.white - (_customVideoPlayer.ScreenColor * 0.5f));
-			baseColor.a = 1;
-
-			if (_menuFloorLight != null)
+			if (_menuFloorLight != null && _menuFloorLight.isActiveAndEnabled)
 			{
-				var colors = new[] { baseColor, (_light.color * MENU_FLOOR_INTENSITY) };
-				var combinedColor = AddColors(colors);
-				_menuFloorLight.ColorWasSet(combinedColor);
+				ColorDictionary.TryGetValue(_menuFloorLight.name, out var baseColor);
+				if (baseColor != null && baseColor != Color.clear)
+				{
+					var darkenedBaseColor = baseColor * (Color.white - (_customVideoPlayer.ScreenColor * MENU_LIGHT_DARKENING));
+					darkenedBaseColor.a = 1;
+					var colorsToBeCombined = new[] { darkenedBaseColor, (_light.color * MENU_FLOOR_INTENSITY) };
+					var finalColor = AddColors(colorsToBeCombined);
+					_menuFloorLight.ColorWasSet(finalColor);
+				}
+				else
+				{
+					Log.Debug("Base color not found for menu floor light");
+					SaveDefaultColors();
+				}
 			}
 
-			if (_menuFogRing != null)
+			if (_groundLaser != null && _groundLaser.isActiveAndEnabled)
 			{
-				var colors = new[] { baseColor, (_light.color * MENU_FOG_INTENSITY) };
-				var combinedColor = AddColors(colors);
-				_menuFogRing.ColorWasSet(combinedColor);
+				ColorDictionary.TryGetValue(_groundLaser.name, out var baseColor);
+				if (baseColor != null && baseColor != Color.clear)
+				{
+					var darkenedBaseColor = baseColor * (Color.white - (_customVideoPlayer.ScreenColor * MENU_LIGHT_DARKENING));
+					darkenedBaseColor.a = 1;
+					var colorsToBeCombined = new[] { darkenedBaseColor, (_light.color * MENU_FOG_INTENSITY) };
+					var finalColor = AddColors(colorsToBeCombined);
+					_groundLaser.color = finalColor;
+				} else
+				{
+					Log.Debug("Base color not found for ground laser");
+					SaveDefaultColors();
+				}
+			}
+
+			if (_menuFogRing != null && _menuFogRing.isActiveAndEnabled)
+			{
+				ColorDictionary.TryGetValue(_menuFogRing.name, out var baseColor);
+				if (baseColor != null && baseColor != Color.clear)
+				{
+					var darkenedBaseColor = baseColor * (Color.white - (_customVideoPlayer.ScreenColor * MENU_LIGHT_DARKENING));
+					darkenedBaseColor.a = 1;
+					var colorsToBeCombined = new[] { darkenedBaseColor, (_light.color * MENU_FOG_INTENSITY) };
+					var finalColor = AddColors(colorsToBeCombined);
+					_menuFogRing.ColorWasSet(finalColor);
+				} else
+				{
+					Log.Debug("Base color not found for menu fog ring");
+					SaveDefaultColors();
+				}
+			}
+
+			if (_menuBackground != null && _menuBackground.isActiveAndEnabled)
+			{
+				ColorDictionary.TryGetValue(_menuBackground.name, out var baseColor);
+				if (baseColor != null && baseColor != Color.clear)
+				{
+					var darkenedBaseColor = baseColor * (Color.white - (_customVideoPlayer.ScreenColor * MENU_LIGHT_DARKENING));
+					darkenedBaseColor.a = 1;
+					_menuBackground.color = darkenedBaseColor;
+				} else
+				{
+					Log.Debug("Base color not found for menu background");
+					SaveDefaultColors();
+				}
+			}
+		}
+
+		public static void SetColorName(string name, Color color)
+		{
+			if (MenuColorPatch.LightIdColorPairs == null)
+			{
+				return;
+			}
+
+			if (ColorDictionary.ContainsKey(name))
+			{
+				return;
+			}
+
+			var pair = MenuColorPatch.LightIdColorPairs.FirstOrDefault(x => x.baseColor == color);
+
+			if (pair != null)
+			{
+				Log.Debug($"Setting color name {name} to {color}");
+				ColorDictionary.Add(name, pair.baseColor);
+			}
+			else
+			{
+				Log.Debug($"Could not find color {color} for name {name}");
+				ColorDictionary.Add(name, color);
 			}
 		}
 

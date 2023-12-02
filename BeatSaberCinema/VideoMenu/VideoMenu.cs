@@ -285,7 +285,7 @@ namespace BeatSaberCinema
 		private async void CheckEntitlementAndEnableSearch(IPreviewBeatmapLevel level)
 		{
 			var entitlement = await VideoLoader.GetEntitlementForLevel(level);
-			if (entitlement == AdditionalContentModel.EntitlementStatus.Owned && _currentLevel == level)
+			if (entitlement == EntitlementStatus.Owned && _currentLevel == level)
 			{
 				_searchButton.gameObject.SetActive(true);
 			}
@@ -505,7 +505,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			_videoThumnnail.SetImage(url);
+			_videoThumnnail.SetImageAsync(url);
 		}
 
 		private async void SetThumbnailFromCover(IPreviewBeatmapLevel? level)
