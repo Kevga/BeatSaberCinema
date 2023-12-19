@@ -223,11 +223,13 @@ namespace BeatSaberCinema
 
 		private static VideoConfig? GetConfigFromBundledConfigs(IPreviewBeatmapLevel level)
 		{
-			BundledConfigs.TryGetValue(level.levelID, out var config);
+			var levelID = level is CustomPreviewBeatmapLevel ? level.levelID : Util.ReplaceIllegalFilesystemChars(level.songName.Trim());
+			BundledConfigs.TryGetValue(levelID, out var config);
 
 			if (config == null)
 			{
-				return config;
+				Log.Debug($"No bundled config found for {levelID}");
+				return null;
 			}
 
 			config.LevelDir = GetLevelPath(level);
@@ -397,38 +399,28 @@ namespace BeatSaberCinema
 				return cachedConfig;
 			}
 
+			VideoConfig? videoConfig = null;
 			var levelPath = GetLevelPath(level);
-			if (!Directory.Exists(levelPath))
+			if (Directory.Exists(levelPath))
 			{
-				Log.Debug($"Path does not exist: {levelPath}");
-				return null;
-			}
-
-			var videoConfig = LoadConfig(GetConfigPath(levelPath));
-			if (videoConfig == null && !Util.IsModInstalled(MOD_ID_MVP))
-			{
-				//Back compatiblity with MVP configs, but only if MVP is not installed
-				videoConfig = LoadConfig(Path.Combine(levelPath, CONFIG_FILENAME_MVP));
-			}
-
-			if (videoConfig != null)
-			{
-				//Update bundled configs with new environmentName parameter to fix broken configs
-				var bundledConfig = GetConfigFromBundledConfigs(level);
-				if (bundledConfig != null && videoConfig?.videoID == bundledConfig.videoID && bundledConfig.environmentName != null)
+				videoConfig = LoadConfig(GetConfigPath(levelPath));
+				if (videoConfig == null && !Util.IsModInstalled(MOD_ID_MVP))
 				{
-					Log.Info($"Updating existing config for video {videoConfig?.title}");
-					bundledConfig.videoFile = videoConfig?.videoFile;
-					bundledConfig.UpdateDownloadState();
-					bundledConfig.NeedsToSave = true;
-					videoConfig = bundledConfig;
+					//Back compatiblity with MVP configs, but only if MVP is not installed
+					videoConfig = LoadConfig(Path.Combine(levelPath, CONFIG_FILENAME_MVP));
 				}
 			}
-			else if (isPlaylistSong && PlaylistSongHasConfig(playlistSong))
+			else
+			{
+				Log.Debug($"Path does not exist: {levelPath}");
+			}
+
+			if (videoConfig == null && isPlaylistSong && PlaylistSongHasConfig(playlistSong))
 			{
 				videoConfig = LoadConfigFromPlaylistSong(playlistSong, levelPath);
 			}
-			else
+
+			if (videoConfig == null)
 			{
 				videoConfig = GetConfigFromBundledConfigs(level);
 				if (videoConfig == null)
