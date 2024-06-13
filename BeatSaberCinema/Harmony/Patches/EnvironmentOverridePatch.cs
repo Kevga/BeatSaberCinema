@@ -1,24 +1,29 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 
 namespace BeatSaberCinema.Patches
 {
-	[HarmonyPatch(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init))]
+	[HarmonyPatch]
 	[UsedImplicitly]
 	// ReSharper disable once InconsistentNaming
 	internal static class StandardLevelScenesTransitionSetupDataSOInit
 	{
+		private static MethodInfo TargetMethod() => AccessTools.FirstMethod(typeof(StandardLevelScenesTransitionSetupDataSO),
+			m => m.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init) &&
+			     m.GetParameters().All(p => p.ParameterType != typeof(IBeatmapLevelData)));
+
 		[UsedImplicitly]
-		public static void Prefix(IDifficultyBeatmap difficultyBeatmap, ref OverrideEnvironmentSettings overrideEnvironmentSettings)
+		public static void Prefix(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey, ref OverrideEnvironmentSettings overrideEnvironmentSettings)
 		{
 			//Wrap all of it in try/catch so an exception would not prevent the player from playing songs
 			try
 			{
 				PlaybackController.Instance.SceneTransitionInitCalled();
-				VideoMenu.instance.SetSelectedLevel(difficultyBeatmap.level);
+				VideoMenu.instance.SetSelectedLevel(beatmapLevel);
 
 				if (!SettingsStore.Instance.PluginEnabled || SettingsStore.Instance.ForceDisableEnvironmentOverrides)
 				{
@@ -79,7 +84,10 @@ namespace BeatSaberCinema.Patches
 					"LizzoEnvironment",
 				};
 
-				var mapEnvironmentInfoSo = difficultyBeatmap.GetEnvironmentInfo();
+				var environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
+				// Kind of ugly way to get the EnvironmentsListModel but it's either that or changing both patches.
+				var customLevelLoader = (CustomLevelLoader)VideoLoader.BeatmapLevelsModel._customLevelLoader;
+				var mapEnvironmentInfoSo = customLevelLoader._environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(environmentName);
 				if (overrideEnvironmentSettings is { overrideEnvironments: true })
 				{
 					var overrideEnvironmentInfo = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(mapEnvironmentInfoSo.environmentType);
@@ -132,18 +140,22 @@ namespace BeatSaberCinema.Patches
 		}
 	}
 
-	[HarmonyPatch(typeof(MissionLevelScenesTransitionSetupDataSO), "Init")]
+	[HarmonyPatch]
 	[UsedImplicitly]
 	// ReSharper disable once InconsistentNaming
 	internal static class MissionLevelScenesTransitionSetupDataSOInit
 	{
+		private static MethodInfo TargetMethod() => AccessTools.FirstMethod(typeof(MissionLevelScenesTransitionSetupDataSO),
+			m => m.Name == nameof(MissionLevelScenesTransitionSetupDataSO.Init) &&
+			     m.GetParameters().All(p => p.ParameterType != typeof(IBeatmapLevelData)));
+
 		[UsedImplicitly]
-		private static void Prefix(IDifficultyBeatmap difficultyBeatmap)
+		private static void Prefix(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey)
 		{
 			try
 			{
 				var overrideSettings = new OverrideEnvironmentSettings();
-				StandardLevelScenesTransitionSetupDataSOInit.Prefix(difficultyBeatmap, ref overrideSettings);
+				StandardLevelScenesTransitionSetupDataSOInit.Prefix(beatmapLevel, beatmapKey, ref overrideSettings);
 			}
 			catch (Exception e)
 			{

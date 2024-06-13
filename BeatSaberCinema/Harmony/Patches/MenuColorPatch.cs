@@ -17,7 +17,7 @@ namespace BeatSaberCinema.Patches
 		//public static MenuLightsManager LightManager = null!;
 
 		[UsedImplicitly]
-		public static void Postfix(ref MenuLightsPresetSO preset)
+		public static void Postfix(MenuLightsPresetSO preset)
 		{
 			BaseColor = FallbackColorPatch.DefaultColor;
 			if (preset != null && preset.lightIdColorPairs != null && preset.lightIdColorPairs.Length > 0 && preset.lightIdColorPairs[0] != null)
@@ -38,11 +38,11 @@ namespace BeatSaberCinema.Patches
 		public static Color DefaultColor;
 
 		[UsedImplicitly]
-		public static void Postfix(MenuLightsPresetSO ____defaultPreset)
+		public static void Postfix(MenuLightsManager __instance)
 		{
-			if (____defaultPreset != null && ____defaultPreset.lightIdColorPairs != null && ____defaultPreset.lightIdColorPairs.Length > 0 && ____defaultPreset.lightIdColorPairs[0] != null)
+			if (__instance._defaultPreset != null && __instance._defaultPreset.lightIdColorPairs != null && __instance._defaultPreset.lightIdColorPairs.Length > 0 && __instance._defaultPreset.lightIdColorPairs[0] != null)
 			{
-				DefaultColor = ____defaultPreset.lightIdColorPairs[0].baseColor;
+				DefaultColor = __instance._defaultPreset.lightIdColorPairs[0].baseColor;
 			}
 		}
 	}

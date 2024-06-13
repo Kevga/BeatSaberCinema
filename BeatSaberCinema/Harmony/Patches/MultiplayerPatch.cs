@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using IPA.Utilities;
 using JetBrains.Annotations;
 
 // ReSharper disable InconsistentNaming
@@ -20,7 +19,7 @@ namespace BeatSaberCinema.Patches
 		[UsedImplicitly]
 		private static void Prefix(MultiplayerLobbyConnectionController __instance)
 		{
-			_connectionType = __instance.GetProperty<MultiplayerLobbyConnectionController.LobbyConnectionType, MultiplayerLobbyConnectionController>("connectionType");
+			_connectionType = __instance.connectionType;
 			if (!IsMultiplayer)
 			{
 				return;
@@ -38,9 +37,9 @@ namespace BeatSaberCinema.Patches
 		public static int PlayerCount => _playersManager == null ? 0 : _playersManager.allActiveAtGameStartPlayers.Count;
 
 		[UsedImplicitly]
-		private static void Prefix(MultiplayerController __instance, MultiplayerPlayersManager ____playersManager)
+		private static void Prefix(MultiplayerController __instance)
 		{
-			_playersManager = ____playersManager;
+			_playersManager = __instance._playersManager;
 			Events.SetSelectedLevel(null);
 		}
 	}
@@ -50,7 +49,7 @@ namespace BeatSaberCinema.Patches
 	internal class MultiplayerEndGameplayPatch
 	{
 		[UsedImplicitly]
-		private static void Prefix(MultiplayerController __instance)
+		private static void Prefix()
 		{
 			Events.SetSelectedLevel(null);
 		}

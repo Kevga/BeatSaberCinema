@@ -9,7 +9,7 @@ namespace BeatSaberCinema.Patches
 	public class LevelSelectionPatch
 	{
 		[UsedImplicitly]
-		public static void Prefix(IPreviewBeatmapLevel level)
+		public static void Prefix(BeatmapLevel level)
 		{
 			Events.SetSelectedLevel(level);
 		}
@@ -25,7 +25,7 @@ namespace BeatSaberCinema.Patches
 		}
 	}
 
-	[HarmonyPatch(typeof(MainMenuViewController), "DidActivate")]
+	[HarmonyPatch(typeof(MainMenuViewController), nameof(MainMenuViewController.DidActivate))]
 	public class MainMenuSelectionResetPatch
 	{
 		[UsedImplicitly]
@@ -35,7 +35,7 @@ namespace BeatSaberCinema.Patches
 		}
 	}
 
-	[HarmonyPatch(typeof(LobbySetupViewController), "DidActivate")]
+	[HarmonyPatch(typeof(LobbySetupViewController), nameof(LobbySetupViewController.DidActivate))]
 	public class MultiplayerMenuSelectionResetPatch
 	{
 		[UsedImplicitly]

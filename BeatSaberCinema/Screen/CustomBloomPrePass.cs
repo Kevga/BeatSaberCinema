@@ -33,12 +33,14 @@ namespace BeatSaberCinema
 			UpdateMesh();
 			_renderer = GetComponent<Renderer>();
 
+			// TODO: Not found on v1.37.0.
 			_kawaseBlurRenderer = Resources.FindObjectsOfTypeAll<KawaseBlurRendererSO>().FirstOrDefault();
 			if (_kawaseBlurRenderer == null)
 			{
 				Log.Error("KawaseBlurRendererSO not found!");
 			}
 
+			// TODO: Not found on v1.37.0.
 			var shader = Shader.Find("Hidden/BlitAdd");
 			if (shader != null)
 			{

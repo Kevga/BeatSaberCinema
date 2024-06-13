@@ -76,7 +76,7 @@ namespace BeatSaberCinema
 		private LevelDetailViewController? _levelDetailMenu;
 		private bool _videoMenuInitialized;
 
-		private IPreviewBeatmapLevel? _currentLevel;
+		private BeatmapLevel? _currentLevel;
 		private bool _currentLevelIsPlaylistSong;
 		private ExtraSongData? _extraSongData;
 		private ExtraSongData.DifficultyData? _difficultyData;
@@ -139,25 +139,26 @@ namespace BeatSaberCinema
 			}
 		}
 
+		// TODO: Fix this.
 		private void SubToPlaylistSongSelected()
 		{
-			var eventInfo = ReflectionUtil.FindEvent("PlaylistManager", "PlaylistManager.Utilities.Events", "playlistSongSelected");
-			if (eventInfo == null)
-			{
-				Log.Warn("Could not find PlaylistManager's playlistSongSelected event");
-				return;
-			}
-
-			var delegateType = eventInfo.EventHandlerType;
-			var handler = typeof(VideoMenu).GetMethod("OnPlaylistSongSelected", BindingFlags.NonPublic | BindingFlags.Instance);
-			if (handler == null)
-			{
-				Log.Warn("Could not find VideoMenu.OnPlaylistSongSelected");
-				return;
-			}
-
-			var handlerDelegate = Delegate.CreateDelegate(delegateType, this, handler);
-			ReflectionUtil.AddDelegateToStaticType(eventInfo, handlerDelegate);
+			// var eventInfo = ReflectionUtil.FindEvent("PlaylistManager", "PlaylistManager.Utilities.Events", "playlistSongSelected");
+			// if (eventInfo == null)
+			// {
+			// 	Log.Warn("Could not find PlaylistManager's playlistSongSelected event");
+			// 	return;
+			// }
+			//
+			// var delegateType = eventInfo.EventHandlerType;
+			// var handler = typeof(VideoMenu).GetMethod("OnPlaylistSongSelected", BindingFlags.NonPublic | BindingFlags.Instance);
+			// if (handler == null)
+			// {
+			// 	Log.Warn("Could not find VideoMenu.OnPlaylistSongSelected");
+			// 	return;
+			// }
+			//
+			// var handlerDelegate = Delegate.CreateDelegate(delegateType, this, handler);
+			// ReflectionUtil.AddDelegateToStaticType(eventInfo, handlerDelegate);
 
 			//All this to remove this reference to PlaylistManager
 			//PlaylistManager.Utilities.Events.playlistSongSelected += OnPlaylistSongSelected;
@@ -282,7 +283,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private async void CheckEntitlementAndEnableSearch(IPreviewBeatmapLevel level)
+		private async void CheckEntitlementAndEnableSearch(BeatmapLevel level)
 		{
 			var entitlement = await VideoLoader.GetEntitlementForLevel(level);
 			if (entitlement == EntitlementStatus.Owned && _currentLevel == level)
@@ -508,18 +509,18 @@ namespace BeatSaberCinema
 			_videoThumnnail.SetImageAsync(url);
 		}
 
-		private async void SetThumbnailFromCover(IPreviewBeatmapLevel? level)
+		private async void SetThumbnailFromCover(BeatmapLevel? level)
 		{
 			if (level == null)
 			{
 				return;
 			}
 
-			var coverSprite = await level.GetCoverImageAsync(CancellationToken.None);
+			var coverSprite = await level.previewMediaData.GetCoverSpriteAsync(CancellationToken.None);
 			_videoThumnnail.sprite = coverSprite;
 		}
 
-		public void SetSelectedLevel(IPreviewBeatmapLevel level)
+		public void SetSelectedLevel(BeatmapLevel level)
 		{
 			if (_currentLevel != null && level.levelID == _currentLevel.levelID)
 			{
@@ -530,7 +531,7 @@ namespace BeatSaberCinema
 			HandleDidSelectLevel(level);
 		}
 
-		public void HandleDidSelectEditorBeatmap(IBeatmapDataModel beatmapData, string originalPath)
+		public void HandleDidSelectEditorBeatmap(BeatmapDataModel beatmapData, string originalPath)
 		{
 			if (!Plugin.Enabled)
 			{
@@ -548,7 +549,7 @@ namespace BeatSaberCinema
 			PlaybackController.Instance.SetSelectedLevel(null, _currentVideo);
 		}
 
-		public void HandleDidSelectLevel(IPreviewBeatmapLevel? level, bool isPlaylistSong = false)
+		public void HandleDidSelectLevel(BeatmapLevel? level, bool isPlaylistSong = false)
 		{
 			//These will be set a bit later by a Harmony patch. Clear them to not accidentally access outdated info.
 			_extraSongData = null;
@@ -615,7 +616,7 @@ namespace BeatSaberCinema
 		}
 
 		[UsedImplicitly]
-		private void OnPlaylistSongSelected(IPreviewBeatmapLevel? level)
+		private void OnPlaylistSongSelected(BeatmapLevel? level)
 		{
 			HandleDidSelectLevel(level, true);
 		}

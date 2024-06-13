@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using BeatSaber.GameSettings;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
 using UnityEngine;
@@ -19,12 +20,12 @@ namespace BeatSaberCinema
 
 		public static PlaybackController Instance { get; private set; } = null!;
 		internal LightController LightController { get; set; } = null!;
-		private IPreviewBeatmapLevel? _currentLevel;
+		private BeatmapLevel? _currentLevel;
 		[NonSerialized]
 		public CustomVideoPlayer VideoPlayer = null!;
 		private AudioSource? _activeAudioSource;
 		private AudioTimeSyncController? _timeSyncController;
-		private MainSettingsModelSO? _mainSettingsModel;
+		private MainSettingsHandler? _mainSettingsHandler;
 		private float _lastKnownAudioSourceTime;
 		private float _previewStartTime;
 		private float _previewTimeRemaining;
@@ -418,12 +419,13 @@ namespace BeatSaberCinema
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)
 		{
 			OnMenuSceneLoaded();
-			_mainSettingsModel = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().LastOrDefault();
-			if (_mainSettingsModel != null)
+			// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+			if (Plugin.menuContainer == null)
 			{
-				VideoPlayer.VolumeScale = _mainSettingsModel.volume.value;
+				return;
 			}
-
+			_mainSettingsHandler ??= Plugin.menuContainer.Resolve<MainSettingsHandler>();
+			VideoPlayer.VolumeScale = _mainSettingsHandler.instance.audioSettings.volume;
 			VideoPlayer.screenController.OnGameSceneLoadedFresh();
 		}
 
@@ -520,7 +522,7 @@ namespace BeatSaberCinema
 			VideoPlayer.UpdateScreenContent();
 		}
 
-		public void SetSelectedLevel(IPreviewBeatmapLevel? level, VideoConfig? config)
+		public void SetSelectedLevel(BeatmapLevel? level, VideoConfig? config)
 		{
 			_previewWaitingForPreviewPlayer = true;
 			_previewWaitingForVideoPlayer = true;
@@ -553,7 +555,7 @@ namespace BeatSaberCinema
 
 			try
 			{
-				var coverSprite = await _currentLevel.GetCoverImageAsync(CancellationToken.None);
+				var coverSprite = await _currentLevel.previewMediaData.GetCoverSpriteAsync(CancellationToken.None);
 				VideoPlayer.SetCoverTexture(coverSprite.texture);
 				VideoPlayer.FadeIn();
 			}
@@ -648,7 +650,7 @@ namespace BeatSaberCinema
 					return;
 				}
 
-				var bsUtilsLevel = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap.level;
+				var bsUtilsLevel = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.beatmapLevel;
 				if (_currentLevel?.levelID != bsUtilsLevel.levelID)
 				{
 					var video = VideoLoader.GetConfigForLevel(bsUtilsLevel);

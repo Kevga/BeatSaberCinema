@@ -56,12 +56,12 @@ namespace BeatSaberCinema
 			AllowCustomPlatform?.Invoke(allowCustomPlatform);
 		}
 
-		internal static void SetSelectedLevel(IPreviewBeatmapLevel? level)
+		internal static void SetSelectedLevel(BeatmapLevel? level)
 		{
 			LevelSelected?.InvokeSafe(new LevelSelectedArgs(level), nameof(LevelSelected));
 		}
 
-		internal static void SetSelectedLevel(IBeatmapDataModel? beatmapData, string originalPath)
+		internal static void SetSelectedLevel(BeatmapDataModel? beatmapData, string originalPath)
 		{
 			LevelSelected?.InvokeSafe(new LevelSelectedArgs(null, beatmapData, originalPath), nameof(LevelSelected));
 		}
