@@ -103,7 +103,7 @@ namespace BeatSaberCinema
 		[JsonIgnore] public bool IsWIPLevel =>
 			LevelDir != null &&
 			(LevelDir.Contains(VideoLoader.WIP_MAPS_FOLDER) ||
-			 SongCore.Loader.SeperateSongFolders.Any(folder =>
+			 SongCore.Loader.SeparateSongFolders.Any(folder =>
 			 {
 				 var isWIP = (folder.SongFolderEntry.Pack == FolderLevelPack.CustomWIPLevels || folder.SongFolderEntry.WIP) && LevelDir.Contains(new DirectoryInfo(folder.SongFolderEntry.Path).Name);
 				 return isWIP;

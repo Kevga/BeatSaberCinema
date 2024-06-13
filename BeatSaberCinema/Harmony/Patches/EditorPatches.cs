@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using BeatmapEditor3D;
-using BeatmapEditor3D.BpmEditor;
 using BeatmapEditor3D.BpmEditor.Commands;
 using BeatmapEditor3D.Commands;
 using BeatmapEditor3D.DataModels;
@@ -15,12 +14,12 @@ namespace BeatSaberCinema.Patches
 	public class EditorSelectionPatch
 	{
 		[UsedImplicitly]
-		public static void Postfix(BeatmapProjectManager __instance, IBeatmapDataModel ____beatmapDataModel)
+		public static void Postfix(BeatmapProjectManager __instance)
 		{
 			try
 			{
 				var originalPath = __instance._originalBeatmapProject;
-				Events.SetSelectedLevel(____beatmapDataModel, originalPath);
+				Events.SetSelectedLevel(__instance._beatmapDataModel, originalPath);
 			} catch (System.Exception e)
 			{
 				Log.Error(e);
@@ -33,9 +32,9 @@ namespace BeatSaberCinema.Patches
 	public class SetPlayHead
 	{
 		[UsedImplicitly]
-		public static void Prefix(SetPlayHeadSignal ____signal, BpmEditorSongPreviewController ____bpmEditorSongPreviewController)
+		public static void Prefix(SetPlayHeadCommand __instance)
 		{
-			var mapTime = AudioTimeHelper.SamplesToSeconds(____signal.sample, ____bpmEditorSongPreviewController.audioClip.frequency);
+			var mapTime = AudioTimeHelper.SamplesToSeconds(__instance._signal.sample, __instance._bpmEditorSongPreviewController.audioClip.frequency);
 			PlaybackController.Instance.ResyncVideo(mapTime != 0 ? mapTime : (float?) null);
 		}
 	}
@@ -44,11 +43,11 @@ namespace BeatSaberCinema.Patches
 	public class UpdatePlayHead
 	{
 		[UsedImplicitly]
-		public static void Prefix(UpdatePlayHeadSignal ____signal, IBeatmapDataModel ____beatmapDataModel)
+		public static void Prefix(UpdatePlayHeadCommand __instance)
 		{
 			if (PlaybackController.Instance.VideoPlayer.IsPrepared && !PlaybackController.Instance.VideoPlayer.IsPlaying)
 			{
-				var mapTime = AudioTimeHelper.SamplesToSeconds(____signal.sample, ____beatmapDataModel.audioClip.frequency);
+				var mapTime = AudioTimeHelper.SamplesToSeconds(__instance._signal.sample, __instance._audioDataModel.audioClip.frequency);
 				PlaybackController.Instance.ResyncVideo(mapTime != 0 ? mapTime : (float?) null);
 				PlaybackController.Instance.VideoPlayer.UpdateScreenContent();
 			}
@@ -59,10 +58,10 @@ namespace BeatSaberCinema.Patches
 	public class UpdatePlaybackSpeed
 	{
 		[UsedImplicitly]
-		public static void Prefix(UpdatePlaybackSpeedSignal ____signal)
+		public static void Prefix(UpdatePlaybackSpeedCommand __instance)
 		{
 			//TODO: Breaks stuff. May be related to that Unity bug.
-			//PlaybackController.Instance.ResyncVideo(null, ____signal.playbackSpeed);
+			//PlaybackController.Instance.ResyncVideo(null, __instance._signal.playbackSpeed);
 		}
 	}
 

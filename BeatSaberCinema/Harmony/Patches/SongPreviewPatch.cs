@@ -12,12 +12,11 @@ namespace BeatSaberCinema.Patches
 	public class SongPreviewPatch
 	{
 		[UsedImplicitly]
-		public static void Postfix(int ____activeChannel, float ____timeToDefaultAudioTransition,
-			SongPreviewPlayer.AudioSourceVolumeController[] ____audioSourceControllers, int ____channelsCount, AudioClip audioClip, float startTime, bool isDefault)
+		public static void Postfix(SongPreviewPlayer __instance, AudioClip audioClip, float startTime, bool isDefault)
 		{
 			try
 			{
-				SongPreviewPlayerController.SetFields(____audioSourceControllers, ____channelsCount, ____activeChannel, audioClip, startTime, ____timeToDefaultAudioTransition, isDefault);
+				SongPreviewPlayerController.SetFields(__instance._audioSourceControllers, __instance._channelsCount, __instance._activeChannel, audioClip, startTime, __instance._timeToDefaultAudioTransition, isDefault);
 			}
 			catch (Exception e)
 			{

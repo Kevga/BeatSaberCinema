@@ -30,8 +30,6 @@ namespace BeatSaberCinema
 		public static event Action<VideoConfig?>? ConfigChanged;
 		private static string? _ignoreNextEventForPath;
 
-		private static AudioClipAsyncLoader? _audioClipAsyncLoader;
-
 		//This should ideally be a HashSet, but there is no concurrent version of it. We also don't need the value, so use the smallest possible type.
 		internal static readonly ConcurrentDictionary<string, byte> MapsWithVideo = new ConcurrentDictionary<string, byte>();
 		private static readonly ConcurrentDictionary<string, VideoConfig> CachedConfigs = new ConcurrentDictionary<string, VideoConfig>();
@@ -39,78 +37,46 @@ namespace BeatSaberCinema
 
 		private static BeatmapLevelsModel? _beatmapLevelsModel;
 
-		private static BeatmapLevelsModel? BeatmapLevelsModel
+		public static BeatmapLevelsModel BeatmapLevelsModel
 		{
 			get
 			{
 				if (_beatmapLevelsModel == null)
 				{
-					_beatmapLevelsModel = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault(x => x.name.Contains("(Clone)"));
-					if (_beatmapLevelsModel == null)
-					{
-						Log.Error("Failed to get a reference to BeatmapLevelsModel");
-					}
+					_beatmapLevelsModel = Plugin.menuContainer.Resolve<BeatmapLevelsModel>();
 				}
 
 				return _beatmapLevelsModel;
 			}
 		}
-		private static IAdditionalContentModel? _additionalContentModel;
-		private static IAdditionalContentModel? AdditionalContentModel
+		private static BeatmapLevelsEntitlementModel? _beatmapLevelsEntitlementModel;
+		private static BeatmapLevelsEntitlementModel BeatmapLevelsEntitlementModel
 		{
 			get
 			{
-				if (_additionalContentModel == null)
+				if (_beatmapLevelsEntitlementModel == null)
 				{
-					if (BeatmapLevelsModel == null)
-					{
-						Log.Error("BeatmapLevelsModel is null");
-						return null;
-					}
-
-					_additionalContentModel = BeatmapLevelsModel._additionalContentModel;
-					if (_additionalContentModel == null)
-					{
-						Log.Error("Failed to get the AdditionalContentModel from BeatmapLevelsModel");
-					}
+					_beatmapLevelsEntitlementModel = BeatmapLevelsModel._entitlements;
 				}
 
-				return _additionalContentModel;
+				return _beatmapLevelsEntitlementModel;
 			}
 		}
 
-		private static AudioClipAsyncLoader? AudioClipAsyncLoader
+		private static AudioClipAsyncLoader AudioClipAsyncLoader
 		{
 			get
 			{
 				if (_audioClipAsyncLoader == null)
 				{
-					_audioClipAsyncLoader = BeatmapLevelsModel!._audioClipAsyncLoader;
-					if (_audioClipAsyncLoader == null)
-					{
-						Log.Error("Failed to get a reference to AudioClipAsyncLoader");
-					}
+					_audioClipAsyncLoader = Plugin.menuContainer.Resolve<AudioClipAsyncLoader>();
 				}
 
 				return _audioClipAsyncLoader;
 			}
 		}
 
-		private static AsyncCache<string, IBeatmapLevel>? BeatmapLevelAsyncCache
-		{
-			get
-			{
-				var levelDataLoader = Plugin.menuContainer.Resolve<BeatmapLevelDataLoader>();
-				if (levelDataLoader != null)
-				{
-					_beatmapLevelAsyncCache = levelDataLoader._beatmapLevelsAsyncCache;
-				}
-
-				return _beatmapLevelAsyncCache;
-			}
-		}
-
-		private static AsyncCache<string, IBeatmapLevel>? _beatmapLevelAsyncCache;
+		private static AudioClipAsyncLoader? _audioClipAsyncLoader;
 
 		public static void Init()
 		{
@@ -121,7 +87,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		internal static async void IndexMaps(Loader? loader = null, ConcurrentDictionary<string, CustomPreviewBeatmapLevel>? customPreviewBeatmapLevels = null)
+		internal static async void IndexMaps(Loader? loader = null, ConcurrentDictionary<string, BeatmapLevel>? beatmapLevels = null)
 		{
 			Log.Debug("Indexing maps...");
 			var stopwatch = new Stopwatch();
@@ -147,32 +113,27 @@ namespace BeatSaberCinema
 			Log.Debug($"Indexing took {stopwatch.ElapsedMilliseconds} ms");
 		}
 
-		private static List<IPreviewBeatmapLevel> GetOfficialMaps()
+		private static List<BeatmapLevel> GetOfficialMaps()
 		{
-			var officialMaps = new List<IPreviewBeatmapLevel>();
+			var officialMaps = new List<BeatmapLevel>();
 
-			if (BeatmapLevelsModel == null)
+			void AddOfficialPackCollection(BeatmapLevelsRepository beatmapLevelsRepository)
 			{
-				return officialMaps;
+				officialMaps.AddRange(beatmapLevelsRepository.beatmapLevelPacks.SelectMany(pack => pack.beatmapLevels));
 			}
 
-			void AddOfficialPackCollection(IBeatmapLevelPackCollection packCollection)
-			{
-				officialMaps.AddRange(packCollection.beatmapLevelPacks.SelectMany(pack => pack.beatmapLevelCollection.beatmapLevels));
-			}
-
-			AddOfficialPackCollection(BeatmapLevelsModel.ostAndExtrasPackCollection);
-			AddOfficialPackCollection(BeatmapLevelsModel.dlcBeatmapLevelPackCollection);
+			AddOfficialPackCollection(BeatmapLevelsModel.ostAndExtrasBeatmapLevelsRepository);
+			AddOfficialPackCollection(BeatmapLevelsModel.dlcBeatmapLevelsRepository);
 
 			return officialMaps;
 		}
 
-		private static void IndexMap(KeyValuePair<string, CustomPreviewBeatmapLevel> levelKeyValuePair)
+		private static void IndexMap(KeyValuePair<string, BeatmapLevel> levelKeyValuePair)
 		{
 			IndexMap(levelKeyValuePair.Value);
 		}
 
-		private static void IndexMap(IPreviewBeatmapLevel level)
+		private static void IndexMap(BeatmapLevel level)
 		{
 			var configPath = GetConfigPath(level);
 			if (File.Exists(configPath))
@@ -181,7 +142,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public static string GetConfigPath(IPreviewBeatmapLevel level)
+		public static string GetConfigPath(BeatmapLevel level)
 		{
 			var levelPath = GetLevelPath(level);
 			return Path.Combine(levelPath, CONFIG_FILENAME);
@@ -192,7 +153,7 @@ namespace BeatSaberCinema
 			return Path.Combine(levelPath, CONFIG_FILENAME);
 		}
 
-		public static void AddConfigToCache(VideoConfig config, IPreviewBeatmapLevel level)
+		public static void AddConfigToCache(VideoConfig config, BeatmapLevel level)
 		{
 			var success = CachedConfigs.TryAdd(level.levelID, config);
 			MapsWithVideo.TryAdd(level.levelID, 0);
@@ -202,7 +163,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public static void RemoveConfigFromCache(IPreviewBeatmapLevel level)
+		public static void RemoveConfigFromCache(BeatmapLevel level)
 		{
 			var success = CachedConfigs.TryRemove(level.levelID, out _);
 			if (success)
@@ -211,7 +172,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		private static VideoConfig? GetConfigFromCache(IPreviewBeatmapLevel level)
+		private static VideoConfig? GetConfigFromCache(BeatmapLevel level)
 		{
 			var success = CachedConfigs.TryGetValue(level.levelID, out var config);
 			if (success)
@@ -221,9 +182,9 @@ namespace BeatSaberCinema
 			return config;
 		}
 
-		private static VideoConfig? GetConfigFromBundledConfigs(IPreviewBeatmapLevel level)
+		private static VideoConfig? GetConfigFromBundledConfigs(BeatmapLevel level)
 		{
-			var levelID = level is CustomPreviewBeatmapLevel ? level.levelID : Util.ReplaceIllegalFilesystemChars(level.songName.Trim());
+			var levelID = !level.hasPrecalculatedData ? level.levelID : Util.ReplaceIllegalFilesystemChars(level.songName.Trim());
 			BundledConfigs.TryGetValue(levelID, out var config);
 
 			if (config == null)
@@ -243,7 +204,7 @@ namespace BeatSaberCinema
 			_fileSystemWatcher?.Dispose();
 		}
 
-		public static void SetupFileSystemWatcher(IPreviewBeatmapLevel level)
+		public static void SetupFileSystemWatcher(BeatmapLevel level)
 		{
 			var levelPath = GetLevelPath(level);
 			ListenForConfigChanges(levelPath);
@@ -318,29 +279,29 @@ namespace BeatSaberCinema
 			ConfigChanged?.Invoke(config);
 		}
 
-		public static bool IsDlcSong(IPreviewBeatmapLevel level)
+		public static bool IsDlcSong(BeatmapLevel level)
 		{
-			return level.GetType() == typeof(PreviewBeatmapLevelSO);
+			return level.GetType() == typeof(BeatmapLevelSO);
 		}
 
-		public static async Task<AudioClip?> GetAudioClipForLevel(IPreviewBeatmapLevel level)
+		public static async Task<AudioClip?> GetAudioClipForLevel(BeatmapLevel level)
 		{
-			if (!IsDlcSong(level) || BeatmapLevelAsyncCache == null)
+			if (!IsDlcSong(level))
 			{
 				return await LoadAudioClipAsync(level);
 			}
 
-			var levelData = await BeatmapLevelAsyncCache[level.levelID];
-			if (levelData != null)
+			var beatmapLevelLoader = (BeatmapLevelLoader)BeatmapLevelsModel.levelLoader;
+			if (beatmapLevelLoader._loadedBeatmapLevelDataCache.TryGetFromCache(level.levelID, out var beatmapLevelData))
 			{
 				Log.Debug("Getting audio clip from async cache");
-				return levelData.beatmapLevelData.audioClip;
+				return await _audioClipAsyncLoader.LoadSong(beatmapLevelData);
 			}
 
 			return await LoadAudioClipAsync(level);
 		}
 
-		private static async Task<AudioClip?> LoadAudioClipAsync(IPreviewBeatmapLevel level)
+		private static async Task<AudioClip?> LoadAudioClipAsync(BeatmapLevel level)
 		{
 			var loaderTask = AudioClipAsyncLoader?.LoadPreview(level);
 			if (loaderTask == null)
@@ -352,17 +313,12 @@ namespace BeatSaberCinema
 			return await loaderTask;
 		}
 
-		public static async Task<EntitlementStatus> GetEntitlementForLevel(IPreviewBeatmapLevel level)
+		public static async Task<EntitlementStatus> GetEntitlementForLevel(BeatmapLevel level)
 		{
-			if (AdditionalContentModel != null)
-			{
-				return await AdditionalContentModel.GetLevelEntitlementStatusAsync(level.levelID, CancellationToken.None);
-			}
-
-			return EntitlementStatus.Owned;
+			return await BeatmapLevelsEntitlementModel.GetLevelEntitlementStatusAsync(level.levelID, CancellationToken.None);
 		}
 
-		public static VideoConfig? GetConfigForEditorLevel(IBeatmapDataModel _, string originalPath)
+		public static VideoConfig? GetConfigForEditorLevel(BeatmapDataModel _, string originalPath)
 		{
 			if (!Directory.Exists(originalPath))
 			{
@@ -376,7 +332,7 @@ namespace BeatSaberCinema
 			return videoConfig;
 		}
 
-		public static VideoConfig? GetConfigForLevel(IPreviewBeatmapLevel? level, bool isPlaylistSong = false)
+		public static VideoConfig? GetConfigForLevel(BeatmapLevel? level, bool isPlaylistSong = false)
 		{
 			var playlistSong = level;
 			if (isPlaylistSong)
@@ -433,28 +389,28 @@ namespace BeatSaberCinema
 			return videoConfig;
 		}
 
-		private static bool PlaylistSongHasConfig(IPreviewBeatmapLevel level)
+		private static bool PlaylistSongHasConfig(BeatmapLevel level)
 		{
 			var playlistSong = level as BeatSaberPlaylistsLib.Types.IPlaylistSong;
 			return playlistSong?.TryGetCustomData("cinema", out _) ?? false;
 		}
 
-		public static IPreviewBeatmapLevel? GetBeatmapLevelFromPlaylistSong(IPreviewBeatmapLevel? level)
+		public static BeatmapLevel? GetBeatmapLevelFromPlaylistSong(BeatmapLevel? level)
 		{
-			IPreviewBeatmapLevel? unwrappedLevel = null!;
+			BeatmapLevel? unwrappedLevel = null!;
 			if (level is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong)
 			{
-				unwrappedLevel = playlistSong.PreviewBeatmapLevel;
+				unwrappedLevel = playlistSong.BeatmapLevel;
 			}
 
 			return unwrappedLevel ?? level;
 		}
 
-		public static string GetLevelPath(IPreviewBeatmapLevel level)
+		public static string GetLevelPath(BeatmapLevel level)
 		{
-			if (level is CustomPreviewBeatmapLevel customlevel)
+			if (!level.hasPrecalculatedData)
 			{
-				return customlevel.customLevelPath;
+				return Collections.GetCustomLevelPath(level.levelID);
 			}
 
 			var songName = level.songName.Trim();
@@ -531,7 +487,7 @@ namespace BeatSaberCinema
 			}
 		}
 
-		public static bool DeleteConfig(VideoConfig videoConfig, IPreviewBeatmapLevel level)
+		public static bool DeleteConfig(VideoConfig videoConfig, BeatmapLevel level)
 		{
 			if (videoConfig.LevelDir == null)
 			{
@@ -615,7 +571,7 @@ namespace BeatSaberCinema
 			return videoConfig;
 		}
 
-		private static VideoConfig? LoadConfigFromPlaylistSong(IPreviewBeatmapLevel previewBeatmapLevel, string levelPath)
+		private static VideoConfig? LoadConfigFromPlaylistSong(BeatmapLevel previewBeatmapLevel, string levelPath)
 		{
 			if (!(previewBeatmapLevel is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong))
 			{

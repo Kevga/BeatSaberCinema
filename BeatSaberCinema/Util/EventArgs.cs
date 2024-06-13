@@ -4,11 +4,11 @@ namespace BeatSaberCinema
 {
 	public class LevelSelectedArgs
 	{
-		public readonly IPreviewBeatmapLevel? PreviewBeatmapLevel;
-		public readonly IBeatmapDataModel? BeatmapData;
+		public readonly BeatmapLevel? PreviewBeatmapLevel;
+		public readonly BeatmapDataModel? BeatmapData;
 		public readonly string? OriginalPath;
 
-		public LevelSelectedArgs(IPreviewBeatmapLevel? level, IBeatmapDataModel? beatmapData = null, string? originalPath = null)
+		public LevelSelectedArgs(BeatmapLevel? level, BeatmapDataModel? beatmapData = null, string? originalPath = null)
 		{
 			PreviewBeatmapLevel = level;
 			BeatmapData = beatmapData;

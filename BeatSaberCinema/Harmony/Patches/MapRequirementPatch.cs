@@ -8,14 +8,13 @@ using SongCore;
 namespace BeatSaberCinema.Patches
 {
 	[HarmonyAfter("com.kyle1413.BeatSaber.SongCore")]
-	[HarmonyPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.RefreshContent))]
+	[HarmonyPatch(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.CheckIfBeatmapLevelDataExists))]
 	[UsedImplicitly]
 	public class StandardLevelDetailViewRefreshContent
 	{
 
 		[UsedImplicitly]
-		private static void Postfix(ref IDifficultyBeatmap ____selectedDifficultyBeatmap, ref PlayerData ____playerData,
-			ref UnityEngine.UI.Button ____actionButton, ref UnityEngine.UI.Button ____practiceButton)
+		private static void Postfix(StandardLevelDetailView __instance)
 		{
 			try
 			{
@@ -24,19 +23,18 @@ namespace BeatSaberCinema.Patches
 					return;
 				}
 
-				var level = ____selectedDifficultyBeatmap.level is CustomBeatmapLevel ? ____selectedDifficultyBeatmap.level as CustomPreviewBeatmapLevel : null;
-				if (level == null)
+				if (__instance._beatmapLevel.hasPrecalculatedData)
 				{
 					return;
 				}
 
-				var songData = Collections.RetrieveExtraSongData(SongCore.Utilities.Hashing.GetCustomLevelHash(level));
+				var songData = Collections.RetrieveExtraSongData(SongCore.Utilities.Hashing.GetCustomLevelHash(__instance._beatmapLevel));
 				if (songData == null)
 				{
 					return;
 				}
 
-				var diffData = Collections.RetrieveDifficultyData(____selectedDifficultyBeatmap);
+				var diffData = Collections.RetrieveDifficultyData(__instance._beatmapLevel, __instance.beatmapKey);
 				Events.SetExtraSongData(songData, diffData);
 
 				if (diffData?.HasCinemaRequirement() != true)
@@ -50,9 +48,9 @@ namespace BeatSaberCinema.Patches
 					return;
 				}
 
-				Log.Info("Cinema requirement not met for "+level.songName);
-				____actionButton.interactable = false;
-				____practiceButton.interactable = false;
+				Log.Info("Cinema requirement not met for "+__instance._beatmapLevel.songName);
+				__instance._actionButton.interactable = false;
+				__instance._practiceButton.interactable = false;
 			}
 			catch (Exception e)
 			{

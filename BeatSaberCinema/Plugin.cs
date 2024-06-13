@@ -102,7 +102,7 @@ namespace BeatSaberCinema
 			VideoMenu.instance.RemoveTab();
 			EnvironmentController.Disable();
 			VideoLoader.StopFileSystemWatcher();
-			Collections.DeregisterizeCapability(CAPABILITY);
+			Collections.DeregisterCapability(CAPABILITY);
 		}
 
 		private void ApplyHarmonyPatches()

@@ -13,7 +13,7 @@ namespace BeatSaberCinema.Patches
 	internal static class LightSwitchEventEffectStart
 	{
 		[UsedImplicitly]
-		private static void Prefix(LightSwitchEventEffect __instance, BasicBeatmapEventType ____event)
+		private static void Prefix(LightSwitchEventEffect __instance)
 		{
 			CoroutineStarter.Instance.StartCoroutine(WaitThenStart());
 		}
