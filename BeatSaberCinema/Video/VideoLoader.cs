@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatmapEditor3D.DataModels;
+using BeatSaberPlaylistsLib.Types;
 using IPA.Utilities.Async;
 using Newtonsoft.Json;
 using SongCore;
@@ -391,16 +392,16 @@ namespace BeatSaberCinema
 
 		private static bool PlaylistSongHasConfig(BeatmapLevel level)
 		{
-			var playlistSong = level as BeatSaberPlaylistsLib.Types.IPlaylistSong;
-			return playlistSong?.TryGetCustomData("cinema", out _) ?? false;
+			var playlistLevel = level as PlaylistLevel;
+			return playlistLevel?.playlistSong.TryGetCustomData("cinema", out _) ?? false;
 		}
 
 		public static BeatmapLevel? GetBeatmapLevelFromPlaylistSong(BeatmapLevel? level)
 		{
 			BeatmapLevel? unwrappedLevel = null!;
-			if (level is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong)
+			if (level is PlaylistLevel playlistLevel)
 			{
-				unwrappedLevel = playlistSong.BeatmapLevel;
+				unwrappedLevel = playlistLevel.playlistSong.BeatmapLevel;
 			}
 
 			return unwrappedLevel ?? level;
@@ -571,13 +572,14 @@ namespace BeatSaberCinema
 			return videoConfig;
 		}
 
-		private static VideoConfig? LoadConfigFromPlaylistSong(BeatmapLevel previewBeatmapLevel, string levelPath)
+		private static VideoConfig? LoadConfigFromPlaylistSong(BeatmapLevel beatmapLevel, string levelPath)
 		{
-			if (!(previewBeatmapLevel is BeatSaberPlaylistsLib.Types.IPlaylistSong playlistSong))
+			if (!(beatmapLevel is PlaylistLevel playlistLevel))
 			{
 				return null;
 			}
 
+			var playlistSong = playlistLevel.playlistSong;
 			if (playlistSong.TryGetCustomData("cinema", out var cinemaData))
 			{
 				VideoConfig? videoConfig;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using BeatmapEditor3D.DataModels;
 using BeatSaberMarkupLanguage;
@@ -10,6 +9,7 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.Parser;
 using BeatSaberMarkupLanguage.Util;
+using BeatSaberPlaylistsLib.Types;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -128,40 +128,10 @@ namespace BeatSaberCinema
 			_downloadController.DownloadFinished += OnDownloadFinished;
 			VideoLoader.ConfigChanged += OnConfigChanged;
 
-			if (Util.IsModInstalled("PlaylistManager", "1.0.0"))
-			{
-				SubToPlaylistSongSelected();
-			}
-
 			if (!_downloadController.LibrariesAvailable())
 			{
 				Log.Warn($"One or more of the libraries are missing. Downloading videos will not work. To fix this, reinstall Cinema and make sure yt-dlp and ffmpeg are in the Libs folder of Beat Saber, which is located at {UnityGame.LibraryPath}.");
 			}
-		}
-
-		// TODO: Fix this.
-		private void SubToPlaylistSongSelected()
-		{
-			// var eventInfo = ReflectionUtil.FindEvent("PlaylistManager", "PlaylistManager.Utilities.Events", "playlistSongSelected");
-			// if (eventInfo == null)
-			// {
-			// 	Log.Warn("Could not find PlaylistManager's playlistSongSelected event");
-			// 	return;
-			// }
-			//
-			// var delegateType = eventInfo.EventHandlerType;
-			// var handler = typeof(VideoMenu).GetMethod("OnPlaylistSongSelected", BindingFlags.NonPublic | BindingFlags.Instance);
-			// if (handler == null)
-			// {
-			// 	Log.Warn("Could not find VideoMenu.OnPlaylistSongSelected");
-			// 	return;
-			// }
-			//
-			// var handlerDelegate = Delegate.CreateDelegate(delegateType, this, handler);
-			// ReflectionUtil.AddDelegateToStaticType(eventInfo, handlerDelegate);
-
-			//All this to remove this reference to PlaylistManager
-			//PlaylistManager.Utilities.Events.playlistSongSelected += OnPlaylistSongSelected;
 		}
 
 		public void CreateStatusListener()
@@ -549,18 +519,24 @@ namespace BeatSaberCinema
 			PlaybackController.Instance.SetSelectedLevel(null, _currentVideo);
 		}
 
+		[Obsolete("This overload is depreciated, isPlaylistSong is determined automatically.", true)]
 		public void HandleDidSelectLevel(BeatmapLevel? level, bool isPlaylistSong = false)
+		{
+			HandleDidSelectLevel(level);
+		}
+
+		public void HandleDidSelectLevel(BeatmapLevel? level)
 		{
 			//These will be set a bit later by a Harmony patch. Clear them to not accidentally access outdated info.
 			_extraSongData = null;
 			_difficultyData = null;
 
-			if (!Plugin.Enabled ||
-			    (isPlaylistSong && level == null) ||
-			    (_currentLevel == level && _currentLevelIsPlaylistSong)) //Ignores the duplicate event that occurs when selecting a playlist song
+			if (!Plugin.Enabled || (_currentLevel == level && _currentLevelIsPlaylistSong)) //Ignores the duplicate event that occurs when selecting a playlist song
 			{
 				return;
 			}
+
+			var isPlaylistSong = level is PlaylistLevel;
 
 			var playlistSong = level;
 			if (isPlaylistSong)
@@ -602,7 +578,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			HandleDidSelectLevel(levelSelectedArgs.PreviewBeatmapLevel);
+			HandleDidSelectLevel(levelSelectedArgs.BeatmapLevel);
 		}
 
 		private void OnDifficultySelected(ExtraSongDataArgs extraSongDataArgs)
@@ -613,12 +589,6 @@ namespace BeatSaberCinema
 			{
 				SetupLevelDetailView(_currentVideo);
 			}
-		}
-
-		[UsedImplicitly]
-		private void OnPlaylistSongSelected(BeatmapLevel? level)
-		{
-			HandleDidSelectLevel(level, true);
 		}
 
 		public void OnConfigChanged(VideoConfig? config)
