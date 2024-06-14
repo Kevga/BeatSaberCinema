@@ -4,13 +4,13 @@ namespace BeatSaberCinema
 {
 	public class LevelSelectedArgs
 	{
-		public readonly BeatmapLevel? PreviewBeatmapLevel;
+		public readonly BeatmapLevel? BeatmapLevel;
 		public readonly BeatmapDataModel? BeatmapData;
 		public readonly string? OriginalPath;
 
 		public LevelSelectedArgs(BeatmapLevel? level, BeatmapDataModel? beatmapData = null, string? originalPath = null)
 		{
-			PreviewBeatmapLevel = level;
+			BeatmapLevel = level;
 			BeatmapData = beatmapData;
 			OriginalPath = originalPath;
 		}
