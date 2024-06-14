@@ -419,12 +419,22 @@ namespace BeatSaberCinema
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)
 		{
 			OnMenuSceneLoaded();
-			// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-			if (Plugin.menuContainer == null)
+			if (_mainSettingsHandler == null)
 			{
-				return;
+				StartCoroutine(OnMenuSceneLoadedFreshCoroutine());
 			}
-			_mainSettingsHandler ??= Plugin.menuContainer.Resolve<MainSettingsHandler>();
+			else
+			{
+				VideoPlayer.VolumeScale = _mainSettingsHandler.instance.audioSettings.volume;
+	            VideoPlayer.screenController.OnGameSceneLoadedFresh();
+			}
+		}
+
+		private IEnumerator OnMenuSceneLoadedFreshCoroutine()
+		{
+			// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+			yield return new WaitUntil(() => Plugin.menuContainer != null);
+			_mainSettingsHandler = Plugin.menuContainer.Resolve<MainSettingsHandler>();
 			VideoPlayer.VolumeScale = _mainSettingsHandler.instance.audioSettings.volume;
 			VideoPlayer.screenController.OnGameSceneLoadedFresh();
 		}
