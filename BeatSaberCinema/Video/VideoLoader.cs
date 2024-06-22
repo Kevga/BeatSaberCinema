@@ -407,6 +407,7 @@ namespace BeatSaberCinema
 			return unwrappedLevel ?? level;
 		}
 
+		[Obsolete("Obsolete")]
 		public static string GetLevelPath(BeatmapLevel level)
 		{
 			if (!level.hasPrecalculatedData)

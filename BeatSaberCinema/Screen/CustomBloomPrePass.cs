@@ -33,29 +33,21 @@ namespace BeatSaberCinema
 			UpdateMesh();
 			_renderer = GetComponent<Renderer>();
 
-			// TODO: Not found on v1.37.0.
 			_kawaseBlurRenderer = Resources.FindObjectsOfTypeAll<KawaseBlurRendererSO>().FirstOrDefault();
 			if (_kawaseBlurRenderer == null)
 			{
 				Log.Error("KawaseBlurRendererSO not found!");
 			}
-
-			// TODO: Not found on v1.37.0.
-			var shader = Shader.Find("Hidden/BlitAdd");
-			if (shader != null)
-			{
-				_additiveMaterial = new Material(shader);
-				_additiveMaterial.SetFloat(Alpha, 1f);
-			}
 			else
 			{
-				Log.Error("Shader 'Hidden/BlitAdd' not found");
-				_kawaseBlurRenderer = null;
+				_additiveMaterial = new Material(_kawaseBlurRenderer._additiveMaterial.shader);
 			}
 
 			BSEvents.menuSceneLoaded += UpdateMesh;
 			BSEvents.gameSceneLoaded += UpdateMesh;
 			BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoaded;
+
+			OnMenuSceneLoaded(null);
 		}
 
 		public void UpdateMesh()
@@ -245,6 +237,16 @@ namespace BeatSaberCinema
 
 		public void OnMenuSceneLoaded(ScenesTransitionSetupDataSO scenesTransitionSetupDataSo)
 		{
+			_kawaseBlurRenderer = Resources.FindObjectsOfTypeAll<KawaseBlurRendererSO>().FirstOrDefault();
+			if (_kawaseBlurRenderer == null)
+			{
+				Log.Error("KawaseBlurRendererSO not found!");
+			}
+			else
+			{
+				_additiveMaterial = new Material(_kawaseBlurRenderer._additiveMaterial.shader);
+			}
+
 			UpdateMesh();
 		}
 
