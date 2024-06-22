@@ -51,6 +51,7 @@ namespace BeatSaberCinema
 			body.transform.localPosition = new Vector3(0, 0, 0.4f); //A fixed offset is necessary for the center segments of the curved screen
 			body.transform.localScale = new Vector3(1.01f, 1.01f, 1.01f);
 			body.layer = LayerMask.NameToLayer("Environment");
+			AssignBodyMaterial(body.GetComponent<Renderer>());
 		}
 
 		internal void OnGameSceneLoadedFresh()
@@ -78,6 +79,20 @@ namespace BeatSaberCinema
 			if (bodyShader != null)
 			{
 				bodyRenderer.material = new Material(bodyShader);
+				Log.Debug("Assigned body shader: "+bodyShader.name);
+			}
+			else
+			{
+				var shader = Shader.Find(BODY_SHADER_NAME);
+				if (shader != null)
+				{
+					bodyRenderer.material = new Material(shader);
+					Log.Debug("Assigned body shader: "+shader.name);
+				}
+				else
+				{
+					Log.Error("Could not find body shader");
+				}
 			}
 
 			bodyRenderer.material.color = new Color(0, 0, 0, 0);
