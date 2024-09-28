@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
@@ -23,7 +23,7 @@ namespace BeatSaberCinema.Patches
 			try
 			{
 				PlaybackController.Instance.SceneTransitionInitCalled();
-				VideoMenu.instance.SetSelectedLevel(beatmapLevel);
+				VideoMenu.Instance?.SetSelectedLevel(beatmapLevel);
 
 				if (!SettingsStore.Instance.PluginEnabled || SettingsStore.Instance.ForceDisableEnvironmentOverrides)
 				{

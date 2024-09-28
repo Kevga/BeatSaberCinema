@@ -28,7 +28,7 @@ namespace BeatSaberCinema
 	            else
 	            {
 		            PlaybackController.Instance.VideoPlayer.FadeOut(FADE_DURATION);
-		            VideoMenu.instance.HandleDidSelectLevel(null);
+		            VideoMenu.Instance?.HandleDidSelectLevel(null);
 	            }
 	            SettingsStore.Instance.PluginEnabled = value;
             }

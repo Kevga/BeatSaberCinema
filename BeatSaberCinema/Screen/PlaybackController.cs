@@ -401,7 +401,7 @@ namespace BeatSaberCinema
 			SetAudioSourcePanning(0f); //0f is neutral
 			VideoPlayer.Mute();
 
-			VideoMenu.instance.SetButtonState(true);
+			VideoMenu.Instance?.SetButtonState(true);
 		}
 
 		private void OnMenuSceneLoaded()

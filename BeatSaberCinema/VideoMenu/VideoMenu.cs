@@ -22,7 +22,7 @@ using UnityEngine.UI;
 // ReSharper disable ArrangeMethodOrOperatorBody
 namespace BeatSaberCinema
 {
-	public class VideoMenu: PersistentSingleton<VideoMenu>
+	public class VideoMenu
 	{
 		[UIObject("root-object")] private readonly GameObject _root = null!;
 		[UIComponent("no-video-bg")] private readonly RectTransform _noVideoViewRect = null!;
@@ -89,6 +89,8 @@ namespace BeatSaberCinema
 		private readonly SearchController _searchController = new SearchController();
 		private readonly List<YTResult> _searchResults = new List<YTResult>();
 
+		public static VideoMenu? Instance { get; private set; }
+
 		public void Init()
 		{
 			Events.LevelSelected -= OnLevelSelected;
@@ -149,10 +151,16 @@ namespace BeatSaberCinema
 			_menuStatus.DidDisable += StatusViewerDidDisable;
 		}
 
-		public void AddTab()
+		public static void AddTab()
 		{
+			if (Instance == null)
+			{
+				Instance = new VideoMenu();
+				Instance.Init();
+			}
+
 			Log.Debug("Adding tab");
-			GameplaySetup.Instance.AddTab("Cinema", "BeatSaberCinema.VideoMenu.Views.video-menu.bsml", this, MenuType.All);
+			GameplaySetup.Instance.AddTab("Cinema", "BeatSaberCinema.VideoMenu.Views.video-menu.bsml", Instance, MenuType.All);
 		}
 
 		public void RemoveTab()
