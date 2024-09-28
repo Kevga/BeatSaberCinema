@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ namespace BeatSaberCinema.Patches
 	{
 		public static Color BaseColor;
 
-		public static MenuLightsPresetSO.LightIdColorPair[]? LightIdColorPairs;
+		public static LightIdColorPair[]? LightIdColorPairs;
 		//public static MenuLightsPresetSO MenuLightsPreset = null!;
 		//public static MenuLightsManager LightManager = null!;
 
