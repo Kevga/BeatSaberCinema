@@ -35,7 +35,6 @@ namespace BeatSaberCinema
 		{
 			Log.IpaLogger = ipaLogger;
 			SettingsStore.Instance = config.Generated<SettingsStore>();
-			VideoMenu.instance.AddTab();
 			Log.Debug("Plugin initialized");
 		}
 
@@ -52,6 +51,8 @@ namespace BeatSaberCinema
 		{
 			PlaybackController.Create();
 			VideoMenu.instance.Init();
+			VideoMenu.instance.AddTab();
+			SettingsUI.CreateMenu();
 			SongPreviewPlayerController.Init();
 
 			if (Util.IsModInstalled("BetterSongList", "0.3.2") && !_filterAdded)
@@ -68,8 +69,6 @@ namespace BeatSaberCinema
 			BSEvents.lateMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
 			_harmonyPatchController = new HarmonyPatchController();
 			ApplyHarmonyPatches();
-			SettingsUI.CreateMenu();
-			VideoMenu.instance.AddTab();
 			EnvironmentController.Init();
 			Collections.RegisterCapability(CAPABILITY);
 			if (File.Exists(Path.Combine(UnityGame.InstallPath, "dxgi.dll")))
