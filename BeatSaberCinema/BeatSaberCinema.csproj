@@ -44,9 +44,13 @@
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapEditor3D.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="BeatSaber.GameSettings">
-			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.GameSettings.dll</HintPath>
-			<Private>false</Private>
+		<Reference Include="BeatSaber.Settings">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.Settings.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="BeatSaber.ViewSystem">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="BeatSaberPlaylistsLib">
 			<HintPath>$(BeatSaberDir)\Libs\BeatSaberPlaylistsLib.dll</HintPath>
@@ -120,6 +124,10 @@
 		<Reference Include="MediaLoader">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\MediaLoader.dll</HintPath>
 			<Private>false</Private>
+		</Reference>
+		<Reference Include="MenuLightPreset">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\MenuLightPreset.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="Microsoft.CSharp" />
 		<Reference Include="mscorlib" />
