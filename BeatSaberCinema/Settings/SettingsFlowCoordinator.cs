@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using BeatSaberMarkupLanguage;
 using HMUI;
 
@@ -16,7 +16,7 @@ namespace BeatSaberCinema
             }
         }
 
-        public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace BeatSaberCinema
             }
         }
 
-        public override void BackButtonWasPressed(ViewController viewController)
+        protected override void BackButtonWasPressed(ViewController viewController)
         {
             BeatSaberUI.MainFlowCoordinator.DismissFlowCoordinator(this);
         }

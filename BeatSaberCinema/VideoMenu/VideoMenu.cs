@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -111,7 +111,7 @@ namespace BeatSaberCinema
 			CreateStatusListener();
 			_deleteButton.transform.localScale *= 0.5f;
 
-			_searchKeyboard.clearOnOpen = false;
+			_searchKeyboard.ClearOnOpen = false;
 
 			if (_videoMenuInitialized)
 			{
@@ -152,13 +152,13 @@ namespace BeatSaberCinema
 		public void AddTab()
 		{
 			Log.Debug("Adding tab");
-			GameplaySetup.instance.AddTab("Cinema", "BeatSaberCinema.VideoMenu.Views.video-menu.bsml", this, MenuType.All);
+			GameplaySetup.Instance.AddTab("Cinema", "BeatSaberCinema.VideoMenu.Views.video-menu.bsml", this, MenuType.All);
 		}
 
 		public void RemoveTab()
 		{
 			Log.Debug("Removing tab");
-			GameplaySetup.instance.RemoveTab("Cinema");
+			GameplaySetup.Instance.RemoveTab("Cinema");
 		}
 
 		public void ResetVideoMenu()
@@ -654,8 +654,8 @@ namespace BeatSaberCinema
 			}
 
 			OnQueryAction(_searchText);
-			_customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
-			_customListTableData.tableView.ClearSelection();
+			_customListTableData.TableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+			_customListTableData.TableView.ClearSelection();
 		}
 
 		private IEnumerator UpdateSearchResults(YTResult result)
@@ -692,15 +692,15 @@ namespace BeatSaberCinema
 			if (request.result != UnityWebRequest.Result.ConnectionError && request.result != UnityWebRequest.Result.ProtocolError)
 			{
 				var tex = ((DownloadHandlerTexture) request.downloadHandler).texture;
-				item.icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, 100, 1);
+				item.Icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, 100, 1);
 			}
 			else
 			{
 				Log.Debug(request.error);
 			}
 
-			_customListTableData.data.Add(item);
-			_customListTableData.tableView.ReloadDataKeepingPosition();
+			_customListTableData.Data.Add(item);
+			_customListTableData.TableView.ReloadDataKeepingPosition();
 
 			_downloadButton.interactable = (_selectedCell != -1);
 			_downloadButton.transform.Find("Underline").gameObject.GetComponent<Image>().color = Color.green;
@@ -876,10 +876,10 @@ namespace BeatSaberCinema
 				CoroutineStarter.Instance.StopCoroutine(_updateSearchResultsCoroutine);
 			}
 
-			if (_customListTableData.data != null && _customListTableData.data.Count > 0)
+			if (_customListTableData.Data != null && _customListTableData.Data.Count > 0)
 			{
-				_customListTableData.data.Clear();
-				_customListTableData.tableView.ReloadData();
+				_customListTableData.Data.Clear();
+				_customListTableData.TableView.ReloadData();
 			}
 
 			_downloadButton.interactable = false;
@@ -921,7 +921,7 @@ namespace BeatSaberCinema
 		[UsedImplicitly]
 		private void OnSelectCell(TableView view, int selection)
 		{
-			if (_customListTableData.data.Count > selection)
+			if (_customListTableData.Data.Count > selection)
 			{
 				_selectedCell = selection;
 				_downloadButton.interactable = true;
