@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
@@ -462,7 +462,7 @@ namespace BeatSaberCinema
 				config.ErrorMessage += " See logs for details.";
 			}
 
-			VideoMenu.instance.SetupLevelDetailView(config);
+			VideoMenu.Instance?.SetupLevelDetailView(config);
 		}
 
 		public float GetVideoAspectRatio()
