@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
@@ -154,7 +154,7 @@ namespace BeatSaberCinema
             }
         }
 
-        public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
+        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
         {
             base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
             try

@@ -1,4 +1,4 @@
-﻿using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.MenuButtons;
 
 namespace BeatSaberCinema
@@ -17,7 +17,7 @@ namespace BeatSaberCinema
 		        return;
 	        }
 
-	        MenuButtons.instance.RegisterButton(MenuButton);
+	        MenuButtons.Instance.RegisterButton(MenuButton);
 	        _created = true;
         }
 
@@ -28,7 +28,7 @@ namespace BeatSaberCinema
 		        return;
 	        }
 
-	        MenuButtons.instance.UnregisterButton(MenuButton);
+	        MenuButtons.Instance.UnregisterButton(MenuButton);
 	        _created = false;
         }
 

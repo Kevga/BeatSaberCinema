@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using BeatSaberMarkupLanguage;
@@ -42,7 +42,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCinema.VideoMenu.Views.level-detail.bsml"), levelDetail.gameObject, this);
+			BSMLParser.Instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCinema.VideoMenu.Views.level-detail.bsml"), levelDetail.gameObject, this);
 			SetActive(false);
 
 
