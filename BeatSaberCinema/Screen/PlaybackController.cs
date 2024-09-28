@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using BeatSaber.GameSettings;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
 using UnityEngine;
@@ -25,7 +24,7 @@ namespace BeatSaberCinema
 		public CustomVideoPlayer VideoPlayer = null!;
 		private AudioSource? _activeAudioSource;
 		private AudioTimeSyncController? _timeSyncController;
-		private MainSettingsHandler? _mainSettingsHandler;
+		private SettingsManager? _settingsManager;
 		private float _lastKnownAudioSourceTime;
 		private float _previewStartTime;
 		private float _previewTimeRemaining;
@@ -419,13 +418,13 @@ namespace BeatSaberCinema
 		private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO? scenesTransition)
 		{
 			OnMenuSceneLoaded();
-			if (_mainSettingsHandler == null)
+			if (_settingsManager == null)
 			{
 				StartCoroutine(OnMenuSceneLoadedFreshCoroutine());
 			}
 			else
 			{
-				VideoPlayer.VolumeScale = _mainSettingsHandler.instance.audioSettings.volume;
+				VideoPlayer.VolumeScale = _settingsManager.settings.audio.volume;
 	            VideoPlayer.screenController.OnGameSceneLoadedFresh();
 			}
 		}
@@ -434,8 +433,8 @@ namespace BeatSaberCinema
 		{
 			// ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 			yield return new WaitUntil(() => Plugin.menuContainer != null);
-			_mainSettingsHandler = Plugin.menuContainer.Resolve<MainSettingsHandler>();
-			VideoPlayer.VolumeScale = _mainSettingsHandler.instance.audioSettings.volume;
+			_settingsManager = Plugin.menuContainer.Resolve<SettingsManager>();
+			VideoPlayer.VolumeScale = _settingsManager.settings.audio.volume;
 			VideoPlayer.screenController.OnGameSceneLoadedFresh();
 		}
 
