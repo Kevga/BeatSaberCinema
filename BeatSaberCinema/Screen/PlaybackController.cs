@@ -564,7 +564,7 @@ namespace BeatSaberCinema
 
 			try
 			{
-				var coverSprite = await _currentLevel.previewMediaData.GetCoverSpriteAsync(CancellationToken.None);
+				var coverSprite = await _currentLevel.previewMediaData.GetCoverSpriteAsync();
 				VideoPlayer.SetCoverTexture(coverSprite.texture);
 				VideoPlayer.FadeIn();
 			}
@@ -624,7 +624,7 @@ namespace BeatSaberCinema
 			if (BS_Utils.Plugin.LevelData.IsSet)
 			{
 				//Move to the environment scene to be picked up by Chroma
-				var sceneName = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.environmentInfo.sceneInfo.sceneName;
+				var sceneName = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.targetEnvironmentInfo.sceneInfo.sceneName;
 				var scene = SceneManager.GetSceneByName(sceneName);
 				SceneManager.MoveGameObjectToScene(gameObject, scene);
 			}

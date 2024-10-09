@@ -494,7 +494,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			var coverSprite = await level.previewMediaData.GetCoverSpriteAsync(CancellationToken.None);
+			var coverSprite = await level.previewMediaData.GetCoverSpriteAsync();
 			_videoThumnnail.sprite = coverSprite;
 		}
 
