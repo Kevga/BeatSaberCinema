@@ -1,14 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using BeatmapEditor3D.DataModels;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.Parser;
-using BeatSaberMarkupLanguage.Util;
 using BeatSaberPlaylistsLib.Types;
 using HMUI;
 using IPA.Utilities;
@@ -18,6 +16,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 // ReSharper disable ArrangeMethodOrOperatorBody
 namespace BeatSaberCinema
@@ -100,6 +99,7 @@ namespace BeatSaberCinema
 
 			if (_root == null)
 			{
+				Log.Debug("RootObject is null!");
 				return;
 			}
 
@@ -143,10 +143,11 @@ namespace BeatSaberCinema
 			{
 				_menuStatus.DidEnable -= StatusViewerDidEnable;
 				_menuStatus.DidDisable -= StatusViewerDidDisable;
-				UnityEngine.Object.Destroy(_menuStatus);
+				Object.Destroy(_menuStatus);
 			}
 
 			_menuStatus = _root.AddComponent<VideoMenuStatus>();
+			Log.Debug("Adding status listener to: " + _menuStatus.name);
 			_menuStatus.DidEnable += StatusViewerDidEnable;
 			_menuStatus.DidDisable += StatusViewerDidDisable;
 		}
@@ -155,6 +156,7 @@ namespace BeatSaberCinema
 		{
 			if (Instance == null)
 			{
+				Log.Debug("Initializing VideoMenu");
 				Instance = new VideoMenu();
 				Instance.Init();
 			}
@@ -284,6 +286,7 @@ namespace BeatSaberCinema
 			if (_currentVideo == null || !_downloadController.LibrariesAvailable())
 			{
 				ResetVideoMenu();
+				Log.Debug("No video configured");
 				return;
 			}
 
@@ -293,6 +296,7 @@ namespace BeatSaberCinema
 			if (!_videoMenuActive)
 			{
 				ResetVideoMenu();
+				Log.Debug("Video Menu is not active");
 				return;
 			}
 
@@ -580,6 +584,12 @@ namespace BeatSaberCinema
 
 		private void OnLevelSelected(LevelSelectedArgs levelSelectedArgs)
 		{
+			if (!_videoMenuInitialized)
+			{
+				Log.Debug("Initializing video menu (late)");
+				Init();
+			}
+
 			if (levelSelectedArgs.BeatmapData != null)
 			{
 				HandleDidSelectEditorBeatmap(levelSelectedArgs.BeatmapData, levelSelectedArgs.OriginalPath!);
