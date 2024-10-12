@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
 using UnityEngine;
@@ -862,6 +861,7 @@ namespace BeatSaberCinema
 				Log.Warn("Video playback disabled to prevent Unity crash");
 				VideoPlayer.Hide();
 				StopPlayback();
+				VideoConfig = null;
 				return;
 			}
 
