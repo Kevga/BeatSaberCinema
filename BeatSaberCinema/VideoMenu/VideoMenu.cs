@@ -164,10 +164,11 @@ namespace BeatSaberCinema
 			GameplaySetup.Instance.AddTab("Cinema", "BeatSaberCinema.VideoMenu.Views.video-menu.bsml", Instance, MenuType.All);
 		}
 
-		public void RemoveTab()
+		public static void RemoveTab()
 		{
 			Log.Debug("Removing tab");
 			GameplaySetup.Instance.RemoveTab("Cinema");
+			Instance = null;
 		}
 
 		public void ResetVideoMenu()

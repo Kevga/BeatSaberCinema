@@ -50,7 +50,13 @@ namespace BeatSaberCinema
 		private static void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO scenesTransition)
 		{
 			PlaybackController.Create();
+
+			if (VideoMenu.Instance != null)
+			{
+				VideoMenu.RemoveTab();
+			}
 			VideoMenu.AddTab();
+
 			SettingsUI.CreateMenu();
 			SongPreviewPlayerController.Init();
 			AddBetterSongListFilter();
@@ -92,7 +98,7 @@ namespace BeatSaberCinema
 			//TODO Destroying and re-creating the PlaybackController messes up the VideoMenu without any exceptions in the log. Investigate.
 			//PlaybackController.Destroy();
 
-			VideoMenu.Instance?.RemoveTab();
+			VideoMenu.RemoveTab();
 			EnvironmentController.Disable();
 			VideoLoader.StopFileSystemWatcher();
 			Collections.DeregisterCapability(CAPABILITY);
