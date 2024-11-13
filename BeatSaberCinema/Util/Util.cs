@@ -79,11 +79,6 @@ namespace BeatSaberCinema
 			return s;
 		}
 
-		public static bool IsModInstalled(string modName, string? minimumVersion = null)
-		{
-			return IPA.Loader.PluginManager.EnabledPlugins.Any(x => x.Id == modName && (minimumVersion == null || x.HVersion >= new Hive.Versioning.Version(minimumVersion)));
-		}
-
 		public static Texture? LoadPNGFromResources(string resourcePath)
 		{
 			var fileData = BeatSaberMarkupLanguage.Utilities.GetResource(Assembly.GetExecutingAssembly(), resourcePath);

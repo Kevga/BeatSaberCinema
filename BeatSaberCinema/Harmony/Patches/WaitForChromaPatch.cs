@@ -28,14 +28,7 @@ namespace BeatSaberCinema.Patches
 
 			//Turns out CustomPlatforms runs even later and undoes some of the scene modifications Cinema does. Waiting for a specific duration is more of a temporary fix.
 			//TODO Find a better way to implement this. The problematic coroutine in CustomPlatforms is CustomFloorPlugin.EnvironmentHider+<InternalHideObjectsForPlatform>
-			if (Util.IsModInstalled("CustomPlatforms"))
-			{
-				yield return new WaitForSeconds(0.75f);
-			}
-			else
-			{
-				yield return new WaitForSeconds(0.05f);
-			}
+			yield return new WaitForSeconds(InstalledMods.CustomPlatforms ? 0.75f : 0.05f);
 
 			EnvironmentController.ModifyGameScene(PlaybackController.Instance.VideoConfig);
 		}
