@@ -7,7 +7,6 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.Parser;
-using BeatSaberPlaylistsLib.Types;
 using HMUI;
 using IPA.Utilities;
 using JetBrains.Annotations;
@@ -165,10 +164,11 @@ namespace BeatSaberCinema
 			GameplaySetup.Instance.AddTab("Cinema", "BeatSaberCinema.VideoMenu.Views.video-menu.bsml", Instance, MenuType.All);
 		}
 
-		public void RemoveTab()
+		public static void RemoveTab()
 		{
 			Log.Debug("Removing tab");
 			GameplaySetup.Instance.RemoveTab("Cinema");
+			Instance = null;
 		}
 
 		public void ResetVideoMenu()
@@ -548,12 +548,10 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			var isPlaylistSong = level is PlaylistLevel;
-
-			var playlistSong = level;
-			if (isPlaylistSong)
+			_currentLevelIsPlaylistSong = InstalledMods.BeatSaberPlaylistsLib && level.IsPlaylistLevel();
+			if (InstalledMods.BeatSaberPlaylistsLib && _currentLevelIsPlaylistSong)
 			{
-				level = VideoLoader.GetBeatmapLevelFromPlaylistSong(level);
+				level = level.GetLevelFromPlaylistIfAvailable();
 			}
 
 			PlaybackController.Instance.StopPreview(true);
@@ -562,8 +560,6 @@ namespace BeatSaberCinema
 			{
 				VideoLoader.SaveVideoConfig(_currentVideo);
 			}
-
-			_currentLevelIsPlaylistSong = isPlaylistSong;
 			_currentLevel = level;
 			if (_currentLevel == null)
 			{
@@ -573,7 +569,7 @@ namespace BeatSaberCinema
 				return;
 			}
 
-			_currentVideo = VideoLoader.GetConfigForLevel(isPlaylistSong ? playlistSong : _currentLevel, isPlaylistSong);
+			_currentVideo = VideoLoader.GetConfigForLevel(_currentLevel);
 
 			VideoLoader.SetupFileSystemWatcher(_currentLevel);
 			PlaybackController.Instance.SetSelectedLevel(_currentLevel, _currentVideo);

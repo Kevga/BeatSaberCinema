@@ -50,14 +50,16 @@ namespace BeatSaberCinema
 		private static void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO scenesTransition)
 		{
 			PlaybackController.Create();
+
+			if (VideoMenu.Instance != null)
+			{
+				VideoMenu.RemoveTab();
+			}
 			VideoMenu.AddTab();
+
 			SettingsUI.CreateMenu();
 			SongPreviewPlayerController.Init();
-
-			if (Util.IsModInstalled("BetterSongList", "0.3.2") && !_filterAdded)
-			{
-				AddBetterSongListFilter();
-			}
+			AddBetterSongListFilter();
 		}
 
 		[OnEnable]
@@ -76,7 +78,7 @@ namespace BeatSaberCinema
 			}
 
 			//No need to index maps if the filter isn't going to be applied anyway
-			if (Util.IsModInstalled("BetterSongList", "0.3.2"))
+			if (InstalledMods.BetterSongList)
 			{
 				Loader.SongsLoadedEvent += VideoLoader.IndexMaps;
 			}
@@ -96,7 +98,7 @@ namespace BeatSaberCinema
 			//TODO Destroying and re-creating the PlaybackController messes up the VideoMenu without any exceptions in the log. Investigate.
 			//PlaybackController.Destroy();
 
-			VideoMenu.Instance?.RemoveTab();
+			VideoMenu.RemoveTab();
 			EnvironmentController.Disable();
 			VideoLoader.StopFileSystemWatcher();
 			Collections.DeregisterCapability(CAPABILITY);
@@ -114,13 +116,16 @@ namespace BeatSaberCinema
 
 		private static void AddBetterSongListFilter()
 		{
-			var filter = new HasVideoFilter();
-			var success = BetterSongList.FilterMethods.Register(filter);
-			if (success)
+			if (!InstalledMods.BetterSongList || _filterAdded)
 			{
-				_filterAdded = true;
-				Log.Debug($"Registered {nameof(HasVideoFilter)}");
+				return;
+			}
 
+			_filterAdded = BetterSongList.FilterMethods.Register(new HasVideoFilter());
+
+			if (_filterAdded)
+			{
+				Log.Debug($"Registered {nameof(HasVideoFilter)}");
 			}
 			else
 			{

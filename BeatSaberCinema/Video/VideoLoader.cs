@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatmapEditor3D.DataModels;
-using BeatSaberPlaylistsLib.Types;
 using IPA.Utilities.Async;
 using Newtonsoft.Json;
 using SongCore;
@@ -25,7 +24,6 @@ namespace BeatSaberCinema
 		internal const string WIP_MAPS_FOLDER = "CustomWIPLevels";
 		private const string CONFIG_FILENAME = "cinema-video.json";
 		private const string CONFIG_FILENAME_MVP = "video.json";
-		private const string MOD_ID_MVP = "Music Video Player";
 
 		private static FileSystemWatcher? _fileSystemWatcher;
 		public static event Action<VideoConfig?>? ConfigChanged;
@@ -196,6 +194,7 @@ namespace BeatSaberCinema
 
 			config.LevelDir = GetLevelPath(level);
 			config.bundledConfig = true;
+			Log.Debug("Loaded from bundled configs");
 			return config;
 		}
 
@@ -333,15 +332,14 @@ namespace BeatSaberCinema
 			return videoConfig;
 		}
 
-		public static VideoConfig? GetConfigForLevel(BeatmapLevel? level, bool isPlaylistSong = false)
+		public static VideoConfig? GetConfigForLevel(BeatmapLevel? level)
 		{
-			var playlistSong = level;
-			if (isPlaylistSong)
+			if (InstalledMods.BeatSaberPlaylistsLib)
 			{
-				level = GetBeatmapLevelFromPlaylistSong(level);
+				level = level.GetLevelFromPlaylistIfAvailable();
 			}
 
-			if (playlistSong == null || level == null)
+			if (level == null)
 			{
 				return null;
 			}
@@ -361,7 +359,7 @@ namespace BeatSaberCinema
 			if (Directory.Exists(levelPath))
 			{
 				videoConfig = LoadConfig(GetConfigPath(levelPath));
-				if (videoConfig == null && !Util.IsModInstalled(MOD_ID_MVP))
+				if (videoConfig == null && !InstalledMods.MusicVideoPlayer)
 				{
 					//Back compatiblity with MVP configs, but only if MVP is not installed
 					videoConfig = LoadConfig(Path.Combine(levelPath, CONFIG_FILENAME_MVP));
@@ -372,39 +370,12 @@ namespace BeatSaberCinema
 				Log.Debug($"Path does not exist: {levelPath}");
 			}
 
-			if (videoConfig == null && isPlaylistSong && PlaylistSongHasConfig(playlistSong))
+			if (InstalledMods.BeatSaberPlaylistsLib && videoConfig == null && level.TryGetPlaylistLevelConfig(levelPath, out var playlistConfig))
 			{
-				videoConfig = LoadConfigFromPlaylistSong(playlistSong, levelPath);
+				videoConfig = playlistConfig;
 			}
 
-			if (videoConfig == null)
-			{
-				videoConfig = GetConfigFromBundledConfigs(level);
-				if (videoConfig == null)
-				{
-					return videoConfig;
-				}
-				Log.Debug("Loaded from bundled configs");
-			}
-
-			return videoConfig;
-		}
-
-		private static bool PlaylistSongHasConfig(BeatmapLevel level)
-		{
-			var playlistLevel = level as PlaylistLevel;
-			return playlistLevel?.playlistSong.TryGetCustomData("cinema", out _) ?? false;
-		}
-
-		public static BeatmapLevel? GetBeatmapLevelFromPlaylistSong(BeatmapLevel? level)
-		{
-			BeatmapLevel? unwrappedLevel = null!;
-			if (level is PlaylistLevel playlistLevel)
-			{
-				unwrappedLevel = playlistLevel.playlistSong.BeatmapLevel;
-			}
-
-			return unwrappedLevel ?? level;
+			return videoConfig ?? GetConfigFromBundledConfigs(level);
 		}
 
 		[Obsolete("Obsolete")]
@@ -571,44 +542,6 @@ namespace BeatSaberCinema
 			}
 
 			return videoConfig;
-		}
-
-		private static VideoConfig? LoadConfigFromPlaylistSong(BeatmapLevel beatmapLevel, string levelPath)
-		{
-			if (!(beatmapLevel is PlaylistLevel playlistLevel))
-			{
-				return null;
-			}
-
-			var playlistSong = playlistLevel.playlistSong;
-			if (playlistSong.TryGetCustomData("cinema", out var cinemaData))
-			{
-				VideoConfig? videoConfig;
-				try
-				{
-					var json = JsonConvert.SerializeObject(cinemaData);
-					videoConfig = JsonConvert.DeserializeObject<VideoConfig>(json);
-				}
-				catch (Exception e)
-				{
-					Log.Error($"Error parsing video json {playlistSong.Name}:");
-					Log.Error(e);
-					return null;
-				}
-
-				if (videoConfig == null)
-				{
-					Log.Warn($"Deserializing video config for {playlistSong.Name} failed");
-					return null;
-				}
-				videoConfig.LevelDir = levelPath;
-				videoConfig.UpdateDownloadState();
-
-				return videoConfig;
-			}
-
-			Log.Error($"No config exists for {playlistSong.Name}:");
-			return null;
 		}
 
 		private static IEnumerable<BundledConfig> LoadBundledConfigs()

@@ -161,7 +161,7 @@ namespace BeatSaberCinema
 				PlaybackController.Instance.VideoPlayer.screenController.Screens.RemoveRange(1, PlaybackController.Instance.VideoPlayer.screenController.Screens.Count - 1);
 
 
-				if (Util.IsModInstalled("_Heck"))
+				if (InstalledMods.Heck)
 				{
 					var types = new[] {"Chroma.GameObjectTrackController", "Chroma.Lighting.EnvironmentEnhancement.GameObjectTrackController"};
 
