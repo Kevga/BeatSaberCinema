@@ -36,7 +36,11 @@
 		<Reference Include="AdditionalContentModel.Interfaces" Publicize="true">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\AdditionalContentModel.Interfaces.dll</HintPath>
 		</Reference>
-		<Reference Include="BeatmapCore" Publicize="true">
+        <Reference Include="BeatSaber.BeatmapEditor" Publicize="true">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.BeatmapEditor.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="BeatmapCore" Publicize="true">
 			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
